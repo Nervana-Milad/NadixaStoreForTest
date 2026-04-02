@@ -74,48 +74,28 @@
 	<script src="~/vendor/sweetalert/sweetalert.min.js"></script>
 	<script src="~/js/main.js"></script>
 
-	<script>
-		window.wishlistIds = @Html.Raw(Json.Serialize(ViewBag.WishlistIds ?? new List<int>()));
-	</script>
 
 	<script>
-		// $(document).on('click', '.js-addwish-detail', function (e) {
+		function updateWishlistUI() {
 
-		// 	e.preventDefault();
-		// 	e.stopPropagation();
+			$(".js-addwish-detail").each(function () {
 
-		// 	var button = $(this);
-		// 	var productId = button.data("product-id");
+				var btn = $(this);
+				var productId = btn.data("product-id");
 
-		// 	var nameProduct = $(this).data("product-name");
+						if (window.wishlistIds.includes(productId)) {
+			btn.addClass("js-addedwish-detail");
+			btn.find("i").removeClass("zmdi-favorite-outline").addClass("zmdi-favorite");
+		} else {
+			btn.removeClass("js-addedwish-detail");
+			btn.find("i").removeClass("zmdi-favorite").addClass("zmdi-favorite-outline");
+		}
 
-		// 	$.ajax({
-		// 		url: "/Wishlist/Toggle",
-		// 		type: "POST",
-		// 		data: { productId: productId },
+			});
 
-		// 		success: function (res) {
 
-		// 			if (res.success) {
 
-		// 				Toggle شكل القلب ❤️
-		// 				button.toggleClass("js-addedwish-detail");
-
-		// 				if(res.isAdded){
-		// 					swal(nameProduct, " added to Wishlist", "success");
-		// 				}
-		// 				else{
-		// 					swal(nameProduct, " removed from Wishlist", "warning");
-		// 				}
-
-		// 				تحديث العداد
-		// 				$("#wishlist-count")
-		// 					.attr("data-notify", res.count);
-		// 			}
-		// 		}
-		// 	});
-
-		// });
+		}
 
 		$(document).on('click', '.js-addwish-detail', function (e) {
 
@@ -147,19 +127,7 @@
 							window.wishlistIds = window.wishlistIds.filter(id => id !== productId);
 							// swal(nameProduct, "removed from wishlist!", "warning");
 						}
-						$(".js-addwish-detail").each(function(){
-							var btn = $(this);
-							var id = btn.data("product-id");
-
-							if(window.wishlistIds.includes(id))
-							{
-                                btn.addClass("js-addedwish-detail");
-							}
-							else{
-                                btn.removeClass("js-addedwish-detail");
-							}
-						});
-
+						updateWishlistUI();
 						//Alert
 
 						swal(nameProduct,
@@ -180,17 +148,9 @@
 
 		});
 
-				$(document).ready(function () {
+		$(document).ready(function () {
 
-			$(".js-addwish-detail").each(function () {
-
-				var productId = $(this).data("product-id");
-
-				if (window.wishlistIds.includes(productId)) {
-					$(this).addClass("js-addwish-detail");
-				}
-
-			});
+			updateWishlistUI();
 
 		});
 		/*---------------------------------------------*/
@@ -263,6 +223,10 @@
 	</script>
 
 	<script>
+
+
+
+
 		$(document).on('click', '.js-show-modal1', function(e) {
 			e.preventDefault();
 			var productId = $(this).data('id');
@@ -270,6 +234,7 @@
 			console.log(productId);
 				$.get("/Product/QuickView/" + productId, function(data) {
 					$("#quickViewContainer").html(data);
+					updateWishlistUI()
 					$('.js-modal1').addClass('show-modal1');
 					$('.wrap-slick3').each(function () {
 						var slick = $(this).find('.slick3');
@@ -321,6 +286,9 @@
 				});
 			}
 		});
+	</script>
+	<script>
+		window.wishlistIds = @Html.Raw(Json.Serialize(ViewBag.WishlistIds ?? new List<int>()));
 	</script>
 
 	<div id="quickViewContainer"></div>    

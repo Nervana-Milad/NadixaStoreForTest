@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Web.Services;
+using Nadixa.Web.Filters;
+
 using System.Threading.Tasks;
 
 namespace Nadixa.Web
@@ -34,6 +36,13 @@ namespace Nadixa.Web
                 options.AccessDeniedPath = "/Auth/AccessDenied";
                 options.ExpireTimeSpan = TimeSpan.FromDays(7);
                 options.SlidingExpiration = true;
+            });
+
+            builder.Services.AddScoped<LoadWishlistFilter>();
+
+            builder.Services.AddControllersWithViews(options =>
+            {
+                options.Filters.Add<LoadWishlistFilter>();
             });
 
             var app = builder.Build();

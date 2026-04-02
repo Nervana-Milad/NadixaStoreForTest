@@ -3354,7 +3354,7 @@ input.num-product::-webkit-inner-spin-button {
 }
 
 .js-addedwish-detail {
-    color: red;
+    color: rgb(113, 127, 224);
     transform: scale(1.2);
     transition: 0.2s;
 }

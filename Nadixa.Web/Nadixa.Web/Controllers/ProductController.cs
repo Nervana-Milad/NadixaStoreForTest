@@ -42,12 +42,7 @@ namespace Nadixa.Web.Controllers
                 query = query.Where(p => p.Name.Contains(search) || p.Description.Contains(search));
             }
 
-            if(user != null)
-            {
-                ViewBag.WishlistIds = await _context.WishlistItems.Where(w => w.Wishlist.UserId == user.Id).Select(w => w.ProductId).ToListAsync();
-            }
-
-            var products = await query.OrderByDescending(p => p.Id).ToListAsync();
+                        var products = await query.OrderByDescending(p => p.Id).ToListAsync();
 
             return View(products);
         }
@@ -126,14 +121,6 @@ namespace Nadixa.Web.Controllers
         public async Task<IActionResult> Detail(int id)
         {
             var user = await _userManager.GetUserAsync(User);
-
-            if (user != null)
-            {
-                ViewBag.WishlistIds = await _context.WishlistItems
-                    .Where(w => w.Wishlist.UserId == user.Id)
-                    .Select(w => w.ProductId)
-                    .ToListAsync();
-            }
 
             if (id == null)
             {
