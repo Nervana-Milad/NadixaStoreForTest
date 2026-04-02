@@ -1,0 +1,6 @@
+@Nadixa.API_HostAddress = http://localhost:5046
+
+GET {{Nadixa.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36804.6
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nadixa.Core", "Nadixa.Core\Nadixa.Core.csproj", "{BA3F35F5-88CB-449A-BB07-EF597624CE4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nadixa.Infrastructure", "Nadixa.Infrastructure\Nadixa.Infrastructure\Nadixa.Infrastructure.csproj", "{6C01FFDF-CC22-4572-B7D6-F1DFD0BCBD58}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nadixa.Application", "Nadixa.Application\Nadixa.Application\Nadixa.Application.csproj", "{6DDA6A78-284E-4667-BB18-84B77013F354}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nadixa.API", "Nadixa.API\Nadixa.API\Nadixa.API.csproj", "{A6E362C4-7E8B-41C9-8528-2C69C37D39EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nadixa.Web", "Nadixa.Web\Nadixa.Web\Nadixa.Web.csproj", "{8E8E60B7-3D0F-457D-89D5-8C41E49A7929}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BA3F35F5-88CB-449A-BB07-EF597624CE4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA3F35F5-88CB-449A-BB07-EF597624CE4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA3F35F5-88CB-449A-BB07-EF597624CE4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA3F35F5-88CB-449A-BB07-EF597624CE4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C01FFDF-CC22-4572-B7D6-F1DFD0BCBD58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C01FFDF-CC22-4572-B7D6-F1DFD0BCBD58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C01FFDF-CC22-4572-B7D6-F1DFD0BCBD58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C01FFDF-CC22-4572-B7D6-F1DFD0BCBD58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DDA6A78-284E-4667-BB18-84B77013F354}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DDA6A78-284E-4667-BB18-84B77013F354}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DDA6A78-284E-4667-BB18-84B77013F354}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DDA6A78-284E-4667-BB18-84B77013F354}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6E362C4-7E8B-41C9-8528-2C69C37D39EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6E362C4-7E8B-41C9-8528-2C69C37D39EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6E362C4-7E8B-41C9-8528-2C69C37D39EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6E362C4-7E8B-41C9-8528-2C69C37D39EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E8E60B7-3D0F-457D-89D5-8C41E49A7929}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E8E60B7-3D0F-457D-89D5-8C41E49A7929}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E8E60B7-3D0F-457D-89D5-8C41E49A7929}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E8E60B7-3D0F-457D-89D5-8C41E49A7929}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F37EEE33-BE60-427F-A82C-8739EACAAB1E}
+	EndGlobalSection
+EndGlobal

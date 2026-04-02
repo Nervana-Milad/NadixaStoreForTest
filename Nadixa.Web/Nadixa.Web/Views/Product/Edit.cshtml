@@ -1,0 +1,246 @@
+﻿@model Nadixa.Web.Models.ViewModels.EditViewModel
+
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<style>
+    .page-wrapper {
+        padding-top: 110px;
+        max-width: 1200px;
+        margin: auto;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .product-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 6px 25px rgba(0,0,0,.08);
+        padding: 40px;
+    }
+
+    .page-title {
+        font-weight: 700;
+        margin-bottom: 30px;
+    }
+
+    .form-label {
+        font-weight: 600;
+    }
+
+    .image-preview {
+        width: 100%;
+        max-height: 320px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 1px solid #ddd;
+        transition: .3s;
+    }
+
+        .image-preview:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(0,0,0,.2);
+        }
+
+    .btn-primary, .btn-secondary {
+        min-width: 130px;
+    }
+
+    @@media (max-width: 768px) {
+        .product-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="page-wrapper">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="page-title">@ViewData["Title"]</h2>
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Back to List
+        </a>
+    </div>
+
+    <div class="product-card">
+
+        <form asp-action="Edit"
+              asp-controller="Product"
+              method="post"
+              enctype="multipart/form-data">
+
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+            <input asp-for="Product.Id" hidden />
+
+            <div class="row g-4">
+                <!-- LEFT SIDE -->
+                <div class="col-lg-7">
+                    <div class="mb-3">
+                        <label asp-for="Product.Name" class="form-label"></label>
+                        <input asp-for="Product.Name"
+                               class="form-control form-control-lg" />
+                        <span asp-validation-for="Product.Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Product.CategoryId" class="form-label"></label>
+                        <select asp-for="Product.CategoryId"
+                                asp-items="Model.Categories"
+                                class="form-select form-select-lg">
+                            <option value="">Select Category</option>
+                        </select>
+                        <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Product.Price" class="form-label"></label>
+                            <input asp-for="Product.Price"
+                                   class="form-control form-control-lg" />
+                            <span asp-validation-for="Product.Price" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Product.OldPrice" class="form-label"></label>
+                            <input asp-for="Product.OldPrice"
+                                   class="form-control form-control-lg" />
+                            <span asp-validation-for="Product.OldPrice" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Product.StockQuantity" class="form-label"></label>
+                        <input asp-for="Product.StockQuantity"
+                               class="form-control form-control-lg" />
+                        <span asp-validation-for="Product.StockQuantity" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Product.Description" class="form-label"></label>
+                        <textarea asp-for="Product.Description"
+                                  rows="4"
+                                  class="form-control form-control-lg"></textarea>
+                        <span asp-validation-for="Product.Description" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT SIDE -->
+                <div class="col-lg-5 text-center">
+
+                    <div class="mb-3">
+                        <label asp-for="MainImageUrl" class="form-label">
+                            Upload New Image
+                        </label>
+
+                        <input asp-for="MainImageUrl"
+                               type="file"
+                               accept="image/*"
+                               class="form-control form-control-lg"
+                               onchange="previewImage(event)" />
+                    </div>
+                    <img id="imagePreview"
+                         class="image-preview"
+                         src="@(string.IsNullOrEmpty(Model.Product.MainImageUrlPath)
+                                                        ? "https://via.placeholder.com/400x400?text=No+Image"
+                                                        : Model.Product.MainImageUrlPath)" />
+                         <div class="mt-4">
+                             <label>Existing Images</label>
+                             <div id="existingGallery" class="d-flex flex-wrap gap-2">
+                            @foreach(var image in Model.ExistingImages)
+                            {
+                                <div class="position-relative" style="width:100px">
+                                    <img src="@image.ImageUrl" style="width100%; height:100px;object-fit:cover;border-radius:6px;"/>
+                                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                                    onclick="deleteExistingImage(@image.Id, this)">❌</button>
+                                </div>
+                            }
+                        </div>
+                        <input type="hidden" id="DeletedImages" name="DeletedImages" value="@Model.DeletedImages"/>
+                         </div>
+                    <!-- Add New Gallery Images -->
+                    <div class="mt-4">
+                        <label>New Gallery Images</label>
+                        <div id="newGalleryInputs">
+                            <div class="mb-2">
+                                <input type="file" name="NewGalleryImages" accept="image/*" onchange="previewNewGalleryImage(event, this)" />
+                                <img class="d-none" style="width:100px; height:100px; object-fit:cover; margin-top:5px; border-radius:6px;" />
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary mt-2" onclick="addMoreGalleryImage()">+ Add more image</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 d-flex justify-content-end gap-3">
+                <a asp-action="Detail" asp-controller="Product" asp-route-id="@Model.Product.Id"
+                   class="btn rounded-pill flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="btn px-5 rounded-pill shadow" style="background-color:#6c7ae0; color:white"
+                        >
+                    <i class="bi bi-check-circle me-2"></i> Update Product
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function () {
+                document.getElementById('imagePreview').src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+             // Delete Existing Image
+        function deleteExistingImage(id, btn) {
+            // Add to DeletedImages hidden input
+            const deletedInput = document.getElementById('DeletedImages');
+            let ids = deletedInput.value ? deletedInput.value.split(',') : [];
+            ids.push(id);
+            deletedInput.value = ids.join(',');
+
+            // Remove image from view
+            btn.parentElement.remove();
+        }
+
+            // Preview new gallery image
+        function previewNewGalleryImage(event, input) {
+            const file = input.files[0];
+            const preview = input.nextElementSibling;
+            if(file){
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+            // Add new gallery input
+        function addMoreGalleryImage() {
+            const container = document.getElementById('newGalleryInputs');
+            const div = document.createElement('div');
+            div.classList.add('mb-2');
+            div.innerHTML = `
+                <input type="file" name="NewGalleryImages" accept="image/*" onchange="previewNewGalleryImage(event, this)" />
+                <img class="d-none" style="width:100px; height:100px; object-fit:cover; margin-top:5px; border-radius:6px;" />
+                <button type="button" class="btn btn-sm btn-danger mt-1" onclick="this.parentElement.remove()">❌</button>
+            `;
+            container.appendChild(div);
+        }
+    </script>
+}

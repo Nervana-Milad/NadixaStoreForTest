@@ -1,0 +1,73 @@
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Nadixa.Core.Entities;
+using Nadixa.Infrastructure.Data;
+using Nadixa.Web.Models.ViewModels;
+
+namespace Nadixa.Web.Controllers
+{
+    public class WishlistController : Controller
+    {
+        private readonly NadixaDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
+
+        public WishlistController(NadixaDbContext context, UserManager<AppUser> userManager)
+        {
+            _context = context;
+            _userManager = userManager;
+        }
+        public async Task<IActionResult> Index()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            var wishlist = await _context.Wishlists.Include(w => w.Items).ThenInclude(i => i.Product).FirstOrDefaultAsync(w => w.UserId == user.Id);
+
+            var viewModel = wishlist?.Items.Select(i => new WishlistItemViewModel
+            {
+                ProductId = i.ProductId,
+                ProductName = i.Product.Name,
+                Price = i.Product.Price,
+                MainImageUrl = i.Product.MainImageUrlPath
+            }).ToList() ?? new List<WishlistItemViewModel>();
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Toggle(int productId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if(user == null)
+            {
+                return Json(new { success = false, message = "User not found" });
+            }
+
+            var wishlist = await _context.Wishlists.Include(w => w.Items).FirstOrDefaultAsync(w => w.UserId == user.Id);
+
+            if(wishlist == null)
+            {
+                wishlist = new Wishlist { UserId = user.Id };
+                _context.Wishlists.Add(wishlist);
+                await _context.SaveChangesAsync();
+            }
+
+            var existingItem = wishlist.Items.FirstOrDefault(i => i.ProductId == productId);
+            bool isAdded;
+            if(existingItem != null)
+            {
+                _context.WishlistItems.Remove(existingItem);
+                isAdded = false;
+            }
+            else
+            {
+                wishlist.Items.Add(new WishlistItem{ProductId = productId});
+                isAdded = true;
+            }
+
+            await _context.SaveChangesAsync();
+            return Json(new { success = true, count = wishlist.Items.Count, isAdded }); 
+        }
+    }
+}

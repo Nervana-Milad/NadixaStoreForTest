@@ -1,0 +1,219 @@
+﻿@model Nadixa.Web.Models.ViewModels.ProductViewModel
+
+@{
+    ViewData["Title"] = "Add New Product";
+}
+
+<style>
+    .card {
+        transition: 0.3s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+    .upload-box {
+        transition: 0.3s ease;
+    }
+
+        .upload-box:hover {
+            background: #ffffff;
+        }
+</style>
+
+<div class="container-fluid py-5" style="background:#f4f6f9; min-height:100vh; margin-top:70px">
+    <div class="container">
+
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Create New Product</h2>
+                <p class="text-muted mb-0">Add a new product to your store inventory</p>
+            </div>
+
+            <a asp-action="Index" asp-controller="Home"
+               class="btn  rounded-pill flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4">
+                <i class="bi bi-arrow-left me-2"></i> Back
+            </a>
+        </div>
+
+        <!-- Card -->
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-body p-5">
+
+                <form asp-action="Create" asp-controller="Product"
+                      method="post" enctype="multipart/form-data">
+
+                    <div asp-validation-summary="All" class="text-danger mb-4"></div>
+
+                    <div class="row g-5">
+
+                        <!-- LEFT SIDE -->
+                        <div class="col-lg-7">
+                            <div class="mb-4">
+                                <label asp-for="Product.Name" class="form-label fw-semibold"></label>
+                                <input asp-for="Product.Name"
+                                       class="form-control form-control-lg rounded-3 shadow-sm" />
+                                <span asp-validation-for="Product.Name" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-4 form-group">
+                                <label asp-for="Product.CategoryId" class="form-label fw-semibold"></label>
+                                <select asp-for="Product.CategoryId"
+                                        asp-items="Model.Categories"
+                                        class="form-select form-select-lg rounded-3 shadow-sm form-control">
+                                    <option value="">Select Category</option>
+                                </select>
+                                <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
+                            </div>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label asp-for="Product.Price" class="form-label fw-semibold"></label>
+                                    <input asp-for="Product.Price"
+                                           class="form-control form-control-lg rounded-3 shadow-sm" />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="Product.OldPrice" class="form-label fw-semibold"></label>
+                                    <input asp-for="Product.OldPrice"
+                                           class="form-control form-control-lg rounded-3 shadow-sm" />
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="Product.StockQuantity" class="form-label fw-semibold"></label>
+                                <input asp-for="Product.StockQuantity"
+                                       class="form-control form-control-lg rounded-3 shadow-sm" />
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="Product.Description" class="form-label fw-semibold"></label>
+                                <textarea asp-for="Product.Description"
+                                          class="form-control rounded-3 shadow-sm"
+                                          rows="5"></textarea>
+                            </div>
+
+                        </div>
+
+                        <!-- RIGHT SIDE -->
+                        <div class="col-lg-5">
+                            <div class="upload-box p-4 text-center border rounded-4 shadow-sm bg-light">
+                                <label class="fw-semibold mb-3 d-block">Product Main Image</label>
+                                <input asp-for="MainImage"
+                                       type="file"
+                                       accept="image/*"
+                                       class="form-control mb-3"
+                                       onchange="previewImage(event)" />
+
+                                <img id="imagePreview"
+                                     src="https://via.placeholder.com/350x350?text=Preview"
+                                     class="img-fluid rounded-4 border shadow-sm"
+                                     style="max-height:300px; object-fit:cover;" />
+                            </div>
+                            <div class="upload-box p-4 text-center border rounded-4 shadow-sm bg-light mt-3">
+
+                                <label class="fw-semibold mb-3 d-block">Gallery Images</label>
+
+                                <div id="galleryInputs">
+                                    <div class="gallery-item mb-3">
+                                        <input type="file"
+                                               name="GalleryImages"
+                                               accept="image/*"
+                                               class="form-control"
+                                               onchange="previewGalleryImage(event, this)" />
+
+                                        <img class="img-fluid rounded-3 border mt-2 d-none"
+                                             style="max-height:150px; object-fit:cover;" />
+                                    </div>
+                                </div>
+
+                                <button type="button"
+                                        class="btn btn-outline-primary mt-2"
+                                        onclick="addMoreImage()">
+                                    + Add one more image
+                                </button>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="mt-5 d-flex justify-content-end gap-3">
+                        <a asp-action="Index" asp-controller="Home"
+                           class="btn rounded-pill flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4">
+                            Cancel
+                        </a>
+
+                        <button type="submit"
+                                class="btn px-5 rounded-pill shadow" style="background-color:#6c7ae0; color:white">
+                            <i class="bi bi-check-circle me-2"></i> Create Product
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.tiny.cloud/1/8abcm3nn84cfg2z55dths58k7k2qyknti7duilqnl0het211/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
+    <script>
+        function previewImage(event) {
+            const input = event.target;
+            const reader = new FileReader();
+            reader.onload = function () {
+                document.getElementById('imagePreview').src = reader.result;
+            };
+            if (input.files && input.files[0]) {
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+            function previewGalleryImage(event, input) {
+            const file = input.files[0];
+            const previewImg = input.nextElementSibling;
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result;
+                    previewImg.classList.remove("d-none");
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+
+            function addMoreImage() {
+
+            const container = document.getElementById("galleryInputs");
+
+            const div = document.createElement("div");
+            div.classList.add("gallery-item", "mb-3");
+
+            div.innerHTML = `
+                <input type="file"
+                       name="GalleryImages"
+                       accept="image/*"
+                       class="form-control"
+                       onchange="previewGalleryImage(event, this)" />
+
+                <img class="img-fluid rounded-3 border mt-2 d-none"
+                     style="max-height:150px; object-fit:cover;" />
+
+                <button type="button"
+                        class="btn btn-sm btn-danger mt-2"
+                        onclick="this.parentElement.remove()">
+                    Remove
+                </button>
+            `;
+
+            container.appendChild(div);
+        }
+    </script>
+}

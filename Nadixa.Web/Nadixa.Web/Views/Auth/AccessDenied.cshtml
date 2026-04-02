@@ -1,0 +1,40 @@
+﻿@{
+    ViewData["Title"] = "Access Denied"; 
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height:70vh;">
+    <div class="text-center p-5 shadow rounded-4 bg-white" style="max-width:500px; width:100%;">
+
+        <div class="mt-5 mb-3">
+            <i class="bi bi-shield-lock-fill text-danger" style="font-size:70px;"></i>
+        </div>
+
+        <h1 class="fw-bold text-danger mb-3">Access Denied</h1>
+
+        <p class="text-muted mb-4">
+            Sorry, you do not have permission to access this page.
+            Please contact the administrator if you believe this is a mistake.
+        </p>
+
+        <div class="d-flex justify-content-center gap-3">
+            <a asp-controller="Home" asp-action="Index" class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4">
+                Go to Home
+            </a>
+
+            <a asp-controller="Auth" asp-action="Login" class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4" style="background-color:#6c7ae0; color:white">
+                Login
+            </a>
+
+            @* <div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-search">
+                <i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-search"></i>
+                <i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+                Search
+            </div>
+            <div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4" style="background-color:#6c7ae0; color:white">
+                <i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-plus text-white"></i>
+                <a class="text-white" asp-controller="Product" asp-action="Create">Add Product</a>
+            </div> *@
+        </div>
+
+    </div>
+</div>
