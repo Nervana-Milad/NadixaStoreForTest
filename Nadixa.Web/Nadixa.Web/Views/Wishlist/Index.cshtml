@@ -159,7 +159,6 @@
             object-fit: cover;
         }
 
-    /* ❤️ Heart */
     .wishlist-heart {
         position: absolute;
         top: 10px;
@@ -207,7 +206,7 @@
 
         .wishlist-btn:hover i {
             color: rgb(113, 127, 224);
-        } */
+        }
 </style>
 
 <div class="container wishlist-page">
@@ -264,39 +263,3 @@
         </div>
     }
 </div>
-@* <div class="container" style="margin-top:80px">
-    <div class="p-b-10">
-        <h3 class="ltext-103 cl5">
-            My Wishlist
-        </h3>
-    </div>
-
-    @if (!Model.Any())
-    {
-        <div class="text-center p-5">
-            <h4>No items in your Wishlist</h4>
-            <a asp-controller="Product" asp-action="Index" class="btn btn-primary mt-3">
-                Start Shopping
-            </a>
-        </div>
-    }
-    else
-    {
-        <div class="row">
-            @foreach(var item in Model)
-            {
-                <div class="col-md-3 col-sm-6 mb-4 wishlist-item">
-                    <div class="card product-card">
-                        <button class="js-addwish-detail js-addedwish-detail" data-product-id="@item.ProductId" data-product-name="@item.ProductName"><i class="zmdi zmdi-favorite"></i></button>
-                        <img src="@item.MainImageUrl" class="card-img-top" />
-                        <div class="card-body text-center">
-                            <h6>@item.ProductName</h6>
-                            <p class="text-center">L.E. @item.Price</p>
-                            <button class="btn btn-success btn-sm move-to-cart" data-product-id="@item.ProductId">Add to Cart</button>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    }
-</div> *@
