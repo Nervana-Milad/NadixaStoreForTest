@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nadixa.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Nadixa.Infrastructure.Data;
 namespace Nadixa.Infrastructure.Migrations
 {
     [DbContext(typeof(NadixaDbContext))]
-    partial class NadixaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260414084859_AddBlogTables")]
+    partial class AddBlogTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -249,7 +252,7 @@ namespace Nadixa.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreateAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ImageUrl")
@@ -265,26 +268,6 @@ namespace Nadixa.Infrastructure.Migrations
                     b.HasIndex("BlogCategoryId");
 
                     b.ToTable("Blogs");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            BlogCategoryId = 2,
-                            Content = "Discover the best bags for your travel needs, combining style and functionality.",
-                            CreateAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ImageUrl = "/images/blog-01.jpg",
-                            Title = "Best Bags for Travel"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            BlogCategoryId = 2,
-                            Content = "Discover the best bags for your travel needs, combining style and functionality.",
-                            CreateAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ImageUrl = "/images/blog-02.jpg",
-                            Title = "How to style your bag"
-                        });
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.BlogCategory", b =>
@@ -302,23 +285,6 @@ namespace Nadixa.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BlogCategories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Fashion"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Travel"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Care"
-                        });
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Cart", b =>

@@ -54,8 +54,8 @@
 							<a href="shoping-cart.html">Features</a>
 						</li>
 
-						<li>
-							<a href="blog.html">Blog</a>
+						<li class="@Html.IsActive("Blog", "Index")">
+							<a asp-action="Index" asp-controller="Blog">Blog</a>
 						</li>
 
 						
@@ -198,9 +198,10 @@
 				<a class="label1 rs1" data-label1="hot">Features</a>
 			</li>
 
-			<li>
-				<a href="blog.html">Blog</a>
+			<li class="@Html.IsActive("Blog", "Index")">
+				<a asp-action="Index" asp-controller="Blog">Blog</a>
 			</li>
+			
 			<li class="@Html.IsActive("Home", "About")">
 				<a asp-action="About" asp-controller="Home">About</a>
 			</li>
