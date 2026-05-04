@@ -4,18 +4,6 @@
     ViewData["Title"] = "Register";
 }
 
-
-<style>
-    @@media (min-width: 1025px) {
-        .h-custom
-
-    {
-        height: 100vh !important;
-    }
-
-    }
-</style>
-
 <section style="background-color: #E6E6E6; margin-top: 80px">
     <div class="container">
         <div class="row d-flex justify-content-center align-items-center h-100">
@@ -34,7 +22,7 @@
                             <div class="row">
                                 <div class="col-md-6 mb-4">
                                     <div data-mdb-input-init class="form-outline datepicker">
-                                        <label class="form-label" asp-for="FirstName">First Name</label>
+                                        <label asp-for="FirstName" class="form-label required">First Name</label>
                                         <input asp-for="FirstName" class="form-control" />
                                         <span asp-validation-for="FirstName" class="text-danger"></span>
                                     </div>
@@ -42,7 +30,7 @@
 
                                 <div class="col-md-6 mb-4">
                                     <div data-mdb-input-init class="form-outline datepicker">
-                                        <label class="form-label" asp-for="LastName">Last Name</label>
+                                        <label asp-for="LastName" class="form-label required">Last Name</label>
                                         <input asp-for="LastName" class="form-control" />
                                         <span asp-validation-for="LastName" class="text-danger"></span>
 
@@ -52,29 +40,29 @@
 
                             <div class="mb-4">
                                 <div data-mdb-input-init class="form-outline datepicker">
-                                    <label asp-for="Email" class="form-label">Email</label>
-                                    <input class="form-control" asp-for="Email" placeholder="example@gmail.com"/>
+                                    <label asp-for="Email" class="form-label required"></label>
+                                    <input class="form-control" type="email" asp-for="Email" placeholder="example@gmail.com"/>
                                     <span asp-validation-for="Email" class="text-danger"></span>
                                 </div>
                             </div>
 
                             <div class="mb-4">
                                 <div data-mdb-input-init class="form-outline datepicker">
-                                    <label asp-for="Password" class="form-label">Password</label>
+                                    <label asp-for="Password" class="form-label required"></label>
                                     <input class="form-control" asp-for="Password" />
                                     <span asp-validation-for="Password" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="mb-4">
                                 <div data-mdb-input-init class="form-outline datepicker">
-                                    <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                                    <label asp-for="ConfirmPassword" class="form-label required">Confirm Password</label>
                                     <input class="form-control" asp-for="ConfirmPassword" />
                                     <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                                 </div>
                             </div>
                           
 
-                            <button type="submit" class="btn text-white btn-lg mb-1" style="background: #6c7ae0">Submit</button>
+                            <button type="submit" class="btn text-white btn-lg mb-1" style="background: #6c7ae0">Register</button>
 
                         </form>
 
@@ -84,3 +72,7 @@
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

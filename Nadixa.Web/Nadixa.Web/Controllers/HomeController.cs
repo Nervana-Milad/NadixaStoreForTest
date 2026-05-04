@@ -32,7 +32,7 @@ namespace Nadixa.Web.Controllers
 
             var products = productQuery.ToList();
 
-            ViewBag.Categories = _context.Categories.ToList();
+            ViewBag.Categories = _context.ProductCategories.ToList();
             return View(products);
         }
 

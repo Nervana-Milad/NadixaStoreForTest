@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Web.Models.ViewModels;
+using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
 
@@ -27,14 +28,17 @@ namespace Nadixa.Web.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(int? categotyId, string? search)
+        public async Task<IActionResult> Index(int? categoryId, string? search)
         {
             var user = await _userManager.GetUserAsync(User);
+
             IQueryable<Product> query = _context.Products.Include(p => p.Category);
 
-            if (categotyId.HasValue)
+            if (categoryId.HasValue)
             {
-                query = query.Where(p => p.CategoryId == categotyId.Value);
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+                var category = await _context.ProductCategories.FirstOrDefaultAsync(c => c.Id == categoryId);
+                ViewBag.CategoryName = category?.Name;
             }
 
             if (!string.IsNullOrWhiteSpace(search))
@@ -42,7 +46,7 @@ namespace Nadixa.Web.Controllers
                 query = query.Where(p => p.Name.Contains(search) || p.Description.Contains(search));
             }
 
-                        var products = await query.OrderByDescending(p => p.Id).ToListAsync();
+            var products = await query.OrderByDescending(p => p.Id).ToListAsync();
 
             return View(products);
         }
@@ -51,8 +55,8 @@ namespace Nadixa.Web.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
-            var productViewModel = new ProductViewModel();
-            productViewModel.Categories = _context.Categories.Select(c =>
+            var productViewModel = new ProductCreateViewModel();
+            productViewModel.Categories = _context.ProductCategories.Select(c =>
             new SelectListItem
             {
                 Value = c.Id.ToString(),
@@ -66,7 +70,7 @@ namespace Nadixa.Web.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create(ProductViewModel productViewModel)
+        public async Task<IActionResult> Create(ProductCreateViewModel productViewModel)
         {
             
             if (ModelState.IsValid)
@@ -77,11 +81,28 @@ namespace Nadixa.Web.Controllers
                 if(!isAllowed)
                 {
                     ModelState.AddModelError("", "Invalid Image Format. Allowed formats are .jpg, .jpeg, .png, .jfif");
+                    productViewModel.Categories = _context.ProductCategories.Select(c => new SelectListItem
+                    {
+                        Value = c.Id.ToString(),
+                        Text = c.Name
+                    }).ToList();
+
                     return View(productViewModel);
                 }
+                string imagePath = null;
 
-                productViewModel.Product.MainImageUrlPath = await UploadFileToFolder(productViewModel.MainImage);
-                await _context.Products.AddAsync(productViewModel.Product);
+                imagePath = await UploadFileToFolder(productViewModel.MainImage);
+                var product = new Product
+                {
+                    Name = productViewModel.Name,
+                    Description = productViewModel.Description,
+                    Price = productViewModel.Price,
+                    OldPrice = productViewModel.OldPrice,
+                    StockQuantity = productViewModel.StockQuantity,
+                    CategoryId = productViewModel.CategoryId,
+                    MainImageUrlPath = imagePath
+                };
+                await _context.Products.AddAsync(product);
                 await _context.SaveChangesAsync();
 
                 if(productViewModel.GalleryImages !=null && productViewModel.GalleryImages.Any())
@@ -89,16 +110,16 @@ namespace Nadixa.Web.Controllers
                     foreach(var image in productViewModel.GalleryImages)
                     {
                         if (image == null) continue;
-                        var extension = Path.GetExtension(image.FileName).ToLower();
 
+                        var extension = Path.GetExtension(image.FileName).ToLower();
                         if (!_allowedExtension.Contains(extension)) continue;
 
-                        var imagePath = await UploadFileToFolder(image);
+                        var path = await UploadFileToFolder(image);
 
                         _context.ProductImages.Add(new ProductImage
                         {
-                            ProductId = productViewModel.Product.Id,
-                            ImageUrl = imagePath,
+                            ProductId = product.Id,
+                            ImageUrl = path,
                             IsMain = false
                         });
                     }
@@ -107,7 +128,7 @@ namespace Nadixa.Web.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            productViewModel.Categories = _context.Categories.Select(c =>
+            productViewModel.Categories = _context.ProductCategories.Select(c =>
             new SelectListItem
             {
                 Value = c.Id.ToString(),
@@ -134,6 +155,12 @@ namespace Nadixa.Web.Controllers
                 return NotFound();
             }
 
+            var reviews = product.Reviews.ToList();
+
+            ViewBag.AvgRating = reviews.Any() ? reviews.Average(r => r.Rating) : 0;
+            ViewBag.TotalReviews = reviews.Count();
+            ViewBag.CurrentUserId = user?.Id;
+
             var vm = new ProductDetailViewModel
             {
                 Product = product,
@@ -156,7 +183,7 @@ namespace Nadixa.Web.Controllers
             {
                 return NotFound();
             }
-            EditViewModel editViewModel = new EditViewModel
+            ProductEditViewModel editViewModel = new ProductEditViewModel
             {
                 Product = productFromDb,
                 ExistingImages = productFromDb.Images.Select(img => new ProductImageViewModel
@@ -165,7 +192,7 @@ namespace Nadixa.Web.Controllers
                     ImageUrl = img.ImageUrl
                 }).ToList(),
 
-                Categories = _context.Categories.Select(cat =>
+                Categories = _context.ProductCategories.Select(cat =>
                 new SelectListItem
                 {
                     Value = cat.Id.ToString(),
@@ -178,7 +205,7 @@ namespace Nadixa.Web.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(EditViewModel editViewModel)
+        public async Task<IActionResult> Edit(ProductEditViewModel editViewModel)
         {
             if (!ModelState.IsValid)
             {
@@ -285,27 +312,59 @@ namespace Nadixa.Web.Controllers
 
         [HttpPost]
         [Authorize]
-        public JsonResult AddReview([FromBody]Review review)
+        public async Task<JsonResult> AddReview([FromBody] Review review)
         {
             if (review == null)
-            {
-                return Json(new { error = "Review data was null" });
-            }
+                return Json(new { success = false, message = "Invalid review data" });
 
-            review.CreatedAt = DateTime.Now;
-            review.UserImage = "/images/avatar-01.jpg";
-            _context.Reviews.Add(review);
-            _context.SaveChanges();
+            if (review.ProductId <= 0)
+                return Json(new { success = false, message = "Invalid Product" });
+
+            if (review.Rating < 1 || review.Rating > 5)
+                return Json(new { success = false, message = "Rating must be between 1 and 5" });
+
+            if (string.IsNullOrWhiteSpace(review.Content))
+                return Json(new { success = false, message = "Review content cannot be empty" });
+
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+                return Json(new { success = false, message = "User Not Found" });
+
+            bool alreadyReviewed = await _context.Reviews
+                .AnyAsync(r => r.ProductId == review.ProductId && r.UserId == user.Id);
+
+            if (alreadyReviewed)
+                return Json(new { success = false, message = "You have already reviewed this product" });
+
+            var newReview = new Review
+            {
+                ProductId = review.ProductId,
+                Rating = review.Rating,
+                Content = review.Content,
+                CreatedAt = DateTime.Now,
+                UserId = user.Id,
+                UserName = user.FirstName + " " + user.LastName,
+                UserImage = "/images/avatar-01.jpg"
+            };
+
+            _context.Reviews.Add(newReview);
+            await _context.SaveChangesAsync();
 
             return Json(new
             {
-                username = review.UserName,
-                content = review.Content,
-                rating = review.Rating,
-                userImage = review.UserImage
+                success = true,
+                id = newReview.Id,
+                username = newReview.UserName,
+                content = newReview.Content,
+                rating = newReview.Rating,
+                userImage = newReview.UserImage,
+                userId = newReview.UserId
             });
         }
 
+
+       
         private async Task<string> UploadFileToFolder(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -365,6 +424,33 @@ namespace Nadixa.Web.Controllers
 
 
             return PartialView("_QuickViewModal", model);
+        }
+
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> DeleteReview(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+                return Unauthorized();
+
+            var review = await _context.Reviews.FindAsync(id);
+
+            if (review == null)
+                return NotFound();
+
+            // 🔥 مهم: تأكدي إن ده صاحب الريفيو
+            if (review.UserId != user.Id && !User.IsInRole("Admin"))
+                return Forbid();
+
+            int productId = review.ProductId;
+
+            _context.Reviews.Remove(review);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Detail", new { id = review.ProductId });
         }
 
     }

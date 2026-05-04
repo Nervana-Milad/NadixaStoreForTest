@@ -1,0 +1,129 @@
+﻿@model Nadixa.Web.Models.ViewModels.BlogEditViewModel
+
+@{
+    ViewData["Title"] = "Create Blog";
+}
+
+<style>
+    .image-preview-container {
+        width: 100%;
+        text-align: center;
+    }
+
+        .image-preview-container img {
+            width: 80%;
+            height: auto;
+            object-fit: cover;
+        }
+
+</style>
+
+<div class="container py-5" style="margin-top:70px">
+
+    <div class="card shadow p-4">
+        <h3 class="mb-4">Edit Blog</h3>
+
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+            <!-- Title -->
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label"></label>
+                <input asp-for="Title" class="form-control" />
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="BlogCategoryId" class="form-label fw-semibold">Blog Category</label>
+
+                <select asp-for="BlogCategoryId"
+                        asp-items="Model.Categories"
+                        class="form-select js-select2">
+                    <option value="">Select Category</option>
+                </select>
+
+                <span asp-validation-for="BlogCategoryId" class="text-danger"></span>
+            </div>
+
+            <!-- Image -->
+            <div class="mb-3">
+                <label class="form-label">Image</label>
+                <input asp-for="NewImageFile"
+                       type="file"
+                       class="form-control"
+                       accept="image/*"
+                       onchange="previewImage(event)" />
+                @* <input asp-for="ExistingImageUrl" type="file" class="form-control" accept="image/*" onchange="previewImage(event)" /> *@
+                <div class="image-preview-container">
+                    <img id="imagePreview"
+                         src="@Model.ExistingImageUrl"
+                         class="rounded-4 border shadow-sm mt-3" />
+
+                </div>
+            </div>
+
+            @* <div class="mb-3">
+                <label class="form-label">Image</label>
+
+                <input asp-for="NewImageFile"
+                       type="file"
+                       class="form-control"
+                       accept="image/*"
+                       onchange="previewImage(event)" />
+
+                <div class="image-preview-container">
+                    <img id="imagePreview"
+                         src="@Model.ExistingImageUrl"
+                         class="rounded-4 border shadow-sm mt-3" />
+                </div>
+            </div> *@
+
+            <!-- Content -->
+            <div class="mb-3">
+                <label asp-for="Content" class="form-label">Description</label>
+                <textarea asp-for="Content" class="form-control" rows="4"></textarea>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="flex-c-m stext-101 cl0 size-103 bg1 bor1 hov-btn2 p-lr-15 trans-04">
+                    Edit Blog
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        console.log("Select2 loaded"); // 👈 اختبار
+
+        $('.js-select2').select2({
+            placeholder: "Select a category",
+            allowClear: true,
+            width: '100%'
+        });
+    });
+
+            function previewImage(event) {
+        const file = event.target.files[0];
+
+        if (!file) return;
+
+        // تأكد إنه صورة
+        if (!file.type.startsWith("image/")) {
+            alert("Please select a valid image file.");
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            document.getElementById("imagePreview").src = e.target.result;
+        };
+
+        reader.readAsDataURL(file);
+    }
+</script>

@@ -19,7 +19,7 @@ namespace Nadixa.Infrastructure.Data
 
         // تعريف الجداول
         public DbSet<Product> Products { get; set; }
-        public DbSet<Category> Categories { get; set; }
+        public DbSet<ProductCategory> ProductCategories { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<ProductColor> ProductColors { get; set; }
         public DbSet<Color> Colors { get; set; }
@@ -36,7 +36,7 @@ namespace Nadixa.Infrastructure.Data
         {
             base.OnModelCreating(builder);
 
-
+            builder.Entity<ProductCategory>().ToTable("ProductCategories");
             // ضبط خصائص الأسعار (Decimal) عشان متعملش مشاكل في الداتا بيز
             // بنحدد إن السعر يقبل 18 رقم، منهم 2 عشري
             builder.Entity<Product>()
@@ -53,31 +53,11 @@ namespace Nadixa.Infrastructure.Data
                 new BlogCategory { Id = 3, Name = "Care" }
             );
 
-            builder.Entity<Blog>().HasData(
-                new Blog
-                {
-                    Id = 1,
-                    Title = "Best Bags for Travel",
-                    Content = "Discover the best bags for your travel needs, combining style and functionality.",
-                    ImageUrl = "/images/blog-01.jpg",
-                    CreateAt = new DateTime(2024, 1,1),
-                    BlogCategoryId = 2
-                },
-                new Blog
-                {
-                    Id = 2,
-                    Title = "How to style your bag",
-                    Content = "Discover the best bags for your travel needs, combining style and functionality.",
-                    ImageUrl = "/images/blog-02.jpg",
-                    CreateAt = new DateTime(2024, 1, 1),
-                    BlogCategoryId = 2
-                }
-                );
 
             // فلترة تلقائية (Global Query Filter)
             // أي استعلام هيرجع بس الحاجات اللي مش ممسوحة (IsDeleted = false)
             builder.Entity<Product>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<Category>().HasQueryFilter(c => !c.IsDeleted);
+            builder.Entity<ProductCategory>().HasQueryFilter(c => !c.IsDeleted);
             builder.Entity<WishlistItem>().HasIndex(w => new { w.WishlistId, w.ProductId }).IsUnique();
         }
 

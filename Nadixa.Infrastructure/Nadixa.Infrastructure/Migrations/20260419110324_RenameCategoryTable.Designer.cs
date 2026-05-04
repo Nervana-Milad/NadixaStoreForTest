@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nadixa.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Nadixa.Infrastructure.Data;
 namespace Nadixa.Infrastructure.Migrations
 {
     [DbContext(typeof(NadixaDbContext))]
-    partial class NadixaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260419110324_RenameCategoryTable")]
+    partial class RenameCategoryTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -242,9 +245,6 @@ namespace Nadixa.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("BlogCategoryId")
                         .HasColumnType("int");
 
@@ -265,11 +265,29 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId");
-
                     b.HasIndex("BlogCategoryId");
 
                     b.ToTable("Blogs");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BlogCategoryId = 2,
+                            Content = "Discover the best bags for your travel needs, combining style and functionality.",
+                            CreateAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ImageUrl = "/images/blog-01.jpg",
+                            Title = "Best Bags for Travel"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            BlogCategoryId = 2,
+                            Content = "Discover the best bags for your travel needs, combining style and functionality.",
+                            CreateAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ImageUrl = "/images/blog-02.jpg",
+                            Title = "How to style your bag"
+                        });
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.BlogCategory", b =>
@@ -555,10 +573,6 @@ namespace Nadixa.Infrastructure.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("UserImage")
                         .HasColumnType("nvarchar(max)");
 
@@ -669,17 +683,11 @@ namespace Nadixa.Infrastructure.Migrations
 
             modelBuilder.Entity("Nadixa.Core.Entities.Blog", b =>
                 {
-                    b.HasOne("Nadixa.Core.Entities.AppUser", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("AppUserId");
-
                     b.HasOne("Nadixa.Core.Entities.BlogCategory", "BlogCategory")
                         .WithMany("Blogs")
                         .HasForeignKey("BlogCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("AppUser");
 
                     b.Navigation("BlogCategory");
                 });

@@ -1,4 +1,4 @@
-﻿@model Nadixa.Web.Models.ViewModels.ProductViewModel
+﻿@model Nadixa.Web.Models.ViewModels.ProductCreateViewModel
 
 @{
     ViewData["Title"] = "Add New Product";
@@ -52,47 +52,55 @@
                         <!-- LEFT SIDE -->
                         <div class="col-lg-7">
                             <div class="mb-4">
-                                <label asp-for="Product.Name" class="form-label fw-semibold"></label>
-                                <input asp-for="Product.Name"
+                                @* <label asp-for="Product.Name" class="form-label fw-semibold"></label> *@
+                                <label asp-for="Name" class="form-label fw-semibold required"></label>
+
+                                <input asp-for="Name"
                                        class="form-control form-control-lg rounded-3 shadow-sm" />
-                                <span asp-validation-for="Product.Name" class="text-danger"></span>
+                                <span asp-validation-for="Name" class="text-danger"></span>
                             </div>
 
                             <div class="mb-4 form-group">
-                                <label asp-for="Product.CategoryId" class="form-label fw-semibold"></label>
-                                <select asp-for="Product.CategoryId"
+                                <label asp-for="CategoryId" class="form-label fw-semibold required">Category Name</label>
+                                <select asp-for="CategoryId"
                                         asp-items="Model.Categories"
                                         class="form-select form-select-lg rounded-3 shadow-sm form-control">
                                     <option value="">Select Category</option>
                                 </select>
-                                <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
+                                <span asp-validation-for="CategoryId" class="text-danger"></span>
                             </div>
 
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
-                                    <label asp-for="Product.Price" class="form-label fw-semibold"></label>
-                                    <input asp-for="Product.Price"
-                                           class="form-control form-control-lg rounded-3 shadow-sm" />
+                                    <label asp-for="Price" class="form-label fw-semibold required"></label>
+                                    <input asp-for="Price" class="form-control form-control-lg rounded-3 shadow-sm" />
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label asp-for="Product.OldPrice" class="form-label fw-semibold"></label>
-                                    <input asp-for="Product.OldPrice"
-                                           class="form-control form-control-lg rounded-3 shadow-sm" />
+                                    <label asp-for="OldPrice" class="form-label fw-semibold">Old Price</label>
+                                    <input asp-for="OldPrice" class="form-control form-control-lg rounded-3 shadow-sm" />
+                                    <span asp-validation-for="OldPrice" class="text-danger"></span>
+
                                 </div>
                             </div>
 
                             <div class="mb-4">
-                                <label asp-for="Product.StockQuantity" class="form-label fw-semibold"></label>
-                                <input asp-for="Product.StockQuantity"
+                                <label asp-for="StockQuantity" class="form-label fw-semibold required"></label>
+                                <input asp-for="StockQuantity"
                                        class="form-control form-control-lg rounded-3 shadow-sm" />
+                                <span asp-validation-for="StockQuantity" class="text-danger"></span>
+
                             </div>
 
                             <div class="mb-4">
-                                <label asp-for="Product.Description" class="form-label fw-semibold"></label>
-                                <textarea asp-for="Product.Description"
+                                <label asp-for="Description" class="form-label fw-semibold required"></label>
+                                <textarea asp-for="Description"
                                           class="form-control rounded-3 shadow-sm"
                                           rows="5"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+
                             </div>
 
                         </div>
@@ -100,12 +108,14 @@
                         <!-- RIGHT SIDE -->
                         <div class="col-lg-5">
                             <div class="upload-box p-4 text-center border rounded-4 shadow-sm bg-light">
-                                <label class="fw-semibold mb-3 d-block">Product Main Image</label>
+                                <label class="fw-semibold mb-3 d-block required">Product Main Image</label>
                                 <input asp-for="MainImage"
                                        type="file"
                                        accept="image/*"
                                        class="form-control mb-3"
                                        onchange="previewImage(event)" />
+                                <span asp-validation-for="MainImage" class="text-danger"></span>
+
 
                                 <img id="imagePreview"
                                      src="https://via.placeholder.com/350x350?text=Preview"
@@ -161,6 +171,8 @@
 </div>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
     <script src="https://cdn.tiny.cloud/1/8abcm3nn84cfg2z55dths58k7k2qyknti7duilqnl0het211/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
     <script>
         function previewImage(event) {

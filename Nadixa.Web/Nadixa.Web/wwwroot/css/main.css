@@ -3358,3 +3358,17 @@ input.num-product::-webkit-inner-spin-button {
     transform: scale(1.2);
     transition: 0.2s;
 }
+
+
+/* Auth CSS */
+.required::after {
+    content: " *";
+    color: red;
+}
+
+@media (min-width: 1025px) {
+    .h-custom {
+        height: 100vh !important;
+    }
+}
+

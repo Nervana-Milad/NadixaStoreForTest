@@ -1,4 +1,4 @@
-﻿@model List<Nadixa.Web.Models.ViewModels.BlogViewModel>
+﻿@model List<Nadixa.Web.Models.ViewModels.BlogListViewModel>
 
 
 @{
@@ -13,9 +13,23 @@
 
 <!-- Content page -->
 <section class="bg0 p-t-62 p-b-60">
-    <div class="container">
-        <div class="row">
 
+    <div class="container">
+
+			
+				
+				@if (User.IsInRole("Admin"))
+				{
+            <div class="flex-w justify-content-end m-b-60">
+                <div class="flex-c-m stext-101 cl0 size-103 bg1 bor1 hov-btn2 p-lr-15 trans-04" style="background-color:#6c7ae0; color:white">
+						<i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-plus text-white"></i>
+						<a class="text-white" asp-controller="Blog" asp-action="Create">Add New Blog</a>
+					</div>
+            </div>
+
+				}
+
+        <div class="row">            
             <!-- BLOG LIST -->
             <div class="col-md-8 col-lg-9 p-b-80">
                 <div class="p-r-45 p-r-0-lg">

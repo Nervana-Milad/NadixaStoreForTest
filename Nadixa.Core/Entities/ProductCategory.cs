@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Nadixa.Core.Entities
 {
-    public class Category : BaseEntity
+    public class ProductCategory : BaseEntity
     {
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }

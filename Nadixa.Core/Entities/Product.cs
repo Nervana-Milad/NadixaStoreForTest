@@ -18,7 +18,7 @@ namespace Nadixa.Core.Entities
 
         // Foreign Key (ربط المنتج بالقسم)
         public int CategoryId { get; set; }
-        public Category? Category { get; set; }
+        public ProductCategory? Category { get; set; }
 
         public string? MainImageUrlPath { get; set; }
 

@@ -24,10 +24,10 @@ namespace Nadixa.Web
             builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
             {
                 options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireDigit = false;
-                options.Password.RequireLowercase = false;
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
                 options.Password.RequireUppercase = false;
-                options.Password.RequiredLength = 1;
+                options.Password.RequiredLength = 6;
             }).AddEntityFrameworkStores<NadixaDbContext>();
 
             builder.Services.ConfigureApplicationCookie(options =>

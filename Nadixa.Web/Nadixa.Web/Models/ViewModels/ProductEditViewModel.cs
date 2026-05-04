@@ -4,7 +4,7 @@ using Nadixa.Core.Entities;
 
 namespace Nadixa.Web.Models.ViewModels
 {
-    public class EditViewModel
+    public class ProductEditViewModel
     {
         public Product Product { get; set; } = new Product();
         [ValidateNever]

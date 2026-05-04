@@ -56,9 +56,25 @@
 		
 		@if (User.IsInRole("Admin"))
 		{
-			<div class="d-flex text-end mb-4">
-				<a class="btn btn-primary mx-2 my-3" asp-controller="Product" asp-action="Edit" asp-route-id="@Model.Product.Id">Edit Product</a>
-				<button class="btn btn-danger mx-2 my-3" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete Product</button>
+			<div class="d-flex justify-content-end align-items-center gap-3 mb-4">
+
+				<!-- Edit Button -->
+				<a asp-controller="Product"
+				   asp-action="Edit"
+				   asp-route-id="@Model.Product.Id"
+				   class="btn text-white px-4 py-2 rounded-pill shadow-sm mx-3"
+				   style="background-color:#6c7ae0;">
+					Edit Product
+				</a>
+
+				<!-- Delete Button -->
+				<button type="button"
+						class="btn btn-danger px-4 py-2 rounded-pill shadow-sm"
+						data-bs-toggle="modal"
+						data-bs-target="#deleteModal">
+					Delete Product
+				</button>
+
 			</div>
 		}
 		<div class="row">
@@ -149,19 +165,7 @@
 								Color
 							</div>
 
-							@* <div class="d-flex gap-2">
-								@foreach (var pc in Model.ProductColors)
-								{
-									<span style="
-										display:inline-block;
-										width:25px;
-										height:25px;
-										border-radius:50%;
-										background:@pc.Color.HexCode;">
-									</span>
-								}
-
-							</div> *@
+							
 						</div>
 
 						<div class="flex-w flex-l-m p-b-10">
@@ -321,6 +325,10 @@
 							<div class="col-sm-10 col-md-8 col-lg-6 m-lr-auto">
 								<div class="p-b-30 m-lr-15-sm">
 									<!-- Review -->
+									<div class="d-flex justify-content-between mb-4">
+										<h4>@ViewBag.AvgRating.ToString("0.0") / 5</h4>
+										<p>(@ViewBag.TotalReviews) Reviews</p>
+									</div>
 									@if (Model.Product.Reviews.Any())
 									{
 										<div id="reviewSection">
@@ -357,28 +365,59 @@
 															</span>
 														</div>
 
-														<p class="stext-102 cl6">
-															@review.Content
-														</p>
+														<div class="d-flex justify-content-between">
+															<p class="stext-102 cl6">
+																@review.Content
+															</p>
+															@if (User.Identity.IsAuthenticated && User.IsInRole("Admin") || review.UserId == ViewBag.CurrentUserId)
+															{
+																<div>
+																	<form asp-action="DeleteReview"
+																		  asp-controller="Product"
+																		  method="post"
+																		  >
+
+																		<input type="hidden" name="id" value="@review.Id" />
+
+																		<button type="submit"
+																				class="btn btn-sm text-danger border-0 bg-transparent p-0"
+																				title="Delete">
+																			<i class="fa fa-trash fs-18"></i>
+																		</button>
+																	</form>
+																</div>
+															}
+														</div>
+
+														
 													</div>
 												</div>
 											}
-
-
 										</div>
 									}
 									else
 									{
 										<p class="text-muted mb-3 text-center">No Reviews yet, Be the first to Review</p>
-
+										@* <p class="text-muted mb-3 text-center">To Review You Need To <a style="color:#717fe0; font-size:18px" asp-controller="Auth" asp-action="Login">Login</a> </p> *@
 									}
 
+									@if (!User.Identity.IsAuthenticated)
+									{
+										<p class="text-muted mb-3 text-center">
+											To review you need to
+											<a style="color:#717fe0; font-size:18px"
+											   asp-controller="Auth"
+											   asp-action="Login">
+												Login
+											</a>
+										</p>
+									}
 									@if (User.Identity.IsAuthenticated)
 									{
-										<!-- Add review -->
+										@* <!-- Add review -->
 										<h5 class="mtext-108 cl2 p-b-7">
 											Add a review
-										</h5>
+										</h5> *@
 
 										<form id="reviewForm"  method="post" class="w-full">
 
@@ -407,15 +446,12 @@
 													<textarea class="size-110 bor8 stext-102 cl2 p-lr-20 p-tb-10 form-control" for="Content" id="Content" name="Content"></textarea>
 												</div>
 
-												<div class="col-sm-6 p-b-5 form-group">
+												@* <div class="col-sm-6 p-b-5 form-group">
 													<label class="stext-102 cl3" for="UserName">User Name</label>
 													<input class="size-111 bor8 stext-102 cl2 p-lr-20 form-control" for="UserName" id="UserName" type="text" name="UserName">
-												</div>
+												</div> *@
 
-												@* <div class="col-sm-6 p-b-5">
-												<label class="stext-102 cl3" for="email">Email</label>
-												<input class="size-111 bor8 stext-102 cl2 p-lr-20" id="email" type="text" name="email">
-											</div> *@
+												
 											</div>
 
 											<button type="submit" class="flex-c-m stext-101 cl0 size-112 bg7 bor11 hov-btn3 p-lr-15 trans-04 m-b-10">
@@ -492,7 +528,7 @@
 </section>
 
 
-@section Scripts{
+@section Scripts {
 
 	<script>
 		$("#reviewForm").on('submit', function (event) {
@@ -500,13 +536,17 @@
 
 			var rating = $("#RatingValue").val();
 			var content = $("#Content").val();
-			var userName = $("#UserName").val();
-			var productId = @Model.Product.Id;
+			var productId = parseInt('@Model.Product.Id');
 
-			console.log(userName, content, rating, productId);
+			console.log(content, rating, productId);
 
 			if (!rating) {
 				alert("Please select a rating");
+				return;
+			}
+
+			if (!content || content.trim() === "") {
+				alert("Please write a review");
 				return;
 			}
 
@@ -515,14 +555,14 @@
 				type: 'POST',
 				contentType: 'application/json',
 				data: JSON.stringify({
-					UserName: userName,
 					Content: content,
 					Rating: parseInt(rating),
 					ProductId: productId
 				}),
 				success: function (response) {
+
 					$('#reviewForm')[0].reset();
-					$('#Rating').val("");
+					$('#RatingValue').val("");
 
 					$('#reviewSection').append(
 					`
@@ -541,23 +581,23 @@
 									${'★'.repeat(response.rating)}${'☆'.repeat(5 - response.rating)}
 								</span>
 							</div>
+
 							<p class="stext-102 cl6">
 								${response.content}
 							</p>
 						</div>
 					</div>
-
 					`
 					);
-					console.log("Success")
+
+					console.log("Success");
 				},
 				error: function(err) {
 					console.log(err);
 				}
-					})
+			});
 
-				});
+		});
 	</script>
-		
+
 }
-	

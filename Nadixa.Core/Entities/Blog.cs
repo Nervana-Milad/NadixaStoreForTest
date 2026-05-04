@@ -17,5 +17,8 @@ namespace Nadixa.Core.Entities
         //relationship
         public int BlogCategoryId { get; set; }
         public BlogCategory BlogCategory { get; set; }
+
+        public string? AppUserId { get; set; }
+        public AppUser AppUser { get; set; }
     }
 }

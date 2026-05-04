@@ -1,4 +1,4 @@
-﻿@model Nadixa.Web.Models.ViewModels.EditViewModel
+﻿@model Nadixa.Web.Models.ViewModels.ProductEditViewModel
 
 @{
     ViewData["Title"] = "Edit Product";
@@ -88,14 +88,16 @@
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Product.CategoryId" class="form-label"></label>
+                        <label asp-for="Product.CategoryId" class="form-label">Category Name</label>
                         <select asp-for="Product.CategoryId"
                                 asp-items="Model.Categories"
-                                class="form-select form-select-lg">
+                                class="form-select form-select-lg rounded-3 shadow-sm form-control">
                             <option value="">Select Category</option>
                         </select>
                         <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
                     </div>
+
+                    
 
                     <div class="row">
                         <div class="col-md-6 mb-3">

@@ -5,13 +5,6 @@
 }
 
 
-<style>
-    @@media (min-width: 1025px) {
-        .h-custom {
-            height: 100vh !important;
-        }
-    }
-</style>
 
 <section style="background-color: #E6E6E6; margin-top: 80px">
     <div class="container">
@@ -30,15 +23,15 @@
                             </div>
                             <div class="mb-4">
                                 <div data-mdb-input-init class="form-outline datepicker">
-                                    <label asp-for="Email" class="form-label">Email</label>
-                                    <input class="form-control" asp-for="Email" placeholder="example@gmail.com" />
+                                    <label asp-for="Email" class="form-label required"></label>
+                                    <input class="form-control" type="email" asp-for="Email" placeholder="example@gmail.com" />
                                     <span asp-validation-for="Email" class="text-danger"></span>
                                 </div>
                             </div>
 
                             <div class="mb-4">
                                 <div data-mdb-input-init class="form-outline datepicker">
-                                    <label asp-for="Password" class="form-label">Password</label>
+                                    <label asp-for="Password" class="form-label required"></label>
                                     <input class="form-control" asp-for="Password" />
                                     <span asp-validation-for="Password" class="text-danger"></span>
                                 </div>
@@ -51,3 +44,7 @@
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

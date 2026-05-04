@@ -11,6 +11,7 @@ namespace Nadixa.Core.Entities
 {
     public class Review : BaseEntity
     {
+        public string UserId { get; set; }
         public string UserName { get; set; }
 
         public string? UserImage { get; set; }
