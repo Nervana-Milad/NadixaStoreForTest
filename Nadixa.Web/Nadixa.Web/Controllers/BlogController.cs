@@ -70,7 +70,7 @@ namespace Nadixa.Web.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
-            var blogViewModel = new BlogViewModel();
+            var blogViewModel = new BlogCreateViewModel();
             blogViewModel.Categories = _context.BlogCategories.Select(c => new SelectListItem
             {
                 Value = c.Id.ToString(),
@@ -83,7 +83,7 @@ namespace Nadixa.Web.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create(BlogViewModel blogViewModel)
+        public async Task<IActionResult> Create(BlogCreateViewModel blogViewModel)
         {
             var user = await _userManager.GetUserAsync(User);
             if (!ModelState.IsValid)
@@ -147,7 +147,7 @@ namespace Nadixa.Web.Controllers
             }
             _context.Blogs.Remove(blogFromDb);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Blog");
         }
 
 

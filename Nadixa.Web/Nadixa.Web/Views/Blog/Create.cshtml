@@ -1,6 +1,6 @@
 ﻿
 
-@model Nadixa.Web.Models.ViewModels.BlogViewModel
+@model Nadixa.Web.Models.ViewModels.BlogCreateViewModel
 
 @{
     ViewData["Title"] = "Create Blog";
@@ -31,12 +31,13 @@
 
             <!-- Title -->
             <div class="mb-3">
-                <label asp-for="Title" class="form-label"></label>
+                <label asp-for="Title" class="form-label required"></label>
                 <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
             </div>
 
             <div class="mb-4">
-                <label asp-for="BlogCategoryId" class="form-label fw-semibold">Blog Category</label>
+                <label asp-for="BlogCategoryId" class="form-label fw-semibold required">Blog Category</label>
 
                 <select asp-for="BlogCategoryId"
                         asp-items="Model.Categories"
@@ -49,7 +50,7 @@
 
             <!-- Image -->
             <div class="mb-3">
-                <label class="form-label">Image</label>
+                <label class="form-label required">Image</label>
                 <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" onchange="previewImage(event)"/>
                 <div class="image-preview-container">
                     <img id="imagePreview"
@@ -57,6 +58,7 @@
                          class="rounded-4 border shadow-sm mt-3" />
 
                 </div>
+                <span asp-validation-for="ImageFile" class="text-danger"></span>
                 @* <img id="imagePreview"
                      src="https://via.placeholder.com/550x350?text=Preview"
                      class="img-fluid rounded-4 border shadow-sm mt-3"
@@ -65,8 +67,9 @@
 
             <!-- Content -->
             <div class="mb-3">
-                <label asp-for="ShortDescription" class="form-label">Description</label>
+                <label asp-for="ShortDescription" class="form-label required">Description</label>
                 <textarea asp-for="ShortDescription" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="ShortDescription" class="text-danger"></span>
             </div>
 
             <!-- Buttons -->
@@ -82,34 +85,40 @@
 
 </div>
 
-<script>
-    $(document).ready(function () {
-        console.log("Select2 loaded"); // 👈 اختبار
 
-        $('.js-select2').select2({
-            placeholder: "Select a category",
-            allowClear: true,
-            width: '100%'
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+            console.log("Select2 loaded"); // 👈 اختبار
+
+            $('.js-select2').select2({
+                placeholder: "Select a category",
+                allowClear: true,
+                width: '100%'
+            });
         });
-    });
 
-            function previewImage(event) {
-        const file = event.target.files[0];
+                function previewImage(event) {
+            const file = event.target.files[0];
 
-        if (!file) return;
+            if (!file) return;
 
-        // تأكد إنه صورة
-        if (!file.type.startsWith("image/")) {
-            alert("Please select a valid image file.");
-            return;
+            // تأكد إنه صورة
+            if (!file.type.startsWith("image/")) {
+                alert("Please select a valid image file.");
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                document.getElementById("imagePreview").src = e.target.result;
+            };
+
+            reader.readAsDataURL(file);
         }
-
-        const reader = new FileReader();
-
-        reader.onload = function (e) {
-            document.getElementById("imagePreview").src = e.target.result;
-        };
-
-        reader.readAsDataURL(file);
-    }
-</script>
+    </script>
+}
