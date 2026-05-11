@@ -453,5 +453,28 @@ namespace Nadixa.Web.Controllers
             return RedirectToAction("Detail", new { id = review.ProductId });
         }
 
+
+        [HttpGet]
+        public IActionResult Search(string term)
+        {
+            var products = _context.Products
+                .Include(p => p.Category)
+                .Where(p => string.IsNullOrEmpty(term)
+                    || p.Name.Contains(term))
+                .Select(p => new
+                {
+                    id = p.Id,
+                    name = p.Name,
+                    price = p.Price,
+                    description = p.Description.Length > 50
+                        ? p.Description.Substring(0, 50) + "..."
+                        : p.Description,
+                    mainImageUrlPath = p.MainImageUrlPath
+                })
+                .ToList();
+
+            return Json(products);
+        }
+
     }
 }

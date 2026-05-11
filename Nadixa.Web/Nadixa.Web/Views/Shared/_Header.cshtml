@@ -11,7 +11,7 @@
 				</div>
 
 				<div class="right-top-bar flex-w h-full">
-					<a href="#" class="flex-c-m trans-04 p-lr-25">
+					<a asp-controller="Help" asp-action="Index" class="flex-c-m trans-04 p-lr-25">
 						Help & FAQs
 					</a>
 
@@ -89,9 +89,6 @@
 							@await Component.InvokeAsync("Wishlist")
 						</div>
 
-						@* <a asp-controller="Wishlist" asp-action="Index" id="wishlist-count" class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti" data-notify="@Model.WishlistCount">
-							<i class="zmdi zmdi-favorite-outline"></i>
-						</a> *@
 
 						<a asp-controller="Auth" asp-action="Logout" class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11">
 							<i class="bi bi-box-arrow-right fs-30"></i>

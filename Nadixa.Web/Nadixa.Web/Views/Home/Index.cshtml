@@ -190,12 +190,18 @@
 
 			<!-- Search product -->
 			<div class="dis-none panel-search w-full p-t-10 p-b-15">
-				<div class="bor8 dis-flex p-l-15">
+				<div class="bor8 dis-flex p-l-15 position-relative">
 					<button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
 						<i class="zmdi zmdi-search"></i>
 					</button>
 
-					<input class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" name="search-product" placeholder="Search">
+					<input id="searchInput" class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" placeholder="Search">
+
+					<div id="searchResults"
+						class="bg-white border w-100 position-absolute"
+					style="top:100%; left:0; z-index:999; display:none">
+
+					</div>
 				</div>
 			</div>
 
@@ -390,7 +396,7 @@
 		</div>
 
 		@* isotope-grid                    حط دية جنب الرو عشان التفنيطة بتاعت البرودكتس*@
-		<div class="row isotope-grid g-3">
+		<div id="productsContainer" class="row isotope-grid g-3">
 			@foreach (var product in Model)
 			{
 				<div class="col-sm-6 col-md-4 col-lg-3 isotope-item bag pb-3">
@@ -444,6 +450,97 @@
 			</a>
 		</div>
 	</div>
+
+
 </section>
 
 
+
+@section Scripts{
+<script>
+	let timeout = null;
+
+	$("#searchInput").on("keyup", function () {
+
+		let query = $(this).val();
+
+		clearTimeout(timeout);
+
+		timeout = setTimeout(function () {
+
+			$.ajax({
+					url: '@Url.Action("Search", "Product")',
+				type: 'GET',
+				data: { term: query },
+
+				success: function (data) {
+
+					let html = "";
+
+					if (data.length === 0) {
+
+						html = `
+							<div class="col-12 text-center">
+								<p>No products found</p>
+							</div>
+						`;
+					}
+					else {
+
+						data.forEach(p => {
+
+							html += `
+							<div class="col-sm-6 col-md-4 col-lg-3 isotope-item bag pb-3">
+
+								<div class="block2 block2-shadow h-100">
+
+									<div class="block2-pic hov-img0">
+										<img src="${p.mainImageUrlPath}"
+											 class="img-fluid"
+											 style="height:270px; object-fit:cover;">
+
+										<a href="/Product/Detail/${p.id}"
+										   class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+											Quick View
+										</a>
+									</div>
+
+									<div class="block2-txt flex-w flex-t p-t-14">
+
+										<div class="block2-txt-child1 flex-col-l px-3">
+
+											<a href="/Product/Detail/${p.id}"
+											   class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+												${p.name}
+											</a>
+
+											<span class="stext-105 cl3">
+												$${p.price}
+											</span>
+
+										</div>
+
+									</div>
+
+									<div class="px-3 pt-2">
+										<p class="card-text">
+											${p.description}
+										</p>
+									</div>
+
+								</div>
+
+							</div>
+							`;
+						});
+					}
+
+					$("#productsContainer").html(html);
+				}
+			});
+
+		}, 300);
+
+	});
+</script>
+}
