@@ -24,9 +24,21 @@ namespace Nadixa.API
             builder.Services.AddSwaggerGen();
 
             // إعدادات الداتا بيز
-            builder.Services.AddDbContext<NadixaDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            //builder.Services.AddDbContext<NadixaDbContext>(options =>
+            //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
+
+
+            builder.Services.AddDbContext<NadixaDbContext>(options =>
+            {
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("DefaultConnection"),
+                    sqlOptions =>
+                    {
+                        sqlOptions.EnableRetryOnFailure();
+                    });
+            });
             // إعدادات Identity (المستخدمين)
             builder.Services.AddIdentity<AppUser, IdentityRole>()
                 .AddEntityFrameworkStores<NadixaDbContext>()

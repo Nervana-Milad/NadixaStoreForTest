@@ -102,5 +102,62 @@ namespace Nadixa.Web.Controllers
         {
             return View();
         }
+
+
+
+        public IActionResult GoogleLogin()
+        {
+            var redirectUrl = Url.Action("GoogleResponse", "Auth");
+
+            var properties = _signInManager
+                .ConfigureExternalAuthenticationProperties("Google", redirectUrl);
+
+            return Challenge(properties, "Google");
+        }
+
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> GoogleResponse()
+        {
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+
+            if (info == null)
+                return RedirectToAction("Login");
+
+            var result = await _signInManager.ExternalLoginSignInAsync(
+                info.LoginProvider,
+                info.ProviderKey,
+                isPersistent: false);
+
+            if (result.Succeeded)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                var email = info.Principal.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+
+                var user = new AppUser
+                {
+                    UserName = email,
+                    Email = email
+                };
+
+                var identityResult = await _userManager.CreateAsync(user);
+
+                if (identityResult.Succeeded)
+                {
+                    await _userManager.AddLoginAsync(user, info);
+
+                    await _signInManager.SignInAsync(user, false);
+
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+
+            return RedirectToAction("Login");
+        }
     }
 }

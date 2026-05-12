@@ -4,7 +4,8 @@ using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Web.Services;
 using Nadixa.Web.Filters;
-
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using System.Threading.Tasks;
 
 namespace Nadixa.Web
@@ -29,6 +30,12 @@ namespace Nadixa.Web
                 options.Password.RequireUppercase = false;
                 options.Password.RequiredLength = 6;
             }).AddEntityFrameworkStores<NadixaDbContext>();
+            builder.Services.AddAuthentication()
+               .AddGoogle(options =>
+               {
+                   options.ClientId = "361328285969-nuqttpr8ooqv9loj1pdmir4h5mqj2f9b.apps.googleusercontent.com";
+                   options.ClientSecret = "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";
+               });
 
             builder.Services.ConfigureApplicationCookie(options =>
             {
@@ -52,6 +59,7 @@ namespace Nadixa.Web
             {
                 var _userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
                 var _roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+               
 
                 string adminEmail = "admin@gmail.com";
                 string adminPassword = "admin";
