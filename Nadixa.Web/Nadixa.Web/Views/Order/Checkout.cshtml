@@ -1,0 +1,247 @@
+﻿@model Nadixa.Web.Models.ViewModels.CheckoutVM
+
+<style>
+    /* =========================================
+       Premium Checkout Styles (Fixed Background)
+       ========================================= */
+       
+    /* نقلنا نوع الخط هنا ومسحنا كود الـ body اللي كان بيعمل المساحة البيضا */
+    .checkout-page-wrapper {
+        max-width: 1100px;
+        margin-top: 120px; /* مسافة من فوق عشان الـ Nav Bar */
+        margin-bottom: 20px; /* قللنا المسافة جداً من تحت عشان الفوتر يلزق طبيعي */
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .premium-card {
+        background: #ffffff;
+        border-radius: 16px;
+        /* زودنا نعومة الظل عشان الكارت يبرز بشكل احترافي من غير ما يحتاج خلفية رمادي */
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08); 
+        padding: 40px;
+        border: 1px solid #eaeaea;
+    }
+
+    .section-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #111;
+        margin-bottom: 24px;
+        letter-spacing: -0.5px;
+    }
+
+    .form-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #555;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    /* تصميم الحقول الاحترافي */
+    .premium-input {
+        width: 100%;
+        background-color: #f9f9fb;
+        border: 1.5px solid #e5e5ea;
+        border-radius: 10px;
+        padding: 14px 16px;
+        font-size: 1rem;
+        color: #333;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .premium-input::placeholder {
+        color: #adb5bd;
+    }
+
+    .premium-input:focus {
+        background-color: #ffffff;
+        border-color: #000000;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+    }
+
+    /* تصميم الـ Dropdown الاحترافي */
+    .premium-select {
+        appearance: none; 
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 16px center; 
+        background-size: 16px;
+        padding-right: 48px;
+        cursor: pointer;
+    }
+
+    /* زر الشراء */
+    .btn-pay {
+        background-color: #111;
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 16px;
+        border: none;
+        width: 100%;
+        transition: 0.3s;
+        margin-top: 10px;
+    }
+
+    .btn-pay:hover {
+        background-color: #333;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .input-wrapper {
+        margin-bottom: 24px;
+    }
+
+    .order-summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 0.95rem;
+        color: #555;
+    }
+
+    .order-total {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px dashed #e5e5ea;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #111;
+    }
+</style>
+
+<div class="container checkout-page-wrapper">
+    <div class="row g-4">
+        
+        <!-- القسم الأول: فورم البيانات -->
+        <div class="col-lg-7">
+            <div class="premium-card">
+                <h2 class="section-title">Shipping Address</h2>
+                
+                <form asp-action="Checkout" method="post">
+                    
+                    <div class="input-wrapper">
+                        <label asp-for="FullName" class="form-label">Full Name</label>
+                        <input asp-for="FullName" class="premium-input" placeholder="e.g. Ahmed Mohamed" />
+                        <span asp-validation-for="FullName" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 input-wrapper">
+                            <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                            <input asp-for="PhoneNumber" class="premium-input" placeholder="01X XXXX XXXX" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="col-md-6 input-wrapper">
+                            <label asp-for="City" class="form-label">City / Governorate</label>
+                            <select asp-for="City" class="premium-input premium-select">
+                                <option value="" selected disabled>Select City...</option>
+                                <option value="Cairo">القاهرة (Cairo)</option>
+                                <option value="Giza">الجيزة (Giza)</option>
+                                <option value="Alexandria">الإسكندرية (Alexandria)</option>
+                                <option value="Dakahlia">الدقهلية (Dakahlia)</option>
+                                <option value="Red Sea">البحر الأحمر (Red Sea)</option>
+                                <option value="Beheira">البحيرة (Beheira)</option>
+                                <option value="Fayoum">الفيوم (Fayoum)</option>
+                                <option value="Gharbia">الغربية (Gharbia)</option>
+                                <option value="Ismailia">الإسماعيلية (Ismailia)</option>
+                                <option value="Menofia">المنوفية (Menofia)</option>
+                                <option value="Minya">المنيا (Minya)</option>
+                                <option value="Qaliubiya">القليوبية (Qaliubiya)</option>
+                                <option value="New Valley">الوادي الجديد (New Valley)</option>
+                                <option value="Suez">السويس (Suez)</option>
+                                <option value="Aswan">أسوان (Aswan)</option>
+                                <option value="Assiut">أسيوط (Assiut)</option>
+                                <option value="Beni Suef">بني سويف (Beni Suef)</option>
+                                <option value="Port Said">بورسعيد (Port Said)</option>
+                                <option value="Damietta">دمياط (Damietta)</option>
+                                <option value="Sharkia">الشرقية (Sharkia)</option>
+                                <option value="South Sinai">جنوب سيناء (South Sinai)</option>
+                                <option value="Kafr El Sheikh">كفر الشيخ (Kafr El Sheikh)</option>
+                                <option value="Matrouh">مطروح (Matrouh)</option>
+                                <option value="Luxor">الأقصر (Luxor)</option>
+                                <option value="Qena">قنا (Qena)</option>
+                                <option value="North Sinai">شمال سيناء (North Sinai)</option>
+                                <option value="Sohag">سوهاج (Sohag)</option>
+                            </select>
+                            <span asp-validation-for="City" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <label asp-for="Address" class="form-label">Detailed Address</label>
+                        <input asp-for="Address" class="premium-input" placeholder="Street Name, Building No, Floor, Apartment" />
+                        <span asp-validation-for="Address" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <div class="input-wrapper mb-4">
+                        <label asp-for="Notes" class="form-label">Order Notes <span style="text-transform:none; color:#999; font-weight:normal;">(Optional)</span></label>
+                        <textarea asp-for="Notes" class="premium-input" rows="3" placeholder="Special instructions for delivery..."></textarea>
+                        <span asp-validation-for="Notes" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <button type="submit" class="btn-pay">
+                        Place Order
+                    </button>
+                    <div class="text-center mt-3">
+                        <small style="color: #888;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-lock-fill me-1" viewBox="0 0 16 16" style="margin-bottom: 2px;">
+                                <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                            </svg>
+                            Secure Checkout
+                        </small>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <!-- القسم الثاني: ملخص الطلب -->
+        <div class="col-lg-5">
+            <div class="premium-card" style="position: sticky; top: 120px;">
+                <h2 class="section-title">Order Summary</h2>
+                
+                <div class="order-summary-item">
+                    <span>Items Subtotal</span>
+                    <span style="font-weight: 600; color: #111;">@Model.SubTotal EGP</span>
+                </div>
+                <div class="order-summary-item">
+                    <span>Shipping Fee</span>
+                    <span style="font-weight: 600; color: #111;">50 EGP</span>
+                </div>
+                
+                <div class="order-total">
+                    <span>Total</span>
+                    <span>@Model.GrandTotal EGP</span>
+                </div>
+
+                <div style="background-color: #f9f9fb; border-radius: 10px; padding: 15px; margin-top: 25px; border: 1px solid #e5e5ea;">
+                    <div style="font-weight: 600; font-size: 0.9rem; color: #333; margin-bottom: 5px;">Payment Method</div>
+                    <div style="font-size: 0.85rem; color: #666;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cash-stack me-2" viewBox="0 0 16 16" style="color: #28a745; margin-bottom: 2px;">
+                          <path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1H1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
+                          <path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V5zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2H3z"/>
+                        </svg>
+                        Cash on Delivery (COD)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
