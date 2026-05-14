@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nadixa.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Nadixa.Infrastructure.Data;
 namespace Nadixa.Infrastructure.Migrations
 {
     [DbContext(typeof(NadixaDbContext))]
-    partial class NadixaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260512214935_AddOrderAndOrderItemsTables")]
+    partial class AddOrderAndOrderItemsTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -269,7 +272,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("BlogCategoryId");
 
-                    b.ToTable("Blogs", (string)null);
+                    b.ToTable("Blogs");
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.BlogCategory", b =>
@@ -286,7 +289,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BlogCategories", (string)null);
+                    b.ToTable("BlogCategories");
 
                     b.HasData(
                         new
@@ -306,37 +309,6 @@ namespace Nadixa.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Nadixa.Core.Entities.BlogComment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AppUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("BlogId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
-
-                    b.HasIndex("BlogId");
-
-                    b.ToTable("BlogComments");
-                });
-
             modelBuilder.Entity("Nadixa.Core.Entities.Cart", b =>
                 {
                     b.Property<int>("Id")
@@ -351,7 +323,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Carts", (string)null);
+                    b.ToTable("Carts");
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.CartItem", b =>
@@ -377,7 +349,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("CartItems", (string)null);
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Color", b =>
@@ -407,7 +379,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Colors", (string)null);
+                    b.ToTable("Colors");
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Order", b =>
@@ -458,7 +430,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.OrderItem", b =>
@@ -496,7 +468,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Product", b =>
@@ -546,7 +518,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.ProductCategory", b =>
@@ -610,7 +582,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductColors", (string)null);
+                    b.ToTable("ProductColors");
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.ProductImage", b =>
@@ -644,7 +616,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImages", (string)null);
+                    b.ToTable("ProductImages");
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Review", b =>
@@ -690,7 +662,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Wishlist", b =>
@@ -709,7 +681,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Wishlists", (string)null);
+                    b.ToTable("Wishlists");
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.WishlistItem", b =>
@@ -733,7 +705,7 @@ namespace Nadixa.Infrastructure.Migrations
                     b.HasIndex("WishlistId", "ProductId")
                         .IsUnique();
 
-                    b.ToTable("WishlistItems", (string)null);
+                    b.ToTable("WishlistItems");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -802,25 +774,6 @@ namespace Nadixa.Infrastructure.Migrations
                     b.Navigation("AppUser");
 
                     b.Navigation("BlogCategory");
-                });
-
-            modelBuilder.Entity("Nadixa.Core.Entities.BlogComment", b =>
-                {
-                    b.HasOne("Nadixa.Core.Entities.AppUser", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Nadixa.Core.Entities.Blog", "Blog")
-                        .WithMany("BlogComments")
-                        .HasForeignKey("BlogId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppUser");
-
-                    b.Navigation("Blog");
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.CartItem", b =>
@@ -941,11 +894,6 @@ namespace Nadixa.Infrastructure.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("Wishlist");
-                });
-
-            modelBuilder.Entity("Nadixa.Core.Entities.Blog", b =>
-                {
-                    b.Navigation("BlogComments");
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.BlogCategory", b =>

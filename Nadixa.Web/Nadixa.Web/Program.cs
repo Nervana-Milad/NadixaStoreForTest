@@ -1,11 +1,13 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
+using Nadixa.Core.Interfaces;
 using Nadixa.Infrastructure.Data;
-using Nadixa.Web.Services;
+using Nadixa.Infrastructure.Repositories;
 using Nadixa.Web.Filters;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
+using Nadixa.Web.Services;
 using System.Threading.Tasks;
 
 namespace Nadixa.Web
@@ -51,6 +53,9 @@ namespace Nadixa.Web
             {
                 options.Filters.Add<LoadWishlistFilter>();
             });
+
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             var app = builder.Build();
 

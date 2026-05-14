@@ -31,7 +31,12 @@ namespace Nadixa.Infrastructure.Data
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<BlogCategory> BlogCategories { get; set; }
+
         public DbSet<BlogComment> BlogComments { get; set; }
+
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

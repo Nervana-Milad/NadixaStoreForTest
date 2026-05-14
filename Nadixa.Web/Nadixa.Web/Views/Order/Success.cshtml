@@ -1,0 +1,156 @@
+﻿@{
+    ViewData["Title"] = "Order Successful";
+}
+
+<style>
+    /* =========================================
+       Premium Success Page Styles (Adjusted)
+       ========================================= */
+    body {
+        background-color: #f4f5f7;
+    }
+
+    .success-card {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        padding: 40px 30px; /* قللنا المسافات الداخلية عشان ميتبقاش ضخم */
+        text-align: center;
+        border: 1px solid #f0f0f0;
+        /* زودنا الـ Margin اللي فوق لـ 120 بيكسل عشان ينزل تحت الـ NavBar */
+        margin: 120px auto 80px auto; 
+        max-width: 450px; /* صغرنا عرض البوكس عشان يكون ملموم وشيك */
+    }
+
+    .success-icon-wrapper {
+        width: 70px;
+        height: 70px;
+        background-color: #e8f5e9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px auto;
+    }
+
+    .success-icon-wrapper svg {
+        color: #2e7d32;
+        width: 35px;
+        height: 35px;
+    }
+
+    .success-title {
+        font-size: 1.5rem; /* صغرنا الخط سنة بسيطة */
+        font-weight: 800;
+        color: #111;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+    }
+
+    .success-subtitle {
+        font-size: 0.95rem;
+        color: #666;
+        margin-bottom: 25px;
+        line-height: 1.5;
+    }
+
+    .order-info-box {
+        background-color: #f9f9fb;
+        border-radius: 12px;
+        padding: 15px 20px;
+        text-align: left;
+        border: 1px solid #e5e5ea;
+        margin-bottom: 25px;
+    }
+
+    .order-info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+    }
+    .order-info-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .info-label {
+        color: #666;
+        font-weight: 500;
+    }
+
+    .info-value {
+        color: #111;
+        font-weight: 700;
+    }
+
+    .btn-premium-dark {
+        background-color: #111;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 14px;
+        border: none;
+        width: 100%;
+        display: block;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-premium-dark:hover {
+        background-color: #333;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+</style>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            
+            <div class="success-card">
+                
+                <!-- علامة الصح -->
+                <div class="success-icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                </div>
+
+                <!-- رسالة الشكر -->
+                <h2 class="success-title">
+                    Thank you, @ViewBag.CustomerName!
+                </h2>
+                
+                <p class="success-subtitle">
+                    Your order has been placed successfully.<br/>
+                    We're getting it ready 🚀
+                </p>
+
+                <!-- تفاصيل الطلب -->
+                <div class="order-info-box">
+                    <div class="order-info-row">
+                        <span class="info-label">Order Number</span>
+                        <span class="info-value">#@ViewBag.OrderId</span>
+                    </div>
+                    
+                    <hr style="border-color: #e5e5ea; margin: 12px 0;">
+                    
+                    <div class="order-info-row">
+                        <span class="info-label">Estimated Delivery</span>
+                        <span class="info-value">3 - 5 Days</span>
+                    </div>
+                </div>
+
+                <!-- زرار العودة -->
+                <a href="/" class="btn-premium-dark">
+                    Continue Shopping
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+</div>
