@@ -52,7 +52,7 @@
 							</span>
 
 							<span>
-								0 Comments
+								@Model.Blog.BlogComments.Count() Comments
 							</span>
 						</span>
 
@@ -69,7 +69,7 @@
 						</p>
 					</div>
 
-					<div class="flex-w flex-t p-t-16">
+					<div class="flex-w flex-t p-t-16 p-b-22">
 						<span class="size-216 stext-116 cl8 p-t-4">
 							Tags
 						</span>
@@ -85,6 +85,31 @@
 						</div>
 					</div>
 
+					@if (Model.Blog.BlogComments.Any())
+					{
+						<div class="p-b-40">
+							<h4 class="mtext-112 cl2 p-b-20">
+								Comments (@Model.Blog.BlogComments.Count)
+							</h4>
+							@foreach(var comment in Model.Blog.BlogComments.OrderByDescending(c => c.CreatedAt))
+							{
+								<div class="bor19 p-3 m-b-20">
+									<div class="d-flex justify-content-between align-items-center mb-2">
+										<strong>
+											@comment.AppUser.FirstName
+											@comment.AppUser.LastName
+										</strong>
+										<small class="text-muted">
+											@comment.CreatedAt.ToString("dd MMM yyyy")
+										</small>
+									</div>
+									<p class="mb-0">
+										@comment.Content
+									</p>
+								</div>
+							}
+						</div>
+					}
 					<!--  -->
 					<div class="p-t-40">
 						<h5 class="mtext-113 cl2 p-b-12">
@@ -95,27 +120,34 @@
 							Your email address will not be published. Required fields are marked *
 						</p>
 
-						<form>
-							<div class="bor19 m-b-20">
-								<textarea class="stext-111 cl2 plh3 size-124 p-lr-18 p-tb-15" name="cmt" placeholder="Comment..."></textarea>
-							</div>
+						@if (User.Identity.IsAuthenticated)
+						{
+							<form asp-action="AddComment" asp-controller="Blog" method="post">
+								<input type="hidden" name="blogId" value="@Model.Blog.Id"/>
 
-							<div class="bor19 size-218 m-b-20">
-								<input class="stext-111 cl2 plh3 size-116 p-lr-18" type="text" name="name" placeholder="Name *">
-							</div>
+								<div class="bor19 m-b-20">
+									<textarea class="stext-111 cl2 plh3 size-124 p-lr-18 p-tb-15" name="content" placeholder="Comment..."></textarea>
+								</div>
 
-							<div class="bor19 size-218 m-b-20">
-								<input class="stext-111 cl2 plh3 size-116 p-lr-18" type="text" name="email" placeholder="Email *">
-							</div>
+								@* <div class="bor19 size-218 m-b-20">
+									<input class="stext-111 cl2 plh3 size-116 p-lr-18" type="text" name="name" placeholder="Name *">
+								</div>
 
-							<div class="bor19 size-218 m-b-30">
-								<input class="stext-111 cl2 plh3 size-116 p-lr-18" type="text" name="web" placeholder="Website">
-							</div>
+								<div class="bor19 size-218 m-b-20">
+									<input class="stext-111 cl2 plh3 size-116 p-lr-18" type="text" name="email" placeholder="Email *">
+								</div> *@
 
-							<button class="flex-c-m stext-101 cl0 size-125 bg3 bor2 hov-btn3 p-lr-15 trans-04">
-								Post Comment
-							</button>
-						</form>
+
+								<button class="flex-c-m stext-101 cl0 size-125 bg3 bor2 hov-btn3 p-lr-15 trans-04" type="submit">
+									Post Comment
+								</button>
+							</form>
+						}
+						else
+						{
+							<p class="text-muted">You need to <a asp-controller="Auth" asp-action="Login" style="color:#717fe0">Login</a> to comment</p>
+						}
+
 					</div>
 				</div>
 			</div>

@@ -9,5 +9,6 @@
         public string Author { get; set; }
         public string Category { get; set; } // ✅ للعرض
         public DateTime Date { get; set; }
+        public int CommentsCount { get; set; }
     }
 }

@@ -26,9 +26,9 @@ namespace Nadixa.Web.Controllers
         }
         public async Task<IActionResult> Index(int? categoryId)
         {
-            var query = _context.Blogs.Include(b => b.BlogCategory).Include(b => b.AppUser).AsQueryable();
+            var query = _context.Blogs.Include(b => b.BlogCategory).Include(b => b.BlogComments).Include(b => b.AppUser).AsQueryable();
 
-            if(categoryId.HasValue)
+            if (categoryId.HasValue)
             {
                 query = query.Where(b => b.BlogCategoryId == categoryId);
             }
@@ -42,20 +42,22 @@ namespace Nadixa.Web.Controllers
                     Author = b.AppUser.FirstName + " " + b.AppUser.LastName,
                     Category = b.BlogCategory.Name,
                     ShortDescription = b.Content.Length > 100 ? b.Content.Substring(0, 100) : b.Content,
-                    Date = b.CreateAt
+                    Date = b.CreateAt,
+
+                    CommentsCount = b.BlogComments.Count()
                 })
                 .ToListAsync();
             ViewBag.Categories = await _context.BlogCategories.ToListAsync();
             return View(blogs);
         }
 
-        
+
         public async Task<IActionResult> Detail(int id)
         {
             var user = await _userManager.GetUserAsync(User);
             if (id == null) return NotFound();
 
-            var blog = await _context.Blogs.Include(b => b.BlogCategory).FirstOrDefaultAsync(b => b.Id == id);
+            var blog = await _context.Blogs.Include(b => b.BlogCategory).Include(b => b.BlogComments).ThenInclude(c => c.AppUser).FirstOrDefaultAsync(b => b.Id == id);
 
             if (blog == null) return NotFound();
             var vm = new BlogDetailViewModel
@@ -98,7 +100,7 @@ namespace Nadixa.Web.Controllers
             }
 
             string imagePath = null;
-            if(blogViewModel.ImageFile != null)
+            if (blogViewModel.ImageFile != null)
             {
                 string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/blogs");
                 if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
@@ -202,7 +204,7 @@ namespace Nadixa.Web.Controllers
 
             if (blogFromDb == null) return NotFound();
 
-            if(editViewModel.NewImageFile != null)
+            if (editViewModel.NewImageFile != null)
             {
                 var inputFileExtension = Path.GetExtension(editViewModel.NewImageFile.FileName).ToLower();
                 bool isAllowed = _allowedExtension.Contains(inputFileExtension);
@@ -234,7 +236,7 @@ namespace Nadixa.Web.Controllers
                 string fileName = Guid.NewGuid() + inputFileExtension;
                 string filePath = Path.Combine(folder, fileName);
 
-                using(var stream = new FileStream(filePath, FileMode.Create))
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await editViewModel.NewImageFile.CopyToAsync(stream);
                 }
@@ -250,6 +252,30 @@ namespace Nadixa.Web.Controllers
         }
 
 
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> AddComment(int blogId, string content)
+        {
+            var user = await _userManager.GetUserAsync(User);
 
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            if (string.IsNullOrWhiteSpace(content))
+                return RedirectToAction("Detail", new { id = blogId });
+
+            var comment = new BlogComment
+            {
+                Content = content,
+                BlogId = blogId,
+                AppUserId = user.Id,
+                CreatedAt = DateTime.Now
+            };
+            _context.BlogComments.Add(comment);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Detail", new { id = blogId });
+        }
     }
 }

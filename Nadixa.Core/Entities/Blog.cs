@@ -14,11 +14,15 @@ namespace Nadixa.Core.Entities
         public string ImageUrl { get; set; }
         public DateTime CreateAt { get; set; } = DateTime.Now;
 
-        //relationship
+        //BlogCategory Relation
         public int BlogCategoryId { get; set; }
         public BlogCategory BlogCategory { get; set; }
 
+        //User Relation
         public string? AppUserId { get; set; }
         public AppUser AppUser { get; set; }
+
+        //Comments Relation
+        public ICollection<BlogComment> BlogComments { get; set; } = new List<BlogComment>();
     }
 }

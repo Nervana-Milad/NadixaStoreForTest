@@ -103,8 +103,6 @@ namespace Nadixa.Web.Controllers
             return View();
         }
 
-
-
         public IActionResult GoogleLogin()
         {
             var redirectUrl = Url.Action("GoogleResponse", "Auth");
@@ -114,9 +112,6 @@ namespace Nadixa.Web.Controllers
 
             return Challenge(properties, "Google");
         }
-
-
-
 
         [HttpGet]
         public async Task<IActionResult> GoogleResponse()
