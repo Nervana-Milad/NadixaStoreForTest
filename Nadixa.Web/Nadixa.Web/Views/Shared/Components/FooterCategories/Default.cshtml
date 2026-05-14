@@ -1,0 +1,24 @@
+﻿@model IEnumerable<Nadixa.Core.Entities.ProductCategory>
+
+
+
+<div class="col-sm-6 col-lg-3 p-b-50">
+    <h4 class="stext-301 cl0 p-b-30">
+        Categories
+    </h4>
+
+    <ul>
+        @foreach (var cat in Model)
+        {
+            <li class="p-b-10">
+                <a asp-controller="Product"
+                   asp-action="Index"
+                   asp-route-categoryId="@cat.Id"
+                   class="stext-107 cl7 hov-cl1 trans-04">
+
+                    @cat.Name
+                </a>
+            </li>
+        }
+    </ul>
+</div>
