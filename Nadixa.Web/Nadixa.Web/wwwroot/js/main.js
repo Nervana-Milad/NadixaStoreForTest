@@ -214,16 +214,49 @@
 
     /*==================================================================
     [ +/- num product ]*/
-    $('.btn-num-product-down').on('click', function(){
-        var numProduct = Number($(this).next().val());
-        if(numProduct > 0) $(this).next().val(numProduct - 1);
+    //$('.btn-num-product-down').on('click', function(){
+    //    var numProduct = Number($(this).next().val());
+    //    if(numProduct > 0) $(this).next().val(numProduct - 1);
+    //});
+
+    //$('.btn-num-product-up').on('click', function(){
+    //    var numProduct = Number($(this).prev().val());
+    //    $(this).prev().val(numProduct + 1);
+    //});
+
+
+    $(document).on('click', '.btn-num-product-up', function () {
+
+        var input = $(this).prev();
+
+        var numProduct = Number(input.val());
+
+        var max = Number(input.attr('max'));
+
+        if (!max || numProduct < max) {
+
+            input.val(numProduct + 1);
+
+        } else {
+
+            swal("Sorry!", "Only " + max + " items available in stock.", "warning");
+        }
     });
 
-    $('.btn-num-product-up').on('click', function(){
-        var numProduct = Number($(this).prev().val());
-        $(this).prev().val(numProduct + 1);
-    });
 
+    $(document).on('click', '.btn-num-product-down', function () {
+
+        var input = $(this).next();
+
+        var numProduct = Number(input.val());
+
+        var min = Number(input.attr('min')) || 1;
+
+        if (numProduct > min) {
+
+            input.val(numProduct - 1);
+        }
+    });
     /*==================================================================
     [ Rating ]*/
     $('.wrap-rating').each(function(){

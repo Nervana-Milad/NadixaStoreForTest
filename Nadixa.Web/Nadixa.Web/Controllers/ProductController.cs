@@ -419,6 +419,7 @@ namespace Nadixa.Web.Controllers
                 Price = product.Price,
                 Description = product.Description,
                 MainImageUrl = product.MainImageUrlPath,
+                StockQuantity = product.StockQuantity,
                 Images = product.Images.ToList()
             };
 

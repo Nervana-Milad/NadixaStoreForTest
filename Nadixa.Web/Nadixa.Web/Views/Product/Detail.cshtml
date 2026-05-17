@@ -175,7 +175,7 @@
 										<i class="fs-16 zmdi zmdi-minus"></i>
 									</div>
 
-									<input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product" value="1">
+									<input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product" value="1" max="@Model.Product.StockQuantity">
 
 									<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
 										<i class="fs-16 zmdi zmdi-plus"></i>
@@ -184,11 +184,24 @@
 
 								@if (User.Identity.IsAuthenticated)
 								{
-									<button type="button"
-											class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail my-4"
-											data-product-id="@Model.Product.Id">
-										Add to cart
-									</button>
+									@if (Model.Product.StockQuantity > 0)
+									{
+										<button type="button"
+												class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail my-4"
+												data-product-id="@Model.Product.Id">
+											Add to cart
+										</button>
+									}
+									else
+									{
+										<button type="button"
+												disabled
+												class="flex-c-m stext-101 cl0 size-101 bg-danger bor1 p-lr-15 trans-04 my-4"
+												style="cursor:not-allowed; opacity:.7;">
+											Out Of Stock
+										</button>
+									}
+									
 								}
 								else
 								{
@@ -199,7 +212,7 @@
 
 							</div>
 						</div>
-						<h4>Quantity Stock: @Model.Product.StockQuantity</h4>
+						<h4>Quantity Stock: @Model.Product.StockQuantity item(s)</h4>
 					</div>
 
 					<!--  -->

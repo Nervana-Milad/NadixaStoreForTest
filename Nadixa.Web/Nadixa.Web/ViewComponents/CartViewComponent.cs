@@ -35,7 +35,7 @@ namespace Nadixa.Web.ViewComponents
                 {
                     ProductName = i.Product.Name,
                     Price = i.Product.Price,
-                    Quantity = i.Quantity,
+                    StockQuantity = i.Quantity,
                     MainImageUrl = i.Product.MainImageUrlPath,
                 }).ToList();
             }

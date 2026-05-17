@@ -169,13 +169,16 @@
 			var productId = button.data("product-id");
 			// var nameProduct = $('.js-name-detail').html();
 			var nameProduct = $(this).closest('.js-product').find('.js-name-detail').text();
+			var quantity = button
+		.closest('.flex-w')
+		.find('.num-product')
+		.val();
 			$.ajax({
 				url: "/Cart/AddToCart",
 				type: "POST",
-				data: { productId: productId },
+				data: { productId: productId, quantity: quantity },
 				success: function (response) {
 					swal(nameProduct, "is added to cart!", "success");
-					// $("#cart-count").attr("data-notify", response.cartCount);
 						document.getElementById("cart-count")
 						.setAttribute("data-notify", response.cartCount);
 					loadMiniCart();

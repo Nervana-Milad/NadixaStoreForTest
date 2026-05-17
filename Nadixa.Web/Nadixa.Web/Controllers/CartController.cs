@@ -39,7 +39,7 @@ namespace Nadixa.Web.Controllers
                 ProductId = item.ProductId,
                 ProductName = item.Product.Name,
                 Price = item.Product.Price,
-                Quantity = item.Quantity,
+                StockQuantity = item.Quantity,
                 MainImageUrl = item.Product.MainImageUrlPath
             }).ToList();
 
@@ -52,15 +52,35 @@ namespace Nadixa.Web.Controllers
         public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
             var user = await _userManager.GetUserAsync(User);
-            // ✔️ تحقق من وجود المنتج
-            var productExists = await _context.Products.AnyAsync(p => p.Id == productId);
 
-            if (!productExists)
-                return Json(new { success = false, message = "Product not found" });
+            // هات المنتج كامل
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p => p.Id == productId);
 
-            var cart = await _context.Carts.Include(c => c.Items).FirstOrDefaultAsync(c => c.UserId == user.Id);
+            if (product == null)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Product not found"
+                });
+            }
 
-            if(cart == null)
+            // لو المنتج Out Of Stock
+            if (product.StockQuantity <= 0)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Product is out of stock"
+                });
+            }
+
+            var cart = await _context.Carts
+                .Include(c => c.Items)
+                .FirstOrDefaultAsync(c => c.UserId == user.Id);
+
+            if (cart == null)
             {
                 cart = new Cart
                 {
@@ -72,9 +92,24 @@ namespace Nadixa.Web.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            var existingItem = cart.Items.FirstOrDefault(ci => ci.ProductId == productId);
+            var existingItem = cart.Items
+                .FirstOrDefault(ci => ci.ProductId == productId);
 
-            if(existingItem != null)
+            // الكمية المطلوبة النهائية
+            int requestedQuantity =
+                (existingItem?.Quantity ?? 0) + quantity;
+
+            // تحقق من الـ stock
+            if (requestedQuantity > product.StockQuantity)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = $"Only {product.StockQuantity} item(s) available in stock"
+                });
+            }
+
+            if (existingItem != null)
             {
                 existingItem.Quantity += quantity;
             }
@@ -86,11 +121,11 @@ namespace Nadixa.Web.Controllers
                     Quantity = quantity,
                     CartId = cart.Id
                 };
+
                 _context.CartItems.Add(cartItem);
             }
 
             await _context.SaveChangesAsync();
-            //return RedirectToAction("Index");
 
             var cartCount = cart.Items.Sum(i => i.Quantity);
 
@@ -99,14 +134,68 @@ namespace Nadixa.Web.Controllers
                 success = true,
                 cartCount
             });
-
         }
+
+        //[HttpPost]
+        //[Authorize]
+        //public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
+        //{
+        //    var user = await _userManager.GetUserAsync(User);
+        //    // ✔️ تحقق من وجود المنتج
+        //    var productExists = await _context.Products.AnyAsync(p => p.Id == productId);
+
+        //    if (!productExists)
+        //        return Json(new { success = false, message = "Product not found" });
+
+        //    var cart = await _context.Carts.Include(c => c.Items).FirstOrDefaultAsync(c => c.UserId == user.Id);
+
+        //    if(cart == null)
+        //    {
+        //        cart = new Cart
+        //        {
+        //            UserId = user.Id,
+        //            Items = new List<CartItem>()
+        //        };
+
+        //        _context.Carts.Add(cart);
+        //        await _context.SaveChangesAsync();
+        //    }
+
+        //    var existingItem = cart.Items.FirstOrDefault(ci => ci.ProductId == productId);
+
+        //    if(existingItem != null)
+        //    {
+        //        existingItem.Quantity += quantity;
+        //    }
+        //    else
+        //    {
+        //        var cartItem = new CartItem
+        //        {
+        //            ProductId = productId,
+        //            Quantity = quantity,
+        //            CartId = cart.Id
+        //        };
+        //        _context.CartItems.Add(cartItem);
+        //    }
+
+        //    await _context.SaveChangesAsync();
+        //    //return RedirectToAction("Index");
+
+        //    var cartCount = cart.Items.Sum(i => i.Quantity);
+
+        //    return Json(new
+        //    {
+        //        success = true,
+        //        cartCount
+        //    });
+
+        //}
 
         [HttpPost]
         public async Task<IActionResult> UpdateCart(Dictionary<int, int> quantities)
         {
             var user = await _userManager.GetUserAsync(User);
-            var cart = await _context.Carts.Include(c => c.Items).FirstOrDefaultAsync(c => c.UserId == user.Id);
+            var cart = await _context.Carts.Include(c => c.Items).ThenInclude(i => i.Product).FirstOrDefaultAsync(c => c.UserId == user.Id);
 
             if(cart == null)
             {
@@ -117,7 +206,21 @@ namespace Nadixa.Web.Controllers
             {
                 if (quantities.ContainsKey(item.ProductId))
                 {
-                    item.Quantity = quantities[item.ProductId];
+                    var requestedQuantity = quantities[item.ProductId];
+
+                    // منع القيم الأقل من 1
+                    if (requestedQuantity < 1)
+                    {
+                        requestedQuantity = 1;
+                    }
+
+                    // منع تجاوز المخزون
+                    if (requestedQuantity > item.Product.StockQuantity)
+                    {
+                        requestedQuantity = item.Product.StockQuantity;
+                    }
+
+                    item.Quantity = requestedQuantity;
                 }
             }
 
