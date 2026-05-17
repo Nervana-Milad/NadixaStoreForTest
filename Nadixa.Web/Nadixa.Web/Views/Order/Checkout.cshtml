@@ -11,7 +11,16 @@
         <div class="col-lg-7">
             <div class="premium-card">
                 <h2 class="section-title">Shipping Address</h2>
-                
+                <div class="form-check mb-4">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           id="newAddressCheck">
+
+                    <label class="form-check-label" for="newAddressCheck">
+                        Use another address
+                    </label>
+                </div>
+                <div id="addressFields">
                 <form asp-action="Checkout" method="post">
                     
                     <div class="input-wrapper">
@@ -112,6 +121,7 @@
 
                 </form>
             </div>
+            </div>
         </div>
 
         <!-- القسم الثاني: ملخص الطلب -->
@@ -151,4 +161,46 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+
+            const hasAddress =
+                $("#Address").val() !== "" &&
+                $("#City").val() !== "";
+
+            if (hasAddress) {
+                $("#addressFields input, #addressFields select, #addressFields textarea")
+                    .prop("disabled", true);
+            }
+
+            $("#newAddressCheck").change(function () {
+
+                if ($(this).is(":checked")) {
+
+                    $("#addressFields input, #addressFields select, #addressFields textarea")
+                        .prop("disabled", false);
+
+                } else {
+
+                    $("#addressFields input, #addressFields select, #addressFields textarea")
+                        .prop("disabled", true);
+                }
+            });
+
+        });
+    </script>
+    <script>
+        document.getElementById("newAddressCheck")
+            .addEventListener("change", function () {
+
+                if (this.checked) {
+
+                    document.getElementById("FullName").value = "";
+                    document.getElementById("PhoneNumber").value = "";
+                    document.getElementById("City").value = "";
+                    document.getElementById("Address").value = "";
+                }
+            });
+    </script>
 }

@@ -54,6 +54,11 @@ namespace Nadixa.Web.Controllers
 
             var model = new CheckoutVM
             {
+                FullName = user.FullName,
+                PhoneNumber = user.PhoneNumber,
+                Address = user.Address,
+                City = user.City,
+
                 SubTotal = subTotal,
                 ShippingFee = SHIPPING_FEE,
                 GrandTotal = subTotal + SHIPPING_FEE
@@ -92,6 +97,15 @@ namespace Nadixa.Web.Controllers
             }
 
             decimal subTotal = cart.Items.Sum(x => x.Product.Price * x.Quantity);
+
+            // Save address to user profile
+            user.FullName = model.FullName;
+            user.PhoneNumber = model.PhoneNumber;
+            user.Address = model.Address;
+            user.City = model.City;
+
+            await _userManager.UpdateAsync(user);
+
 
             // Create Order
             var order = new Order
