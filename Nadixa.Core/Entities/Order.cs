@@ -35,6 +35,6 @@ namespace Nadixa.Core.Entities
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public OrderStatus Status { get; set; }
-        public ICollection<OrderItem> OrderItems { get; set; }
+        public ICollection<OrderItem> OrderItems { get; set; } 
     }
 }

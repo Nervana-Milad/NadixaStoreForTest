@@ -1,0 +1,180 @@
+﻿@model Nadixa.Web.Models.ViewModels.ProfileViewModel
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container profile-section">
+
+    <!-- Profile Card -->
+    <div class="profile-card mb-5">
+
+        <div class="row align-items-center">
+
+            <div class="col-md-2 text-center">
+                <img src="~/images/avatar-01.jpg"
+                     class="profile-avatar"
+                     alt="Profile">
+            </div>
+
+            <div class="col-md-10">
+
+                <h2 class="profile-name">
+                    @Model.FullName
+                </h2>
+
+                <p class="profile-email">
+                    @Model.Email
+                </p>
+
+                <div class="row mt-4">
+
+                    <div class="col-md-4 mb-3">
+                        <div class="info-box">
+
+                            <div class="info-title">
+                                Phone Number
+                            </div>
+
+                            <div class="info-value">
+                                @(string.IsNullOrEmpty(Model.PhoneNumber)
+                                                                ? "Not Added"
+                                                                : Model.PhoneNumber)
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="info-box">
+
+                            <div class="info-title">
+                                Total Orders
+                            </div>
+
+                            <div class="info-value">
+                                @Model.Orders.Count
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="info-box">
+
+                            <div class="info-title">
+                                Total Spending
+                            </div>
+
+                            <div class="info-value">
+                                L.E.
+                                @Model.Orders.Sum(x => x.GrandTotal)
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Orders -->
+    <div class="orders-card">
+
+        <h3 class="orders-title">
+            Orders History
+        </h3>
+
+        @if (Model.Orders.Any())
+        {
+            <div class="table-responsive">
+
+                <table class="table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var order in Model.Orders)
+                        {
+                            var statusClass = order.Status.ToLower() switch
+                            {
+                                "pending" => "status-pending",
+                                "processing" => "status-processing",
+                                "shipped" => "status-shipped",
+                                "delivered" => "status-delivered",
+                                "cancelled" => "status-cancelled",
+                                _ => ""
+                            };
+
+                            <tr>
+
+                                <td>
+                                    <strong>#@order.Id</strong>
+                                </td>
+
+                                <td>
+                                    @order.CreatedAt.ToString("dd MMM yyyy")
+                                </td>
+
+                                <td>
+                                    <span class="status-badge @statusClass">
+                                        @order.Status
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        L.E. @order.GrandTotal
+                                    </strong>
+                                </td>
+
+                                <td>
+
+                                    <a asp-controller="Order"
+                                       asp-action="Details"
+                                       asp-route-id="@order.Id"
+                                       class="btn btn-dark btn-sm rounded-pill px-3">
+
+                                        View Details
+                                    </a>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <div class="empty-orders">
+
+                <h5>No Orders Yet</h5>
+
+                <p>
+                    Start shopping and your orders will appear here.
+                </p>
+
+            </div>
+        }
+
+    </div>
+
+</div>
