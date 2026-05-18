@@ -33,9 +33,16 @@ namespace Nadixa.Web.ViewComponents
             {
                 vm.Items = cart.Items.Select(i => new CartItemViewModel
                 {
+                    ProductId = i.ProductId,
                     ProductName = i.Product.Name,
                     Price = i.Product.Price,
-                    StockQuantity = i.Quantity,
+
+                    // دي كمية المستخدم في الكارت
+                    Quantity = i.Quantity,
+
+                    // دي كمية المخزون
+                    StockQuantity = i.Product.StockQuantity,
+
                     MainImageUrl = i.Product.MainImageUrlPath,
                 }).ToList();
             }

@@ -28,6 +28,12 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.12);
 }
 
+	.disabled-btn {
+		pointer-events: none;
+		opacity: .5;
+		cursor: not-allowed;
+	}
+
 </style>
 
 <!-- breadcrumb -->
@@ -170,7 +176,7 @@
 
 						<div class="flex-w flex-l-m p-b-10">
 							<div class="size-204 flex-w flex-m respon6-next">
-								<div class="wrap-num-product flex-w m-r-20 m-tb-10 my-3">
+								@* <div class="wrap-num-product flex-w m-r-20 m-tb-10 my-3">
 									<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
 										<i class="fs-16 zmdi zmdi-minus"></i>
 									</div>
@@ -180,6 +186,25 @@
 									<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
 										<i class="fs-16 zmdi zmdi-plus"></i>
 									</div>
+								</div> *@
+								<div class="wrap-num-product flex-w m-r-20 m-tb-10 my-3">
+
+									<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m @(Model.Product.StockQuantity <= 0 ? "disabled-btn" : "")">
+										<i class="fs-16 zmdi zmdi-minus"></i>
+									</div>
+
+									<input class="mtext-104 cl3 txt-center num-product"
+										   type="number"
+										   name="num-product"
+										   value="@(Model.Product.StockQuantity > 0 ? 1 : 0)"
+										   min="@(Model.Product.StockQuantity > 0 ? 1 : 0)"
+										   max="@Model.Product.StockQuantity"
+										   @(Model.Product.StockQuantity <= 0 ? "readonly" : "")>
+
+									<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m @(Model.Product.StockQuantity <= 0 ? "disabled-btn" : "")">
+										<i class="fs-16 zmdi zmdi-plus"></i>
+									</div>
+
 								</div>
 
 								@if (User.Identity.IsAuthenticated)

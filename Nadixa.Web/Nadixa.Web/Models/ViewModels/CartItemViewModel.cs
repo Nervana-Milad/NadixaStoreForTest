@@ -8,9 +8,11 @@
         public string MainImageUrl { get; set; } = string.Empty;
 
         public decimal Price { get; set; }
-        public int StockQuantity { get; set; } // How many of this product in the cart
+        public int Quantity { get; set; } // How many of this product in the cart
+        public int StockQuantity { get; set; } // How many of this product in the stock
+
 
         // Optional: total price for this item
-        public decimal TotalPrice => Price * StockQuantity;
+        public decimal TotalPrice => Price * Quantity;
     }
 }

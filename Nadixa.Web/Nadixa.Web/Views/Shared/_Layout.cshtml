@@ -277,9 +277,14 @@
 	</script>
 
 	<script>
-		document.addEventListener("click", function (e) {
-			if (e.target.classList.contains("remove-from-cart")) {
-				let productId = e.target.dataset.productId;
+				document.addEventListener("click", function (e) {
+
+			const button = e.target.closest(".remove-from-cart");
+
+			if (button) {
+
+				let productId = button.dataset.productId;
+
 				fetch("/Cart/RemoveFromCart", {
 					method: "POST",
 					headers: {
@@ -289,8 +294,15 @@
 				})
 				.then(res => res.json())
 				.then(data => {
+
 					if (data.success) {
-						document.querySelector(".icon-header-noti").setAttribute("data-notify", data.cartCount);
+
+						button.closest("tr").remove();
+
+						document
+							.querySelector(".icon-header-noti")
+							.setAttribute("data-notify", data.cartCount);
+
 						loadMiniCart();
 					}
 				});

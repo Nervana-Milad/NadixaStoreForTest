@@ -54,22 +54,31 @@
 									<td class="column-2">@item.ProductName</td>
 									<td class="column-3">L.E. @item.Price</td>
 									<td class="column-4">
-										<div class="wrap-num-product flex-w m-l-auto m-r-0">
-											<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
+										
+										<div class="wrap-num-product flex-w m-r-20 m-tb-10 my-3">
+
+											<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m @(item.StockQuantity <= 0 ? "disabled-btn" : "")">
 												<i class="fs-16 zmdi zmdi-minus"></i>
 											</div>
 
-											<input class="mtext-104 cl3 txt-center num-product" type="number" name="quantities[@item.ProductId]" value="@item.StockQuantity" min="1" max="@item.StockQuantity">
+											<input class="mtext-104 cl3 txt-center num-product"
+												   type="number"
+												   name="quantities[@item.ProductId]"
+												   value="@(item.StockQuantity > 0 ? item.Quantity : 0)"
+												   min="@(item.StockQuantity > 0 ? 1 : 0)"
+												   max="@item.StockQuantity"
+												   @(item.StockQuantity <= 0 ? "readonly" : "")>
 
-											<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
+											<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m @(item.StockQuantity <= 0 ? "disabled-btn" : "")">
 												<i class="fs-16 zmdi zmdi-plus"></i>
 											</div>
+
 										</div>
 									</td>
 									<td class="column-5">L.E. @item.TotalPrice</td>
 									<td class="column-6">
 										<button class="remove-from-cart text-danger fs-20"
-												data-product-id="@item.ProductId">
+												data-product-id="@item.ProductId" type="button">
 											<i class="bi bi-trash"></i>
 										</button>
 									</td>

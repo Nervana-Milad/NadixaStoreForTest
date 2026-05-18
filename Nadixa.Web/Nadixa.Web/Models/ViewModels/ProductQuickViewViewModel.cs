@@ -11,7 +11,7 @@ namespace Nadixa.Web.Models.ViewModels
         public decimal Price { get; set; }
         public decimal? OldPrice { get; set; } // عشان يظهر مشطوب عليه لو فيه خصم
         public int StockQuantity { get; set; } // الكمية المتاحة
-
+        public int Quantity { get; set; }
 
         public string? MainImageUrl { get; set; }
 

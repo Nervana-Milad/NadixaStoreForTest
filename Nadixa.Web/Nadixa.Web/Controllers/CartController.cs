@@ -39,7 +39,8 @@ namespace Nadixa.Web.Controllers
                 ProductId = item.ProductId,
                 ProductName = item.Product.Name,
                 Price = item.Product.Price,
-                StockQuantity = item.Quantity,
+                Quantity = item.Quantity,
+                StockQuantity = item.Product.StockQuantity,
                 MainImageUrl = item.Product.MainImageUrlPath
             }).ToList();
 
@@ -123,6 +124,7 @@ namespace Nadixa.Web.Controllers
                 };
 
                 _context.CartItems.Add(cartItem);
+                cart.Items.Add(cartItem);
             }
 
             await _context.SaveChangesAsync();
@@ -236,7 +238,10 @@ namespace Nadixa.Web.Controllers
             var cart = await _context.Carts
                 .Include(c => c.Items)
                 .FirstOrDefaultAsync(c => c.UserId == user.Id);
-
+            if(cart == null)
+            {
+                return Json(new { success = false });
+            }
             var item = cart.Items
                 .FirstOrDefault(i => i.ProductId == productId);
 
@@ -245,8 +250,10 @@ namespace Nadixa.Web.Controllers
                 _context.CartItems.Remove(item);
                 await _context.SaveChangesAsync();
             }
-
-            var cartCount = cart.Items.Sum(i => i.Quantity);
+            var cartCount = await _context.CartItems
+    .Where(i => i.CartId == cart.Id)
+    .SumAsync(i => i.Quantity);
+            //var cartCount = await cart.Items.Where(i => i.ProductId != productId).Sum(i => i.Quantity);
 
             return Json(new
             {
