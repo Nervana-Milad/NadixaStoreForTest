@@ -33,6 +33,7 @@ namespace Nadixa.Web.Controllers
         // 1. GET: Checkout Page (تم التعديل هنا)
         // ==============================================
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Checkout()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -69,6 +70,7 @@ namespace Nadixa.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Checkout(CheckoutVM model)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -169,9 +171,6 @@ namespace Nadixa.Web.Controllers
             return RedirectToAction("Success", new { id = order.Id });
         }
 
-
-
-        // Success Page
         public async Task<IActionResult> Success(int id)
         {
             var order = await _unitOfWork.Repository<Order>().GetByIdAsync(id);
@@ -185,6 +184,44 @@ namespace Nadixa.Web.Controllers
             ViewBag.OrderId = order.Id;
 
             return View();
+        }
+    
+    
+        public async Task<IActionResult> Details(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null) return RedirectToAction("Login", "Auth");
+
+            var order = await _context.Orders.Include(o => o.OrderItems).ThenInclude(oi => oi.Product).FirstOrDefaultAsync(o => o.Id == id && o.UserId == user.Id);
+
+            if (order == null) return NotFound();
+
+            decimal shippingFee = 50;
+            decimal subtotal = order.TotalPrice - shippingFee;
+
+            var orderDetailsViewModel = new OrderDetailsViewModel
+            {
+                OrderId = order.Id,
+                FullName = order.FullName,
+                Address = order.Address,
+                Phone = order.PhoneNumber,
+                CreatedAt = order.CreatedAt,
+                Status = order.Status.ToString(),
+                ShippingFee = shippingFee,
+                SubTotal = subtotal,
+                GrandTotal = order.TotalPrice,
+                Items = order.OrderItems.Select(item => new OrderItemViewModel
+                {
+                    ProductId = item.ProductId,
+                    ProductName = item.Product.Name,
+                    ImageUrl = item.Product.MainImageUrlPath,
+                    Quantity = item.Quantity,
+                    Price = item.Price
+                }).ToList()
+            };
+
+            return View(orderDetailsViewModel);
         }
     }
 }

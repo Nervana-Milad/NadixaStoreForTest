@@ -29,6 +29,7 @@ namespace Nadixa.Web.Controllers
 
             var orders = await _context.Orders.Where(o => o.UserId == user.Id).OrderByDescending(o => o.CreatedAt).ToListAsync();
 
+           
             var orderViewModel = orders.Select(o => new OrderViewModel
             {
                 Id = o.Id,

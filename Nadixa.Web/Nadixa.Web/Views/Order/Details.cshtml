@@ -1,0 +1,322 @@
+﻿@model Nadixa.Web.Models.ViewModels.OrderDetailsViewModel
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<style>
+
+    .order-section {
+        margin-top: 120px;
+        margin-bottom: 80px;
+    }
+
+    .order-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 35px;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+        border: 1px solid #f1f1f1;
+        margin-bottom: 30px;
+    }
+
+    .order-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #222;
+        margin-bottom: 25px;
+    }
+
+    .info-box {
+        background: #f8f9ff;
+        border-radius: 15px;
+        padding: 20px;
+        height: 100%;
+    }
+
+    .info-title {
+        font-size: 14px;
+        color: #888;
+        margin-bottom: 5px;
+    }
+
+    .info-value {
+        font-size: 17px;
+        font-weight: 600;
+        color: #222;
+    }
+
+    .status-badge {
+        padding: 10px 18px;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-processing {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .status-shipped {
+        background: #cce5ff;
+        color: #004085;
+    }
+
+    .status-delivered {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-cancelled {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .product-item {
+        border-bottom: 1px solid #eee;
+        padding: 20px 0;
+    }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+    .product-image {
+        width: 90px;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+
+    .product-name {
+        font-size: 18px;
+        font-weight: 600;
+        color: #222;
+    }
+
+    .product-meta {
+        color: #777;
+        font-size: 14px;
+    }
+
+    .summary-box {
+        background: #f8f9ff;
+        border-radius: 20px;
+        padding: 25px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+
+        .summary-row.total {
+            font-size: 20px;
+            font-weight: 700;
+            color: #222;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+
+</style>
+
+<div class="container order-section">
+
+    <!-- Header -->
+    <div class="order-card">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+
+            <div>
+                <h2 class="order-title">
+                    Order #@Model.OrderId
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Placed on
+                    @Model.CreatedAt.ToString("dd MMM yyyy")
+                </p>
+            </div>
+
+            @{
+                var statusClass = Model.Status.ToLower() switch
+                {
+                    "pending" => "status-pending",
+                    "processing" => "status-processing",
+                    "shipped" => "status-shipped",
+                    "delivered" => "status-delivered",
+                    "cancelled" => "status-cancelled",
+                    _ => ""
+                };
+            }
+
+            <span class="status-badge @statusClass">
+                @Model.Status
+            </span>
+
+        </div>
+
+    </div>
+
+    <!-- Customer Info -->
+    <div class="row">
+
+        <div class="col-md-4 mb-4">
+
+            <div class="info-box">
+
+                <div class="info-title">
+                    Full Name
+                </div>
+
+                <div class="info-value">
+                    @Model.FullName
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4 mb-4">
+
+            <div class="info-box">
+
+                <div class="info-title">
+                    Phone Number
+                </div>
+
+                <div class="info-value">
+                    @Model.Phone
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4 mb-4">
+
+            <div class="info-box">
+
+                <div class="info-title">
+                    Shipping Address
+                </div>
+
+                <div class="info-value">
+                    @Model.Address
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Products -->
+    <div class="order-card">
+
+        <h3 class="mb-4">
+            Ordered Products
+        </h3>
+
+        @foreach (var item in Model.Items)
+        {
+            <div class="product-item">
+
+                <div class="row align-items-center">
+
+                    <div class="col-md-2">
+
+                        <img src="@item.ImageUrl"
+                             class="product-image"
+                             alt="@item.ProductName" />
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="product-name">
+                            @item.ProductName
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-2">
+
+                        <div class="product-meta">
+                            Qty: @item.Quantity
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-2">
+
+                        <div class="product-meta">
+                            L.E. @item.Price
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-2 text-end">
+
+                        <strong>
+                            L.E. @item.Total
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+    <!-- Summary -->
+    <div class="row justify-content-end">
+
+        <div class="col-md-5">
+
+            <div class="summary-box">
+
+                <div class="summary-row">
+                    <span>TotalPrice</span>
+
+                    <span>
+                        L.E. @Model.SubTotal
+                    </span>
+                </div>
+
+                <div class="summary-row">
+                    <span>Shipping</span>
+
+                    <span>
+                        L.E. @Model.ShippingFee
+                    </span>
+                </div>
+
+                <div class="summary-row total">
+
+                    <span>Total</span>
+
+                    <span>
+                        L.E. @Model.GrandTotal
+                    </span>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

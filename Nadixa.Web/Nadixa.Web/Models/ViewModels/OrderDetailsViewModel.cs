@@ -8,7 +8,11 @@
         public string Address { get; set; }
         public string Phone { get; set; }
 
-        public decimal TotalPrice { get; set; }
+        public decimal SubTotal { get; set; }
+
+        public decimal ShippingFee { get; set; } = 50;
+
+        public decimal GrandTotal { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
