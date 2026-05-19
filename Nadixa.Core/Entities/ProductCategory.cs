@@ -11,9 +11,10 @@ namespace Nadixa.Core.Entities
     {
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public string? ImageUrl { get; set; } // صورة للقسم نفسه
+        public string? ImageUrl { get; set; }
 
-        // العلاقة: القسم الواحد فيه منتجات كتير
+       
+        public ICollection<ProductSubCategory> SubCategories { get; set; } = new List<ProductSubCategory>();
         public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

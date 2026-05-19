@@ -88,13 +88,13 @@
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Product.CategoryId" class="form-label">Category Name</label>
-                        <select asp-for="Product.CategoryId"
+                        <label asp-for="Product.ProductCategoryId" class="form-label">Category Name</label>
+                        <select asp-for="Product.ProductCategoryId"
                                 asp-items="Model.Categories"
                                 class="form-select form-select-lg rounded-3 shadow-sm form-control">
                             <option value="">Select Category</option>
                         </select>
-                        <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
+                        <span asp-validation-for="Product.ProductCategoryId" class="text-danger"></span>
                     </div>
 
                     

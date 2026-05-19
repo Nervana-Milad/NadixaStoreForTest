@@ -17,8 +17,11 @@ namespace Nadixa.Core.Entities
         public bool IsFeatured { get; set; } // هل يظهر في الصفحة الرئيسية؟
 
         // Foreign Key (ربط المنتج بالقسم)
-        public int CategoryId { get; set; }
-        public ProductCategory? Category { get; set; }
+        public int ProductCategoryId { get; set; }
+        public ProductCategory? ProductCategory { get; set; }
+
+        public int ProductSubCategoryId { get; set; }
+        public ProductSubCategory? ProductSubCategory { get; set; }
 
         public string? MainImageUrlPath { get; set; }
 

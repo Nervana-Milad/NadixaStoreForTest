@@ -32,11 +32,11 @@ namespace Nadixa.Web.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            IQueryable<Product> query = _context.Products.Include(p => p.Category);
+            IQueryable<Product> query = _context.Products.Include(p => p.ProductCategory);
 
             if (categoryId.HasValue)
             {
-                query = query.Where(p => p.CategoryId == categoryId.Value);
+                query = query.Where(p => p.ProductCategoryId == categoryId.Value);
                 var category = await _context.ProductCategories.FirstOrDefaultAsync(c => c.Id == categoryId);
                 ViewBag.CategoryName = category?.Name;
             }
@@ -99,7 +99,7 @@ namespace Nadixa.Web.Controllers
                     Price = productViewModel.Price,
                     OldPrice = productViewModel.OldPrice,
                     StockQuantity = productViewModel.StockQuantity,
-                    CategoryId = productViewModel.CategoryId,
+                    ProductCategoryId = productViewModel.CategoryId,
                     MainImageUrlPath = imagePath
                 };
                 await _context.Products.AddAsync(product);
@@ -148,7 +148,7 @@ namespace Nadixa.Web.Controllers
                 return NotFound();
             }
 
-            var product = _context.Products.Include(p => p.Category).Include(p => p.Colors).Include(p => p.Images).Include(p => p.Reviews).FirstOrDefault(p => p.Id == id);
+            var product = _context.Products.Include(p => p.ProductCategory).Include(p => p.Colors).Include(p => p.Images).Include(p => p.Reviews).FirstOrDefault(p => p.Id == id);
 
             if(product == null)
             {
@@ -278,7 +278,7 @@ namespace Nadixa.Web.Controllers
             productFromDb.Name = editViewModel.Product.Name;
             productFromDb.Price = editViewModel.Product.Price;
             productFromDb.Description = editViewModel.Product.Description;
-            productFromDb.CategoryId = editViewModel.Product.CategoryId;
+            productFromDb.ProductCategoryId = editViewModel.Product.ProductCategoryId;
             productFromDb.OldPrice = editViewModel.Product.OldPrice;
             productFromDb.StockQuantity = editViewModel.Product.StockQuantity;
             productFromDb.MainImageUrlPath = editViewModel.Product.MainImageUrlPath;
@@ -459,7 +459,7 @@ namespace Nadixa.Web.Controllers
         public IActionResult Search(string term)
         {
             var products = _context.Products
-                .Include(p => p.Category)
+                .Include(p => p.ProductCategory)
                 .Where(p => string.IsNullOrEmpty(term)
                     || p.Name.Contains(term))
                 .Select(p => new

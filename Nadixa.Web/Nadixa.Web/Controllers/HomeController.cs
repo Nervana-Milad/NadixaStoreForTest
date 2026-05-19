@@ -23,11 +23,11 @@ namespace Nadixa.Web.Controllers
         }
         public IActionResult Index(int? categoryId)
         {
-            var productQuery = _context.Products.Include(p => p.Category).AsQueryable();
+            var productQuery = _context.Products.Include(p => p.ProductCategory).AsQueryable();
 
             if (categoryId.HasValue)
             {
-                productQuery = productQuery.Where(p => p.CategoryId == categoryId);
+                productQuery = productQuery.Where(p => p.ProductCategoryId == categoryId);
             }
 
             var products = productQuery.ToList();

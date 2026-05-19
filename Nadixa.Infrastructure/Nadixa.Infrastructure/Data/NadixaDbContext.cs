@@ -20,6 +20,7 @@ namespace Nadixa.Infrastructure.Data
         // تعريف الجداول
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }
+        public DbSet<ProductSubCategory> ProductSubCategories { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<ProductColor> ProductColors { get; set; }
         public DbSet<Color> Colors { get; set; }
@@ -58,6 +59,17 @@ namespace Nadixa.Infrastructure.Data
                 new BlogCategory { Id = 3, Name = "Care" }
             );
 
+            builder.Entity<Product>()
+        .HasOne(p => p.ProductCategory)
+        .WithMany(c => c.Products)
+        .HasForeignKey(p => p.ProductCategoryId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Product>()
+                .HasOne(p => p.ProductSubCategory)
+                .WithMany(sc => sc.Products)
+                .HasForeignKey(p => p.ProductSubCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // فلترة تلقائية (Global Query Filter)
             // أي استعلام هيرجع بس الحاجات اللي مش ممسوحة (IsDeleted = false)

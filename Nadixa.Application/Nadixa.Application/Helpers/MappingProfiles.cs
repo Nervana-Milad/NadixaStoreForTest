@@ -17,7 +17,7 @@ namespace Nadixa.Application.Helpers
         {
             // التحويل من الداتا بيز للـ DTO (عرض البيانات)
             CreateMap<Product, ProductToReturnDto>()
-                .ForMember(d => d.Category, o => o.MapFrom(s => s.Category.Name)) // هات اسم القسم
+                .ForMember(d => d.Category, o => o.MapFrom(s => s.ProductCategory.Name)) // هات اسم القسم
                 .ForMember(d => d.PictureUrl, o => o.MapFrom(s => s.Images.FirstOrDefault(x => x.IsMain).ImageUrl)); // هات الصورة الرئيسية
 
             // التحويل من الـ DTO للداتا بيز (إضافة منتج)
