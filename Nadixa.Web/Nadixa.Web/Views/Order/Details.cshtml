@@ -4,130 +4,6 @@
     ViewData["Title"] = "Order Details";
 }
 
-<style>
-
-    .order-section {
-        margin-top: 120px;
-        margin-bottom: 80px;
-    }
-
-    .order-card {
-        background: #fff;
-        border-radius: 20px;
-        padding: 35px;
-        box-shadow: 0 10px 35px rgba(0,0,0,0.08);
-        border: 1px solid #f1f1f1;
-        margin-bottom: 30px;
-    }
-
-    .order-title {
-        font-size: 28px;
-        font-weight: 700;
-        color: #222;
-        margin-bottom: 25px;
-    }
-
-    .info-box {
-        background: #f8f9ff;
-        border-radius: 15px;
-        padding: 20px;
-        height: 100%;
-    }
-
-    .info-title {
-        font-size: 14px;
-        color: #888;
-        margin-bottom: 5px;
-    }
-
-    .info-value {
-        font-size: 17px;
-        font-weight: 600;
-        color: #222;
-    }
-
-    .status-badge {
-        padding: 10px 18px;
-        border-radius: 30px;
-        font-size: 13px;
-        font-weight: 600;
-        display: inline-block;
-    }
-
-    .status-pending {
-        background: #fff3cd;
-        color: #856404;
-    }
-
-    .status-processing {
-        background: #d1ecf1;
-        color: #0c5460;
-    }
-
-    .status-shipped {
-        background: #cce5ff;
-        color: #004085;
-    }
-
-    .status-delivered {
-        background: #d4edda;
-        color: #155724;
-    }
-
-    .status-cancelled {
-        background: #f8d7da;
-        color: #721c24;
-    }
-
-    .product-item {
-        border-bottom: 1px solid #eee;
-        padding: 20px 0;
-    }
-
-        .product-item:last-child {
-            border-bottom: none;
-        }
-
-    .product-image {
-        width: 90px;
-        height: 90px;
-        object-fit: cover;
-        border-radius: 12px;
-    }
-
-    .product-name {
-        font-size: 18px;
-        font-weight: 600;
-        color: #222;
-    }
-
-    .product-meta {
-        color: #777;
-        font-size: 14px;
-    }
-
-    .summary-box {
-        background: #f8f9ff;
-        border-radius: 20px;
-        padding: 25px;
-    }
-
-    .summary-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 15px;
-    }
-
-        .summary-row.total {
-            font-size: 20px;
-            font-weight: 700;
-            color: #222;
-            border-top: 1px solid #ddd;
-            padding-top: 15px;
-        }
-
-</style>
-
 <div class="container order-section">
 
     <!-- Header -->
@@ -161,7 +37,15 @@
             <span class="status-badge @statusClass">
                 @Model.Status
             </span>
-
+            @if (Model.Status == "Pending" || Model.Status == "Processing")
+            {
+                <button type="button"
+                        class="btn btn-danger mt-3"
+                        data-bs-toggle="modal"
+                        data-bs-target="#cancelOrderModal">
+                    Cancel Order
+                </button>
+            }
         </div>
 
     </div>
@@ -319,4 +203,67 @@
 
     </div>
 
+</div>
+
+<!-- Cancel Order Modal -->
+<div class="modal fade mt-5"
+     id="cancelOrderModal"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-dialog-centered"
+         style="margin-top:80px">
+
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white">
+
+                <h5 class="modal-title">
+                    Cancel Order
+                </h5>
+
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body text-center">
+
+                <p class="fw-semibold">
+                    Are you sure you want to cancel this order?
+                </p>
+
+                <h6 class="text-danger">
+                    Order #@Model.OrderId
+                </h6>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <!-- NO -->
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    No
+                </button>
+
+                <!-- YES -->
+                <form asp-controller="Order"
+                      asp-action="CancelOrder"
+                      asp-route-id="@Model.OrderId"
+                      method="post">
+
+                    <button type="submit"
+                            class="btn btn-danger">
+                        Yes, Cancel
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
 </div>

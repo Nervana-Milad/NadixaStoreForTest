@@ -185,8 +185,8 @@ namespace Nadixa.Web.Controllers
 
             return View();
         }
-    
-    
+
+        [Authorize]
         public async Task<IActionResult> Details(int id)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -222,6 +222,43 @@ namespace Nadixa.Web.Controllers
             };
 
             return View(orderDetailsViewModel);
+        }
+        [Authorize]
+        public async Task<IActionResult> CancelOrder(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            var order = await _context.Orders.Include(o => o.OrderItems)
+        .ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o => o.Id == id && o.UserId == user.Id);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            // منع الإلغاء بعد الشحن
+            if (order.Status == OrderStatus.Shipped ||
+                order.Status == OrderStatus.Delivered)
+            {
+                TempData["Error"] = "This order cannot be cancelled";
+                return RedirectToAction("Details", new { id });
+            }
+
+
+            // رجّع الكمية للـ stock
+            foreach (var item in order.OrderItems)
+            {
+                item.Product.StockQuantity += item.Quantity;
+            }
+
+            order.Status = OrderStatus.Cancelled;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Order cancelled successfully";
+
+            return RedirectToAction("Details", new { id });
         }
     }
 }
