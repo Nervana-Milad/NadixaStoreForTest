@@ -1,0 +1,68 @@
+﻿@model Nadixa.Web.Models.ViewModels.ProductCategoryViewModel
+
+@{
+    ViewData["Title"] = "Create Category";
+}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-7">
+
+            <div class="card shadow border-0 rounded-4">
+
+                <div class="card-body p-5">
+
+                    <h2 class="fw-bold mb-4">
+                        Create Category
+                    </h2>
+
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+
+                            <input asp-for="Name"
+                                   class="form-control rounded-3" />
+
+                            <span asp-validation-for="Name"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+
+                            <textarea asp-for="Description"
+                                      class="form-control rounded-3"
+                                      rows="4"></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="ImageFile"
+                                   class="form-label fw-semibold">
+                                Category Image
+                            </label>
+
+                            <input asp-for="ImageFile"
+                                   type="file"
+                                   class="form-control rounded-3 shadow-sm" />
+
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-dark rounded-pill px-5">
+                            Save
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
