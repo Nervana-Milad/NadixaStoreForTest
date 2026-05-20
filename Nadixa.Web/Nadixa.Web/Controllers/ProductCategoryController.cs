@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
@@ -31,12 +32,17 @@ namespace Nadixa.Web.Controllers
             return View(prodCatViewModel);
         }
 
+
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(ProductCategoryViewModel model)
         {
             if (!ModelState.IsValid)
@@ -88,7 +94,10 @@ namespace Nadixa.Web.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             var category = await _context.ProductCategories
@@ -110,8 +119,10 @@ namespace Nadixa.Web.Controllers
             return View(prodCatViewModel);
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(ProductCategoryViewModel model)
         {
             if (!ModelState.IsValid)
@@ -162,8 +173,11 @@ namespace Nadixa.Web.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var category = await _context.ProductCategories
