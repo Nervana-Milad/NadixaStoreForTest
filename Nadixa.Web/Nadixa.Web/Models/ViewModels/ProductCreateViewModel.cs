@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Nadixa.Core.Entities;
 using Nadixa.Web.Models.ViewModels;
 using System;
@@ -26,17 +27,16 @@ namespace Nadixa.Web.Models.ViewModels
 
         [Required]
         public int CategoryId { get; set; }
+        [ValidateNever]
+        public List<SelectListItem> Categories { get; set; } = new();
 
-
-        //public Product Product { get; set; } = new Product();
-        public IEnumerable<SelectListItem>? Categories { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a sub category")]
+        public int ProductSubCategoryId { get; set; }
+        [ValidateNever]
+        public List<SelectListItem> SubCategories { get; set; } = new();
         public IFormFile? MainImage { get; set; }
         public List<IFormFile>? GalleryImages { get; set; }
 
-        //public bool IsFeatured { get; set; }
-        //public bool HasDiscount => Product.OldPrice.HasValue && Product.OldPrice > Product.Price;
 
-        //public List<string> ImageUrls { get; set; } = new List<string>();
-        
     }
 }

@@ -9,6 +9,8 @@ namespace Nadixa.Web.Models.ViewModels
         public Product Product { get; set; } = new Product();
         [ValidateNever]
         public IEnumerable<SelectListItem> Categories { get; set; }
+        public IEnumerable<SelectListItem> SubCategories { get; set; }
+
         [ValidateNever]
         public IFormFile MainImageUrl { get; set; }
 
