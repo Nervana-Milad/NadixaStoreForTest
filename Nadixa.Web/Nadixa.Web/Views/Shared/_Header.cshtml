@@ -50,9 +50,11 @@
 							<a asp-action="Index" asp-controller="Product">Shop</a>
 						</li>
 
-						<li class="label1" data-label1="hot">
+						@* <li class="label1" data-label1="hot">
 							<a href="shoping-cart.html">Features</a>
-						</li>
+						</li> *@
+
+						@await Component.InvokeAsync("CategoryMenu")
 
 						<li class="@Html.IsActive("Blog", "Index")">
 							<a asp-action="Index" asp-controller="Blog">Blog</a>
