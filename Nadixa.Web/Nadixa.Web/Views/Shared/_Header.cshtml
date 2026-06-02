@@ -26,8 +26,8 @@
 					<a href="#" class="flex-c-m trans-04 p-lr-25">
 						USD
 					</a>
-				</div>
-			</div>
+
+					</div>
 		</div>
 
 		<div class="wrap-menu-desktop">
@@ -55,6 +55,36 @@
 						</li> *@
 
 						@await Component.InvokeAsync("CategoryMenu")
+
+							@if (User.IsInRole("Admin"))
+							{
+								<li>
+									<a href="#">Admin</a>
+
+									<ul class="sub-menu">
+										<li>
+											<a asp-controller="ProductCategory"
+											   asp-action="Index">
+												Categories
+											</a>
+										</li>
+
+										<li>
+											<a asp-controller="ProductSubCategory"
+											   asp-action="Index">
+												Sub Categories
+											</a>
+										</li>
+
+										<li>
+											<a asp-controller="Product"
+											   asp-action="Index">
+												Products
+											</a>
+										</li>
+									</ul>
+								</li>
+							}
 
 						<li class="@Html.IsActive("Blog", "Index")">
 							<a asp-action="Index" asp-controller="Blog">Blog</a>

@@ -32,7 +32,7 @@
                 <p class="text-muted mb-0">Add a new product to your store inventory</p>
             </div>
 
-            <a asp-action="Index" asp-controller="Home"
+            <a asp-action="Index" asp-controller="Product"
                class="btn  rounded-pill flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4">
                 <i class="bi bi-arrow-left me-2"></i> Back
             </a>
@@ -97,31 +97,7 @@
                                 <span asp-validation-for="ProductSubCategoryId"
                                       class="text-danger"></span>
                             </div>
-                            @* <div class="mb-4 form-group">
-                                <label asp-for="CategoryId" class="form-label fw-semibold required">Category Name</label>
-                                <select asp-for="CategoryId"
-                                        asp-items="Model.Categories"
-                                        class="form-select form-select-lg rounded-3 shadow-sm form-control">
-                                    <option value="">Select Category</option>
-                                </select>
-                                <span asp-validation-for="CategoryId" class="text-danger"></span>
-                            </div>
-
-                            <div class="mb-4 form-group">
-                                <label asp-for="ProductSubCategoryId"
-                                       class="form-label fw-semibold required">
-                                    Sub Category
-                                </label>
-                                <select asp-for="ProductSubCategoryId"
-                                        id="subCategoryDropdown"
-                                        class="form-select form-select-lg rounded-3 shadow-sm">
-
-                                    <option value="">
-                                        Select Sub Category
-                                    </option>
-                                </select>
-                                <span asp-validation-for="ProductSubCategoryId" class="text-danger"></span>
-                            </div> *@
+                            
 
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
