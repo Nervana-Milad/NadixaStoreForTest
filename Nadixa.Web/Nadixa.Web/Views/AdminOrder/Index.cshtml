@@ -1,0 +1,102 @@
+﻿@model IEnumerable<Nadixa.Web.Models.ViewModels.AdminOrderViewModel>
+
+@{
+    ViewData["Title"] = "Orders Management";
+}
+
+<div class="container profile-section">
+
+    <div class="orders-card">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="orders-title mb-0">
+                Orders Management
+            </h3>
+
+            <span class="badge bg-dark fs-16">
+                Total Orders: @Model.Count()
+            </span>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var order in Model)
+                        {
+                            var statusClass = order.Status.ToLower() switch
+                            {
+                                "pending" => "status-pending",
+                                "processing" => "status-processing",
+                                "shipped" => "status-shipped",
+                                "delivered" => "status-delivered",
+                                "cancelled" => "status-cancelled",
+                                _ => ""
+                            };
+
+                            <tr>
+                                <td>
+                                    <strong>#@order.Id</strong>
+                                </td>
+
+                                <td>
+                                    @order.CustomerName
+                                </td>
+
+                                <td>
+                                    @order.CreatedAt.ToString("dd MMM yyyy")
+                                </td>
+
+                                <td>
+                                    <span class="status-badge @statusClass">
+                                        @order.Status
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        L.E. @order.GrandTotal
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    <a asp-controller="AdminOrder"
+                                       asp-action="Details"
+                                       asp-route-id="@order.Id"
+                                       class="btn btn-dark btn-sm">
+                                        View Details
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-orders">
+                <h5>No Orders Found</h5>
+                <p>
+                    There are currently no orders in the system.
+                </p>
+            </div>
+        }
+
+    </div>
+
+</div>

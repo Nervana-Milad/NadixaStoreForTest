@@ -1,9 +1,10 @@
 ﻿namespace Nadixa.Web.Models.ViewModels
 {
-    public class OrderViewModel
+    public class AdminOrderViewModel
     {
-
         public int Id { get; set; }
+
+        public string CustomerName { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
