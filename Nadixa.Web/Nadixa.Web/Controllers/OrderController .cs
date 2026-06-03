@@ -55,7 +55,7 @@ namespace Nadixa.Web.Controllers
 
             var model = new CheckoutVM
             {
-                FullName = user.FullName,
+                FullName = $"{user.FirstName} {user.LastName}",
                 PhoneNumber = user.PhoneNumber,
                 Address = user.Address,
                 City = user.City,
@@ -74,7 +74,10 @@ namespace Nadixa.Web.Controllers
         public async Task<IActionResult> Checkout(CheckoutVM model)
         {
             var user = await _userManager.GetUserAsync(User);
-
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
             // جلب السلة
             var cart = await _context.Carts
                 .Include(c => c.Items)
@@ -120,7 +123,7 @@ namespace Nadixa.Web.Controllers
             }
 
             // Save address to user profile
-            user.FullName = model.FullName;
+            //user.FullName = $"{user.FirstName} {user.LastName}";
             user.PhoneNumber = model.PhoneNumber;
             user.Address = model.Address;
             user.City = model.City;
