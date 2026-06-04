@@ -12,8 +12,8 @@ using Nadixa.Infrastructure.Data;
 namespace Nadixa.Infrastructure.Migrations
 {
     [DbContext(typeof(NadixaDbContext))]
-    [Migration("20260521060527_UpdateProductSubCategories")]
-    partial class UpdateProductSubCategories
+    [Migration("20260602194303_AddNewMigration")]
+    partial class AddNewMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

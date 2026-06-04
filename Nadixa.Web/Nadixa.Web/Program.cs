@@ -60,33 +60,78 @@ namespace Nadixa.Web
             var app = builder.Build();
 
 
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var _userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+            //    var _roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+
+            //    string adminEmail = "admin@gmail.com";
+            //    string adminPassword = "admin";
+
+            //    var existingAdminRole = await _roleManager.FindByNameAsync("Admin");
+
+            //    if (existingAdminRole == null)
+            //    {
+            //        await _roleManager.CreateAsync(new IdentityRole("Admin"));
+            //    }
+
+            //    var existingAdminUser = await _userManager.FindByEmailAsync(adminEmail);
+
+            //    if (existingAdminUser == null)
+            //    {
+            //        var adminUser = new AppUser { UserName = adminEmail, Email = adminEmail, FirstName = "Admin", LastName = "User" };
+
+            //        await _userManager.CreateAsync(adminUser, adminPassword);
+            //        await _userManager.AddToRoleAsync(adminUser, "Admin");
+            //    }
+            //}
             using (var scope = app.Services.CreateScope())
             {
-                var _userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
-                var _roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-               
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
                 string adminEmail = "admin@gmail.com";
-                string adminPassword = "admin";
+                string adminPassword = "admin123";
 
-                var existingAdminRole = await _roleManager.FindByNameAsync("Admin");
+                string adminRoleName = "Admin";
 
-                if(existingAdminRole == null)
+                // 1. Create Role if not exists
+                var roleExists = await roleManager.RoleExistsAsync(adminRoleName);
+                if (!roleExists)
                 {
-                    await _roleManager.CreateAsync(new IdentityRole("Admin"));
+                    var roleResult = await roleManager.CreateAsync(new IdentityRole(adminRoleName));
+
+                    if (!roleResult.Succeeded)
+                        throw new Exception("Failed to create Admin role");
                 }
 
-                var existingAdminUser = await _userManager.FindByEmailAsync(adminEmail);
+                // 2. Create User if not exists
+                var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
-                if(existingAdminUser == null)
+                if (adminUser == null)
                 {
-                    var adminUser = new AppUser { UserName = adminEmail, Email = adminEmail, FirstName = "Admin", LastName = "User" };
+                    adminUser = new AppUser
+                    {
+                        UserName = adminEmail,
+                        Email = adminEmail,
+                        FirstName = "Admin",
+                        LastName = "User",
+                        EmailConfirmed = true
+                    };
 
-                    await _userManager.CreateAsync(adminUser, adminPassword);
-                    await _userManager.AddToRoleAsync(adminUser, "Admin");
+                    var userResult = await userManager.CreateAsync(adminUser, adminPassword);
+
+                    if (!userResult.Succeeded)
+                        throw new Exception("Failed to create Admin user");
+
+                    // 3. Assign Role after user creation
+                    var addToRoleResult = await userManager.AddToRoleAsync(adminUser, adminRoleName);
+
+                    if (!addToRoleResult.Succeeded)
+                        throw new Exception("Failed to assign Admin role to user");
                 }
             }
-
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
