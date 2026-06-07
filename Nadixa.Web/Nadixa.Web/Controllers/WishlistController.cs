@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
@@ -17,13 +18,19 @@ namespace Nadixa.Web.Controllers
             _context = context;
             _userManager = userManager;
         }
+        [Authorize]
+
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Challenge();
+            }
 
             var wishlist = await _context.Wishlists.Include(w => w.Items).ThenInclude(i => i.Product).FirstOrDefaultAsync(w => w.UserId == user.Id);
 
-            var viewModel = wishlist?.Items.Select(i => new WishlistItemViewModel
+            var viewModel = wishlist?.Items.Where(i => i.Product != null).Select(i => new WishlistItemViewModel
             {
                 ProductId = i.ProductId,
                 ProductName = i.Product.Name,
@@ -32,6 +39,17 @@ namespace Nadixa.Web.Controllers
             }).ToList() ?? new List<WishlistItemViewModel>();
 
             return View(viewModel);
+        }
+        [HttpPost]
+        public IActionResult AddToWishlist(int productId)
+        {
+            var user = _userManager.GetUserId(User);
+
+            if (user == null)
+                return Unauthorized(); 
+
+            // add logic
+            return Ok();
         }
 
         [HttpPost]
