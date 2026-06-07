@@ -20,9 +20,14 @@ namespace Nadixa.Web.Controllers
             _context = context;
             _userManager = userManager;
         }
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Challenge();
+            }
 
             var cart = await _context.Carts
                 .Include(c => c.Items)
@@ -34,7 +39,8 @@ namespace Nadixa.Web.Controllers
                 return View(new List<CartItemViewModel>());
             }
 
-            var cartItemsVm = cart.Items.Select(item => new CartItemViewModel
+            var cartItemsVm = cart.Items.Where(item => item.Product != null)
+             .Select(item => new CartItemViewModel
             {
                 ProductId = item.ProductId,
                 ProductName = item.Product.Name,
