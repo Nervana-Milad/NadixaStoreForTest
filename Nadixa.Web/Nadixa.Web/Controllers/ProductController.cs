@@ -452,21 +452,32 @@ namespace Nadixa.Web.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var productFromDb = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+            var productFromDb = await _context.Products
+                .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (string.IsNullOrEmpty(productFromDb.MainImageUrlPath))
+            if (productFromDb == null)
             {
-                var existingFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", Path.GetFileName(productFromDb.MainImageUrlPath));
+                return NotFound();
+            }
+
+            if (!string.IsNullOrEmpty(productFromDb.MainImageUrlPath))
+            {
+                var existingFilePath = Path.Combine(
+                    _webHostEnvironment.WebRootPath,
+                    "Images",
+                    Path.GetFileName(productFromDb.MainImageUrlPath));
+
                 if (System.IO.File.Exists(existingFilePath))
                 {
                     System.IO.File.Delete(existingFilePath);
                 }
             }
+
             _context.Products.Remove(productFromDb);
             await _context.SaveChangesAsync();
+
             return RedirectToAction("Index", "Home");
         }
-
 
         [HttpPost]
         [Authorize]
@@ -614,10 +625,10 @@ namespace Nadixa.Web.Controllers
 
 
         [HttpGet]
-        public IActionResult Search(string term)
+        public async Task<IActionResult> Search(string term)
         {
-            var products = _context.Products
-                .Include(p => p.ProductCategory)
+            var products = await _context.Products
+                .AsNoTracking()
                 .Where(p => string.IsNullOrEmpty(term)
                     || p.Name.Contains(term))
                 .Select(p => new
@@ -630,7 +641,7 @@ namespace Nadixa.Web.Controllers
                         : p.Description,
                     mainImageUrlPath = p.MainImageUrlPath
                 })
-                .ToList();
+                .ToListAsync();
 
             return Json(products);
         }

@@ -138,8 +138,12 @@ namespace Nadixa.Web.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var blogFromDb = await _context.Blogs.FirstOrDefaultAsync(p => p.Id == id);
+            if (blogFromDb == null)
+            {
+                return NotFound();
+            }
 
-            if (string.IsNullOrEmpty(blogFromDb.ImageUrl))
+            if (!string.IsNullOrEmpty(blogFromDb.ImageUrl))
             {
                 var existingFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", Path.GetFileName(blogFromDb.ImageUrl));
                 if (System.IO.File.Exists(existingFilePath))
