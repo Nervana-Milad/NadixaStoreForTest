@@ -144,65 +144,15 @@ namespace Nadixa.Web.Controllers
             });
         }
 
-        //[HttpPost]
-        //[Authorize]
-        //public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
-        //{
-        //    var user = await _userManager.GetUserAsync(User);
-        //    // ✔️ تحقق من وجود المنتج
-        //    var productExists = await _context.Products.AnyAsync(p => p.Id == productId);
-
-        //    if (!productExists)
-        //        return Json(new { success = false, message = "Product not found" });
-
-        //    var cart = await _context.Carts.Include(c => c.Items).FirstOrDefaultAsync(c => c.UserId == user.Id);
-
-        //    if(cart == null)
-        //    {
-        //        cart = new Cart
-        //        {
-        //            UserId = user.Id,
-        //            Items = new List<CartItem>()
-        //        };
-
-        //        _context.Carts.Add(cart);
-        //        await _context.SaveChangesAsync();
-        //    }
-
-        //    var existingItem = cart.Items.FirstOrDefault(ci => ci.ProductId == productId);
-
-        //    if(existingItem != null)
-        //    {
-        //        existingItem.Quantity += quantity;
-        //    }
-        //    else
-        //    {
-        //        var cartItem = new CartItem
-        //        {
-        //            ProductId = productId,
-        //            Quantity = quantity,
-        //            CartId = cart.Id
-        //        };
-        //        _context.CartItems.Add(cartItem);
-        //    }
-
-        //    await _context.SaveChangesAsync();
-        //    //return RedirectToAction("Index");
-
-        //    var cartCount = cart.Items.Sum(i => i.Quantity);
-
-        //    return Json(new
-        //    {
-        //        success = true,
-        //        cartCount
-        //    });
-
-        //}
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> UpdateCart(Dictionary<int, int> quantities)
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
             var cart = await _context.Carts.Include(c => c.Items).ThenInclude(i => i.Product).FirstOrDefaultAsync(c => c.UserId == user.Id);
 
             if(cart == null)
@@ -235,12 +185,15 @@ namespace Nadixa.Web.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> RemoveFromCart(int productId)
         {
             var user = await _userManager.GetUserAsync(User);
-
+            if (user == null)
+            {
+                return Unauthorized();
+            }
             var cart = await _context.Carts
                 .Include(c => c.Items)
                 .FirstOrDefaultAsync(c => c.UserId == user.Id);
