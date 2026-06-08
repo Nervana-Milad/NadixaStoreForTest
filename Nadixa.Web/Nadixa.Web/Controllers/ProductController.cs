@@ -391,7 +391,7 @@ namespace Nadixa.Web.Controllers
             _context.Products.Remove(productFromDb);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Product");
         }
 
         [HttpPost]
