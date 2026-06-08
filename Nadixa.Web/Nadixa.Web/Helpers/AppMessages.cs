@@ -12,6 +12,7 @@
         public const string CartEmpty = "Your cart is empty.";
         public const string CartAdded = "Added to cart.";
         public const string OutOfStock = "Product is out of stock.";
+        public const string AccountLoginRequired = "Please login to access your account.";
         public const string ProductNotFound = "The requested product was not found.";
         public const string UnauthorizedAccess = "You do not have permission to access this resource.";
         public const string AdminOnly = "This action is restricted to administrators.";
