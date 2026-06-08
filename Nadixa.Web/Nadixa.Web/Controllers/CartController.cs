@@ -185,7 +185,7 @@ namespace Nadixa.Web.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
-        [Authorize]
+        //[Authorize]
         [HttpPost]
         public async Task<IActionResult> RemoveFromCart(int productId)
         {
