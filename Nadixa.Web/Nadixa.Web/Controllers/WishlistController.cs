@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
+using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 
 namespace Nadixa.Web.Controllers
@@ -18,8 +19,8 @@ namespace Nadixa.Web.Controllers
             _context = context;
             _userManager = userManager;
         }
-        [Authorize]
 
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -55,6 +56,16 @@ namespace Nadixa.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Toggle(int productId)
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Json(new
+                {
+                    success = false,
+                    requiresLogin = true,
+                    message = AppMessages.LoginRequired
+                });
+            }
+
             var user = await _userManager.GetUserAsync(User);
 
             if(user == null)
@@ -85,7 +96,16 @@ namespace Nadixa.Web.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return Json(new { success = true, count = wishlist.Items.Count, isAdded }); 
+            var count = wishlist.Items.Count;
+            return Json(new
+            {
+                success = true,
+                isAdded,
+                count,
+                message = isAdded
+                    ? AppMessages.WishlistAdded
+                    : AppMessages.WishlistRemoved
+            });
         }
     }
 }

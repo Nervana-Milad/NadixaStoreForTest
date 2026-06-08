@@ -78,7 +78,7 @@
 		});
 	</script>
 	<script src="~/vendor/isotope/isotope.pkgd.min.js"></script>
-	<script src="~/vendor/sweetalert/sweetalert.min.js"></script>
+	@* <script src="~/vendor/sweetalert/sweetalert.min.js"></script> *@
 	<script src="~/js/main.js"></script>
 
 
@@ -122,6 +122,18 @@
 				type: "POST",
 				data: { productId: productId },
 				success: function (res) {
+					if (res.requiresLogin) {
+						Swal.fire({
+							icon: 'warning',
+							title: 'Login Required',
+							text: res.message,
+							confirmButtonText: 'Login'
+						}).then(() => {
+							window.location.href = '/Auth/Login?returnUrl=' + encodeURIComponent(window.location.pathname);
+						});
+
+						return;
+					}
 					if (res.success) {
 						// button.toggleClass("js-addedwish-detail");
 
@@ -129,18 +141,18 @@
                             if(!window.wishlistIds.includes(productId)){
 								window.wishlistIds.push(productId);
 							}
-							// swal(nameProduct, "added to wishlist!", "success");
 						} else {
 							window.wishlistIds = window.wishlistIds.filter(id => id !== productId);
-							// swal(nameProduct, "removed from wishlist!", "warning");
 						}
 						updateWishlistUI();
-						//Alert
 
-						swal(nameProduct,
-							res.isAdded ? "added to wishlist!" : "removed from wishlist!",
-							res.isAdded ? "success" : "warning"
-						);
+						Swal.fire({
+							icon: res.isAdded ? 'success' : 'warning',
+							title: nameProduct,
+							text: res.message,
+							timer: 1500,
+							showConfirmButton: false
+						});
 
 						// 🔢 Counter
 						$("#wishlist-count").attr("data-notify", res.count ?? 0);
@@ -163,6 +175,7 @@
 		/*---------------------------------------------*/
 
 		$(document).on('click', '.js-addcart-detail', function (e) {
+			console.log("Add To Cart Clicked");
 			e.preventDefault();  
 			e.stopPropagation();   
 			var button = $(this);
@@ -178,10 +191,36 @@
 				type: "POST",
 				data: { productId: productId, quantity: quantity },
 				success: function (response) {
-					swal(nameProduct, "is added to cart!", "success");
+						console.log("Respooooonse:", response);
+
+					if (response.requiresLogin) {
+						Swal.fire({
+							icon: 'warning',
+							title: 'Login Required',
+							text: response.message,
+							confirmButtonText: 'Login'
+						}).then(() => {
+
+							window.location.href = '/Auth/Login?returnUrl=' + encodeURIComponent(window.location.pathname);
+
+						});
+						return;
+					}
+					if (response.success) {
+
+						Swal.fire({
+							icon: 'success',
+							title: nameProduct,
+							text: response.message,
+							timer: 1500,
+							showConfirmButton: false
+						});
+
 						document.getElementById("cart-count")
-						.setAttribute("data-notify", response.cartCount);
-					loadMiniCart();
+							.setAttribute("data-notify", response.cartCount);
+
+						loadMiniCart();
+					}
 				}
 			});
 		});
@@ -328,6 +367,14 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 	<div id="quickViewContainer"></div>
+	<link rel="stylesheet"
+		  href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+	<script src="~/js/notifications.js"></script>
 	@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

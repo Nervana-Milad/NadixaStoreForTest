@@ -75,21 +75,6 @@ namespace Nadixa.Web.Controllers
             vm.SubCategories = new List<SelectListItem>();
             return View(vm);
         }
-        //[HttpGet]
-        //[Authorize(Roles = "Admin")]
-        //public IActionResult Create()
-        //{
-        //    var productViewModel = new ProductCreateViewModel();
-        //    productViewModel.Categories = _context.ProductCategories.Select(c =>
-        //    new SelectListItem
-        //    {
-        //        Value = c.Id.ToString(),
-        //        Text = c.Name
-        //    }
-        //    ).ToList();
-        //    return View(productViewModel);
-        //}
-
 
         private async Task LoadCategories(ProductCreateViewModel vm)
         {
@@ -217,77 +202,7 @@ namespace Nadixa.Web.Controllers
 
             return RedirectToAction("Index", "Home");
         }
-        //[HttpPost]
-        //[Authorize(Roles = "Admin")]
-        //public async Task<IActionResult> Create(ProductCreateViewModel productViewModel)
-        //{
-
-        //    if (ModelState.IsValid)
-        //    {
-        //        var inputFileExtension = Path.GetExtension(productViewModel.MainImage.FileName).ToLower();
-        //        bool isAllowed = _allowedExtension.Contains(inputFileExtension);
-
-        //        if(!isAllowed)
-        //        {
-        //            ModelState.AddModelError("", "Invalid Image Format. Allowed formats are .jpg, .jpeg, .png, .jfif");
-        //            productViewModel.Categories = _context.ProductCategories.Select(c => new SelectListItem
-        //            {
-        //                Value = c.Id.ToString(),
-        //                Text = c.Name
-        //            }).ToList();
-
-        //            return View(productViewModel);
-        //        }
-        //        string imagePath = null;
-
-        //        imagePath = await UploadFileToFolder(productViewModel.MainImage);
-        //        var product = new Product
-        //        {
-        //            Name = productViewModel.Name,
-        //            Description = productViewModel.Description,
-        //            Price = productViewModel.Price,
-        //            OldPrice = productViewModel.OldPrice,
-        //            StockQuantity = productViewModel.StockQuantity,
-        //            ProductCategoryId = productViewModel.CategoryId,
-        //            ProductSubCategoryId = productViewModel.ProductSubCategoryId,
-        //            MainImageUrlPath = imagePath
-        //        };
-        //        await _context.Products.AddAsync(product);
-        //        await _context.SaveChangesAsync();
-
-        //        if(productViewModel.GalleryImages !=null && productViewModel.GalleryImages.Any())
-        //        {
-        //            foreach(var image in productViewModel.GalleryImages)
-        //            {
-        //                if (image == null) continue;
-
-        //                var extension = Path.GetExtension(image.FileName).ToLower();
-        //                if (!_allowedExtension.Contains(extension)) continue;
-
-        //                var path = await UploadFileToFolder(image);
-
-        //                _context.ProductImages.Add(new ProductImage
-        //                {
-        //                    ProductId = product.Id,
-        //                    ImageUrl = path,
-        //                    IsMain = false
-        //                });
-        //            }
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        return RedirectToAction("Index", "Home");
-        //    }
-
-        //    productViewModel.Categories = _context.ProductCategories.Select(c =>
-        //    new SelectListItem
-        //    {
-        //        Value = c.Id.ToString(),
-        //        Text = c.Name
-        //    }
-        //    ).ToList();
-        //    return View(productViewModel);
-        //}
-
+        
         [HttpGet]
         public async Task<IActionResult> Detail(int id)
         {

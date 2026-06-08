@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
+using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -20,7 +21,6 @@ namespace Nadixa.Web.Controllers
             _context = context;
             _userManager = userManager;
         }
-        [Authorize]
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -55,9 +55,18 @@ namespace Nadixa.Web.Controllers
 
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
+            Console.WriteLine("AddToCart Hit");
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Json(new
+                {
+                    success = false,
+                    requiresLogin = true,
+                    message = AppMessages.LoginRequired
+                });
+            }
             var user = await _userManager.GetUserAsync(User);
 
             // هات المنتج كامل
@@ -69,7 +78,7 @@ namespace Nadixa.Web.Controllers
                 return Json(new
                 {
                     success = false,
-                    message = "Product not found"
+                    message = AppMessages.ProductNotFound
                 });
             }
 
@@ -79,7 +88,7 @@ namespace Nadixa.Web.Controllers
                 return Json(new
                 {
                     success = false,
-                    message = "Product is out of stock"
+                    message = AppMessages.OutOfStock
                 });
             }
 
@@ -140,7 +149,8 @@ namespace Nadixa.Web.Controllers
             return Json(new
             {
                 success = true,
-                cartCount
+                cartCount,
+                message = AppMessages.CartAdded
             });
         }
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Nadixa.Core.Entities;
+using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 
 namespace Nadixa.Web.Controllers
@@ -75,14 +76,14 @@ namespace Nadixa.Web.Controllers
 
                 if(user == null)
                 {
-                    ModelState.AddModelError("", "Email or Password is Incorrect");
+                    ModelState.AddModelError("", AppMessages.InvalidLogin);
                     return View(model);
                 }
                 var signInResult = await _signInManager.PasswordSignInAsync(user, model.Password, false, false);
 
                 if(!signInResult.Succeeded)
                 {
-                    ModelState.AddModelError("", "Email or Password is Incorrect");
+                    ModelState.AddModelError("", AppMessages.InvalidLogin);
                     return View(model);
                 }
                 return RedirectToAction("Index", "Home");

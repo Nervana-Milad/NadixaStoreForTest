@@ -3894,3 +3894,7 @@ input.num-product::-webkit-inner-spin-button {
 .category-card:hover .category-image {
     transform: scale(1.05);
 }
+
+.swal2-container {
+    z-index: 99999 !important;
+}
