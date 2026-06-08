@@ -9,9 +9,8 @@ namespace Nadixa.Web.Models.ViewModels
         [MinLength(3)]
         public string FullName { get; set; }
 
-        [Required(ErrorMessage = "Phone Number is required")]
-        [StringLength(11, MinimumLength = 11,
-    ErrorMessage = "Phone number must be 11 digits.")]
+        [RegularExpression(@"^\d{11}$", ErrorMessage = "Phone number must contain exactly 11 digits.")]
+
 
         public string PhoneNumber { get; set; }
 
