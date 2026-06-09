@@ -64,6 +64,7 @@ namespace Nadixa.Web.Controllers
             {
                 Blog = blog,
             };
+            ViewBag.CurrentUserId = user?.Id;
             return View(vm);
         }
 
@@ -280,6 +281,29 @@ namespace Nadixa.Web.Controllers
             _context.BlogComments.Add(comment);
             await _context.SaveChangesAsync();
             return RedirectToAction("Detail", new { id = blogId });
+        }
+
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> DeleteComment(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Json(new { success = false, message = "Please login first." });
+
+            var comment = await _context.BlogComments.FindAsync(id);
+            if (comment == null)
+                return Json(new { success = false, message = "Comment not found." });
+
+
+            if (comment.AppUserId != user.Id && !User.IsInRole("Admin"))
+                return Json(new { success = false, message = "Not allowed." });
+
+            _context.BlogComments.Remove(comment);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
         }
     }
 }

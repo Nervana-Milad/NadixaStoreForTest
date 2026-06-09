@@ -435,6 +435,10 @@ namespace Nadixa.Web.Controllers
             _context.Reviews.Add(newReview);
             await _context.SaveChangesAsync();
 
+            var avgRating = await _context.Reviews
+    .Where(r => r.ProductId == review.ProductId)
+    .AverageAsync(r => r.Rating);
+
             return Json(new
             {
                 success = true,
@@ -443,7 +447,8 @@ namespace Nadixa.Web.Controllers
                 content = newReview.Content,
                 rating = newReview.Rating,
                 userImage = newReview.UserImage,
-                userId = newReview.UserId
+                userId = newReview.UserId,
+                avgRating = avgRating
             });
         }
 
@@ -535,7 +540,22 @@ namespace Nadixa.Web.Controllers
             _context.Reviews.Remove(review);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Detail", new { id = review.ProductId });
+            var avgRating = await _context.Reviews
+                .Where(r => r.ProductId == productId)
+                .Select(r => (double?)r.Rating)
+                .AverageAsync() ?? 0;
+
+            var reviewsCount = await _context.Reviews
+                .CountAsync(r => r.ProductId == productId);
+
+            return Json(new
+            {
+                success = true,
+                avgRating,
+                reviewsCount
+            });
+
+            //return RedirectToAction("Detail", new { id = review.ProductId });
         }
 
 
