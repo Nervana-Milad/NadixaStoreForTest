@@ -75,9 +75,8 @@
 
 				<!-- Delete Button -->
 				<button type="button"
-						class="btn btn-danger px-4 py-2 rounded-pill shadow-sm"
-						data-bs-toggle="modal"
-						data-bs-target="#deleteModal">
+						class="btn btn-danger px-4 py-2 rounded-pill shadow-sm delete-product-btn"
+						data-product-name="@Model.Product.Name">
 					Delete Product
 				</button>
 
@@ -176,17 +175,6 @@
 
 						<div class="flex-w flex-l-m p-b-10">
 							<div class="size-204 flex-w flex-m respon6-next">
-								@* <div class="wrap-num-product flex-w m-r-20 m-tb-10 my-3">
-									<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
-										<i class="fs-16 zmdi zmdi-minus"></i>
-									</div>
-
-									<input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product" value="1" max="@Model.Product.StockQuantity">
-
-									<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
-										<i class="fs-16 zmdi zmdi-plus"></i>
-									</div>
-								</div> *@
 								<div class="wrap-num-product flex-w m-r-20 m-tb-10 my-3">
 
 									<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m @(Model.Product.StockQuantity <= 0 ? "disabled-btn" : "")">
@@ -276,7 +264,11 @@
 					</li>
 
 					<li class="nav-item p-b-10">
-						<a class="nav-link" data-toggle="tab" href="#reviews" role="tab">Reviews (@Model.Product.Reviews.Count())</a>
+						<a class="nav-link" data-toggle="tab" href="#reviews" role="tab">
+							Reviews (<span id="reviewsCount">
+								@Model.Product.Reviews.Count()
+							</span>)
+						</a>
 					</li>
 				</ul>
 
@@ -357,12 +349,18 @@
 								<div class="p-b-30 m-lr-15-sm">
 									<!-- Review -->
 									<div class="d-flex justify-content-between mb-4">
-										<h4>@ViewBag.AvgRating.ToString("0.0") / 5</h4>
-										<p>(@ViewBag.TotalReviews) Reviews</p>
+										<h4>
+											<span id="avgRating">
+												@ViewBag.AvgRating.ToString("0.0")
+											</span> / 5
+										</h4>
 									</div>
-									@if (Model.Product.Reviews.Any())
-									{
-										<div id="reviewSection">
+
+
+									<div id="reviewSection">
+										@if (Model.Product.Reviews.Any())
+										{
+
 											@foreach (var review in Model.Product.Reviews)
 											{
 												<div class="flex-w flex-t p-b-68 review-card">
@@ -403,35 +401,33 @@
 															@if (User.Identity.IsAuthenticated && User.IsInRole("Admin") || review.UserId == ViewBag.CurrentUserId)
 															{
 																<div>
-																	<form asp-action="DeleteReview"
-																		  asp-controller="Product"
-																		  method="post"
-																		  >
-
-																		<input type="hidden" name="id" value="@review.Id" />
-
-																		<button type="submit"
-																				class="btn btn-sm text-danger border-0 bg-transparent p-0"
-																				title="Delete">
-																			<i class="fa fa-trash fs-18"></i>
-																		</button>
-																	</form>
+																	<button type="button"
+																			class="delete-review-btn btn btn-sm text-danger border-0 bg-transparent p-0"
+																			data-review-id="@review.Id"
+																			title="Delete">
+																		<i class="fa fa-trash fs-18"></i>
+																	</button>
+																	
 																</div>
 															}
 														</div>
 
-														
+
 													</div>
 												</div>
 											}
-										</div>
-									}
-									else
-									{
-										<p class="text-muted mb-3 text-center">No Reviews yet, Be the first to Review</p>
-										@* <p class="text-muted mb-3 text-center">To Review You Need To <a style="color:#717fe0; font-size:18px" asp-controller="Auth" asp-action="Login">Login</a> </p> *@
-									}
 
+										}
+										else
+										{
+											<p id="noReviewsMessage"
+											   class="text-muted mb-3 text-center">
+												No Reviews yet, Be the first to Review
+											</p>
+										}
+
+									</div>
+									
 									@if (!User.Identity.IsAuthenticated)
 									{
 										<p class="text-muted mb-3 text-center">
@@ -445,13 +441,9 @@
 									}
 									@if (User.Identity.IsAuthenticated)
 									{
-										@* <!-- Add review -->
-										<h5 class="mtext-108 cl2 p-b-7">
-											Add a review
-										</h5> *@
-
+										
 										<form id="reviewForm"  method="post" class="w-full">
-
+											<input type="hidden" id="ProductId" value="@Model.Product.Id" />
 											<div class="flex-w flex-m p-t-50 p-b-23 form-group">
 												<span class="stext-102 cl3 m-r-16">
 													Your Rating
@@ -476,12 +468,6 @@
 													<label class="stext-102 cl3" for="Content">Your Review</label>
 													<textarea class="size-110 bor8 stext-102 cl2 p-lr-20 p-tb-10 form-control" for="Content" id="Content" name="Content"></textarea>
 												</div>
-
-												@* <div class="col-sm-6 p-b-5 form-group">
-													<label class="stext-102 cl3" for="UserName">User Name</label>
-													<input class="size-111 bor8 stext-102 cl2 p-lr-20 form-control" for="UserName" id="UserName" type="text" name="UserName">
-												</div> *@
-
 												
 											</div>
 
@@ -511,7 +497,14 @@
 
 
 	<!-- Delete Confirmation Modal -->
-	<div class="modal fade mt-5" id="deleteModal" tabindex="-1">
+	<!-- Delete Product Form (hidden) -->
+	<form id="deleteProductForm"
+		  asp-controller="Product"
+		  asp-action="DeleteConfirmed"
+		  asp-route-id="@Model.Product.Id"
+		  method="post">
+	</form>
+	@* <div class="modal fade mt-5" id="deleteModal" tabindex="-1">
 		<div class="modal-dialog modal-dialog-centered" style="margin-top:80px">
 			<div class="modal-content">
 
@@ -554,81 +547,6 @@
 				</div>
 			</div>
 		</div>
-	</div>
+	</div> *@
 
 </section>
-
-
-@section Scripts {
-
-	<script>
-		$("#reviewForm").on('submit', function (event) {
-			event.preventDefault();
-
-			var rating = $("#RatingValue").val();
-			var content = $("#Content").val();
-			var productId = parseInt('@Model.Product.Id');
-
-			console.log(content, rating, productId);
-
-			if (!rating) {
-				alert("Please select a rating");
-				return;
-			}
-
-			if (!content || content.trim() === "") {
-				alert("Please write a review");
-				return;
-			}
-
-			$.ajax({
-				url: '@Url.Action("AddReview", "Product")',
-				type: 'POST',
-				contentType: 'application/json',
-				data: JSON.stringify({
-					Content: content,
-					Rating: parseInt(rating),
-					ProductId: productId
-				}),
-				success: function (response) {
-
-					$('#reviewForm')[0].reset();
-					$('#RatingValue').val("");
-
-					$('#reviewSection').append(
-					`
-					<div class="flex-w flex-t p-b-68 review-card ">
-						<div class="wrap-pic-s size-109 bor0 of-hidden m-r-18 m-t-6">
-							<img src="${response.userImage}" alt="AVATAR">
-						</div>
-
-						<div class="size-207">
-							<div class="flex-w flex-sb-m p-b-17">
-								<span class="mtext-107 cl2 p-r-20">
-									${response.username}
-								</span>
-
-								<span class="fs-20 cl11">
-									${'★'.repeat(response.rating)}${'☆'.repeat(5 - response.rating)}
-								</span>
-							</div>
-
-							<p class="stext-102 cl6">
-								${response.content}
-							</p>
-						</div>
-					</div>
-					`
-					);
-
-					console.log("Success");
-				},
-				error: function(err) {
-					console.log(err);
-				}
-			});
-
-		});
-	</script>
-
-}

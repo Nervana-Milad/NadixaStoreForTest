@@ -295,4 +295,65 @@
         $("#mini-cart-container").load("/Cart/GetMiniCart");
     };
 
+
+    /*==================================================================*/
+   
+
+
 })(jQuery);
+
+// Delete product modal
+$(document).on("click", ".delete-product-btn", function () {
+    var productName = $(this).data("product-name");
+    Notify.confirm({
+        title: "Delete " + productName,
+        message: "Are you sure you want to delete this product?",
+        onConfirm: function () {
+            $("#deleteProductForm").submit();
+        }
+    });
+});
+
+// Delete blog
+$(document).on("click", ".delete-blog-btn", function () {
+    var blogTitle = $(this).data("blog-title");
+    Notify.confirm({
+        title: "Delete " + blogTitle,
+        message: "Are you sure you want to delete this blog?",
+        onConfirm: function () {
+            $("#deleteBlogForm").submit();
+        }
+    });
+});
+
+
+// Delete Comment 
+$(document).on("click", ".delete-comment-btn", function () {
+    var commentId = $(this).data("comment-id");
+    var commentCard = $(this).closest(".comment-card");
+
+    Notify.confirm({
+        title: "Delete Comment",
+        message: "Are you sure you want to delete this comment?",
+        onConfirm: function () {
+            $.ajax({
+                url: "/Blog/DeleteComment",
+                type: "POST",
+                data: { id: commentId },
+                success: function (response) {
+                    if (!response.success) {
+                        Notify.error(response.message);
+                        return;
+                    }
+                    commentCard.fadeOut(300, function () {
+                        $(this).remove();
+                    });
+                    Notify.success("Comment deleted successfully");
+                },
+                error: function () {
+                    Notify.error("Something went wrong");
+                }
+            });
+        }
+    });
+});

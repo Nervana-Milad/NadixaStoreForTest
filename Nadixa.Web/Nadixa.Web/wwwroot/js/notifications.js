@@ -18,5 +18,21 @@
         }).then(() => {
             window.location.href = '/Auth/Login';
         });
+    },
+
+    confirm(options) {
+        Swal.fire({
+            icon: 'warning',
+            title: options.title || 'Confirm Delete',
+            text: options.message || 'Are you sure?',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Delete',
+            cancelButtonText: 'No',
+            confirmButtonColor: '#d33'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                options.onConfirm();
+            }
+        });
     }
 }
