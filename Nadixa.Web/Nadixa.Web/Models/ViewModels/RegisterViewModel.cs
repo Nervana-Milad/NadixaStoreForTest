@@ -19,6 +19,8 @@ namespace Nadixa.Web.Models.ViewModels
 
         [Compare("Password", ErrorMessage = "The Password must match the Confirm Password")]
         [DataType(DataType.Password)]
+        [Required(ErrorMessage = "Confirm Password is required")]
+
         public string ConfirmPassword { get; set; }
 
 

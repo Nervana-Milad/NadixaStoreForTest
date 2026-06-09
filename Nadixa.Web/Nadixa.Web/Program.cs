@@ -31,7 +31,9 @@ namespace Nadixa.Web
                 options.Password.RequireLowercase = true;
                 options.Password.RequireUppercase = false;
                 options.Password.RequiredLength = 6;
-            }).AddEntityFrameworkStores<NadixaDbContext>();
+                options.SignIn.RequireConfirmedAccount = false;
+
+            }).AddEntityFrameworkStores<NadixaDbContext>().AddDefaultTokenProviders();
             builder.Services.AddAuthentication()
                .AddGoogle(options =>
                {

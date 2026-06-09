@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Nadixa.Core.Entities;
 using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
+using Nadixa.Web.Services;
 
 namespace Nadixa.Web.Controllers
 {
@@ -11,12 +13,15 @@ namespace Nadixa.Web.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly EmailSender _emailSender;
 
-        public AuthController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<AppUser> signInManager)
+        public AuthController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<AppUser> signInManager , EmailSender emailSender)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
+            _emailSender = emailSender;
+
         }
 
         [HttpGet]
@@ -154,6 +159,113 @@ namespace Nadixa.Web.Controllers
             }
 
             return RedirectToAction("Login");
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPasswordConfirmation()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user == null)
+            {
+                ModelState.AddModelError("", "Email not found.");
+                return View(model);
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            var resetLink = Url.Action(
+                "ResetPassword",
+                "Auth",
+                new
+                {
+                    token = token,
+                    email = user.Email
+                },
+                Request.Scheme);
+
+
+            _emailSender.SendEmail(
+    "Nadixa",
+    "your-email@gmail.com",
+    user.UserName ?? user.Email,
+    user.Email,
+    "Reset Password",
+    $"Reset your password using this link: {resetLink}");
+
+            _emailSender.SendEmail(
+                "Nadixa",
+                "your-email@gmail.com",
+                user.UserName ?? user.Email,
+                user.Email,
+                "Reset Password",
+                $"Click the following link to reset your password:\n{resetLink}"
+            );
+
+            return RedirectToAction("ForgotPasswordConfirmation");
+        }
+
+
+        [HttpGet]
+        public IActionResult ResetPassword(string token, string email)
+        {
+            if (token == null || email == null)
+                return BadRequest();
+
+            var model = new ResetPasswordViewModel
+            {
+                Token = token,
+                Email = email
+            };
+
+            return View(model);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user == null)
+            {
+                ModelState.AddModelError("", "User not found.");
+                return View(model);
+            }
+
+            var result = await _userManager.ResetPasswordAsync(
+                user,
+                model.Token,
+                model.Password);
+
+            if (result.Succeeded)
+            {
+                return RedirectToAction("Login");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+
+            return View(model);
         }
     }
 }
