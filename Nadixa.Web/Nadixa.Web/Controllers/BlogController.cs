@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
+using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 
 namespace Nadixa.Web.Controllers
@@ -129,7 +130,7 @@ namespace Nadixa.Web.Controllers
 
             _context.Blogs.Add(blog);
             await _context.SaveChangesAsync();
-
+            TempData["Success"] = AppMessages.BlogCreated;
             return RedirectToAction("Index");
         }
 
@@ -154,6 +155,7 @@ namespace Nadixa.Web.Controllers
             }
             _context.Blogs.Remove(blogFromDb);
             await _context.SaveChangesAsync();
+            TempData["Success"] = AppMessages.BlogDeleted;
             return RedirectToAction("Index", "Blog");
         }
 
@@ -253,6 +255,8 @@ namespace Nadixa.Web.Controllers
 
 
             await _context.SaveChangesAsync();
+
+            TempData["Success"] = AppMessages.BlogUpdated;
             return RedirectToAction("Detail", new { id = blogFromDb.Id });
         }
 

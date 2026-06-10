@@ -162,7 +162,22 @@
 			window.location.href = '/Profile';
 		});
 	</script>
-
+	@if (TempData["Success"] != null)
+	{
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				Notify.success("@TempData["Success"]");
+			});
+		</script>
+	}
+	@if (TempData["Error"] != null)
+	{
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				Notify.error("@TempData["Error"]");
+			});
+		</script>
+	}
 	
 	<script>
 		window.wishlistIds = @Html.Raw(Json.Serialize(ViewBag.WishlistIds ?? new List<int>()));

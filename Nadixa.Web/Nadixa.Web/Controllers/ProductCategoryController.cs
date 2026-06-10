@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
+using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 
 namespace Nadixa.Web.Controllers
@@ -91,7 +92,7 @@ namespace Nadixa.Web.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Category created successfully";
+            TempData["Success"] = AppMessages.ProductCatCreated;
 
             return RedirectToAction(nameof(Index));
         }
@@ -170,11 +171,10 @@ namespace Nadixa.Web.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Category updated successfully";
+            TempData["Success"] = AppMessages.ProductCatUpdated;
 
             return RedirectToAction(nameof(Index));
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -185,17 +185,23 @@ namespace Nadixa.Web.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (category == null)
-            {
                 return NotFound();
+
+            var productsCount = await _context.Products
+                .CountAsync(p => p.ProductCategoryId == id);
+
+            if (productsCount > 0)
+            {
+                TempData["Error"] = $"Cannot delete '{category.Name}' because it has {productsCount} product(s). Please delete the products first.";
+                return RedirectToAction(nameof(Index));
             }
 
             _context.ProductCategories.Remove(category);
-
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Category deleted successfully";
-
+            TempData["Success"] = AppMessages.ProductCatDeleted;
             return RedirectToAction(nameof(Index));
         }
+
     }
 }

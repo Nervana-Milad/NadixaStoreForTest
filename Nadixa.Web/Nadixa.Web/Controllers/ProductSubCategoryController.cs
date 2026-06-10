@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
+using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 
 namespace Nadixa.Web.Controllers
@@ -99,6 +100,7 @@ namespace Nadixa.Web.Controllers
 
             await _context.SaveChangesAsync();
 
+            TempData["Success"] = AppMessages.ProductSubCatCreated;
             return RedirectToAction(nameof(Index));
         }
 
@@ -193,6 +195,7 @@ namespace Nadixa.Web.Controllers
 
             await _context.SaveChangesAsync();
 
+            TempData["Success"] = AppMessages.ProductSubCatUpdated;
             return RedirectToAction(nameof(Index));
         }
 
@@ -223,7 +226,7 @@ namespace Nadixa.Web.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "SubCategory deleted successfully";
+            TempData["Success"] = AppMessages.ProductSubCatDeleted;
 
             return RedirectToAction(nameof(Index));
         }
