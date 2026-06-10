@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Nadixa.Core.Entities;
@@ -96,6 +97,7 @@ namespace Nadixa.Web.Controllers
             return View(model);
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
@@ -172,6 +174,7 @@ namespace Nadixa.Web.Controllers
         {
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
         {
