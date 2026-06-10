@@ -61,8 +61,20 @@ namespace Nadixa.Web.Controllers
 
                     return RedirectToAction("Login", "Auth");
                 }
-                
+                foreach (var error in result.Errors)
+                {
+                    if (error.Code == "DuplicateUserName")
+                    {
+                        ModelState.AddModelError("", "This email is already registered.");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                }
+
             }
+
             return View(model);
         }
 
