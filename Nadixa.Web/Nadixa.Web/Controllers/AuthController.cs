@@ -150,29 +150,36 @@ namespace Nadixa.Web.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
-            else
+
+            var email = info.Principal.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+
+            if (string.IsNullOrEmpty(email))
             {
-                var email = info.Principal.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
-
-                var user = new AppUser
-                {
-                    UserName = email,
-                    Email = email
-                };
-
-                var identityResult = await _userManager.CreateAsync(user);
-
-                if (identityResult.Succeeded)
-                {
-                    await _userManager.AddLoginAsync(user, info);
-
-                    await _signInManager.SignInAsync(user, false);
-
-                    return RedirectToAction("Index", "Home");
-                }
+                TempData["Error"] = "Unable to retrieve email from your Google account.";
+                return RedirectToAction("Login");
             }
 
-            return RedirectToAction("Login");
+            var user = new AppUser
+            {
+                UserName = email,
+                Email = email
+            };
+
+            var identityResult = await _userManager.CreateAsync(user);
+
+            if (!identityResult.Succeeded)
+            {
+                TempData["Error"] = string.Join(" | ",
+                    identityResult.Errors.Select(e => e.Description));
+
+                return RedirectToAction("Login");
+            }
+
+            await _userManager.AddLoginAsync(user, info);
+
+            await _signInManager.SignInAsync(user, false);
+
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
