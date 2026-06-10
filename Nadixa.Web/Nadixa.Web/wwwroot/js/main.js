@@ -357,3 +357,37 @@ $(document).on("click", ".delete-comment-btn", function () {
         }
     });
 });
+
+
+// delete prod category
+$(document).on("click", ".delete-category-btn", function () {
+    var categoryId = $(this).data("category-id");
+    var categoryName = $(this).data("category-name");
+
+    Notify.confirm({
+        title: "Delete " + categoryName,
+        message: "Are you sure you want to delete this category?",
+        onConfirm: function () {
+            var form = $("#deleteCategoryForm");
+            form.attr("action", "/ProductCategory/Delete/" + categoryId);
+            form.submit();
+        }
+    });
+});
+
+
+// delete prod SubCategory
+$(document).on("click", ".delete-subcategory-btn", function () {
+    var subCategoryId = $(this).data("subcategory-id");
+    var subCategoryName = $(this).data("subcategory-name");
+
+    Notify.confirm({
+        title: "Delete " + subCategoryName,
+        message: "Are you sure you want to delete this subcategory?",
+        onConfirm: function () {
+            var form = $("#deleteSubCategoryForm");
+            form.attr("action", "/ProductSubCategory/Delete/" + subCategoryId);
+            form.submit();
+        }
+    });
+});

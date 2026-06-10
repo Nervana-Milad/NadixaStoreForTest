@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
+using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
@@ -200,7 +201,8 @@ namespace Nadixa.Web.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction("Index", "Home");
+            TempData["Success"] = AppMessages.ProductCreated;
+            return RedirectToAction("Index");
         }
         
         [HttpGet]
@@ -234,47 +236,55 @@ namespace Nadixa.Web.Controllers
             return View(vm);
         }
 
+
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
-            if(id == null)
-            {
-                return NotFound();
-            }
-            var productFromDb = await _context.Products.Include(i => i.Images).FirstOrDefaultAsync(p => p.Id == id);
+            var productFromDb = await _context.Products
+                .Include(i => i.Images)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
-            if(productFromDb == null)
-            {
+            if (productFromDb == null)
                 return NotFound();
-            }
-            ProductEditViewModel editViewModel = new ProductEditViewModel
+
+            var editViewModel = new ProductEditViewModel
             {
-                Product = productFromDb,
+                Id = productFromDb.Id,
+                Name = productFromDb.Name,
+                Description = productFromDb.Description,
+                Price = productFromDb.Price,
+                OldPrice = productFromDb.OldPrice,
+                StockQuantity = productFromDb.StockQuantity,
+                IsFeatured = productFromDb.IsFeatured,
+                ProductCategoryId = productFromDb.ProductCategoryId,
+                ProductSubCategoryId = productFromDb.ProductSubCategoryId,
+                ExistingMainImageUrl = productFromDb.MainImageUrlPath,
+
                 ExistingImages = productFromDb.Images.Select(img => new ProductImageViewModel
                 {
                     Id = img.Id,
                     ImageUrl = img.ImageUrl
                 }).ToList(),
 
-                Categories = _context.ProductCategories.Select(cat =>
-                new SelectListItem
+                Categories = _context.ProductCategories.Select(cat => new SelectListItem
                 {
                     Value = cat.Id.ToString(),
                     Text = cat.Name
                 }).ToList(),
 
-                SubCategories = _context.ProductSubCategories.Select(subProd =>
-                new SelectListItem
+                SubCategories = _context.ProductSubCategories
+                .Where(s => s.ProductCategoryId == productFromDb.ProductCategoryId)
+                .Select(subProd => new SelectListItem
                 {
                     Value = subProd.Id.ToString(),
                     Text = subProd.Name
                 }).ToList(),
-
             };
 
             return View(editViewModel);
         }
+
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
@@ -282,86 +292,92 @@ namespace Nadixa.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
+                editViewModel.Categories = _context.ProductCategories.Select(cat => new SelectListItem
+                {
+                    Value = cat.Id.ToString(),
+                    Text = cat.Name
+                }).ToList();
+
+                editViewModel.SubCategories = _context.ProductSubCategories.Select(subProd => new SelectListItem
+                {
+                    Value = subProd.Id.ToString(),
+                    Text = subProd.Name
+                }).ToList();
+
                 return View(editViewModel);
             }
-            var productFromDb = await _context.Products.Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == editViewModel.Product.Id);
-            
-            if(productFromDb == null)
-            {
-                return NotFound();
-            }
 
-            if(editViewModel.MainImageUrl != null)
+            var productFromDb = await _context.Products
+                .Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.Id == editViewModel.Id);
+
+            if (productFromDb == null)
+                return NotFound();
+
+            // Main Image
+            if (editViewModel.MainImageUrl != null)
             {
                 var inputFileExtension = Path.GetExtension(editViewModel.MainImageUrl.FileName).ToLower();
-                bool isAlllowed = _allowedExtension.Contains(inputFileExtension);
+                bool isAllowed = _allowedExtension.Contains(inputFileExtension);
 
-                if (!isAlllowed)
+                if (!isAllowed)
                 {
-                    ModelState.AddModelError("", "Invalid Image format. Allowed Formats are .jpg, .jpeg, .png, .jfif");
+                    ModelState.AddModelError("", "Invalid Image format.");
                     return View(editViewModel);
                 }
+
                 var existingFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", Path.GetFileName(productFromDb.MainImageUrlPath));
-
                 if (System.IO.File.Exists(existingFilePath))
-                {
                     System.IO.File.Delete(existingFilePath);
-                }
-                editViewModel.Product.MainImageUrlPath = await UploadFileToFolder(editViewModel.MainImageUrl);
-            }
-            else
-            {
-                editViewModel.Product.MainImageUrlPath = productFromDb.MainImageUrlPath;
+
+                productFromDb.MainImageUrlPath = await UploadFileToFolder(editViewModel.MainImageUrl);
             }
 
+            // Deleted Images
             if (!string.IsNullOrEmpty(editViewModel.DeletedImages))
             {
                 var idsToDelete = editViewModel.DeletedImages.Split(',').Select(int.Parse).ToList();
                 var imagesToDelete = productFromDb.Images.Where(img => idsToDelete.Contains(img.Id)).ToList();
 
-                foreach(var img in imagesToDelete)
+                foreach (var img in imagesToDelete)
                 {
                     var filePath = Path.Combine(_webHostEnvironment.WebRootPath, img.ImageUrl.TrimStart('/'));
-                    if(System.IO.File.Exists(filePath))
+                    if (System.IO.File.Exists(filePath))
                         System.IO.File.Delete(filePath);
 
                     _context.ProductImages.Remove(img);
                 }
             }
 
-            if(editViewModel.NewGalleryImages != null && editViewModel.NewGalleryImages.Count > 0)
+            // New Gallery Images
+            if (editViewModel.NewGalleryImages != null && editViewModel.NewGalleryImages.Count > 0)
             {
-                if (editViewModel.NewGalleryImages != null && editViewModel.NewGalleryImages.Count > 0)
+                foreach (var file in editViewModel.NewGalleryImages)
                 {
-                    foreach (var file in editViewModel.NewGalleryImages)
+                    var uploadedPath = await UploadFileToFolder(file);
+                    productFromDb.Images.Add(new ProductImage
                     {
-                        var uploadedPath = await UploadFileToFolder(file);
-
-                        productFromDb.Images.Add(new ProductImage
-                        {
-                            ImageUrl = uploadedPath,
-                            ProductId = productFromDb.Id
-                        });
-                    }
+                        ImageUrl = uploadedPath,
+                        ProductId = productFromDb.Id
+                    });
                 }
             }
 
-
-            productFromDb.Name = editViewModel.Product.Name;
-            productFromDb.Price = editViewModel.Product.Price;
-            productFromDb.Description = editViewModel.Product.Description;
-            productFromDb.ProductCategoryId = editViewModel.Product.ProductCategoryId;
-            productFromDb.ProductSubCategoryId = editViewModel.Product.ProductSubCategoryId;
-            productFromDb.OldPrice = editViewModel.Product.OldPrice;
-            productFromDb.StockQuantity = editViewModel.Product.StockQuantity;
-            productFromDb.MainImageUrlPath = editViewModel.Product.MainImageUrlPath;
-
+            productFromDb.Name = editViewModel.Name;
+            productFromDb.Price = editViewModel.Price;
+            productFromDb.Description = editViewModel.Description;
+            productFromDb.ProductCategoryId = editViewModel.ProductCategoryId;
+            productFromDb.ProductSubCategoryId = editViewModel.ProductSubCategoryId;
+            productFromDb.OldPrice = editViewModel.OldPrice;
+            productFromDb.StockQuantity = editViewModel.StockQuantity;
+            productFromDb.IsFeatured = editViewModel.IsFeatured;
             productFromDb.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index", "Home");
-        }
 
+            TempData["Success"] = AppMessages.ProductUpdated;
+            return RedirectToAction("Index");
+        }
 
         [HttpPost]
         [Authorize(Roles = "Admin")]

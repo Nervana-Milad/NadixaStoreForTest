@@ -75,59 +75,67 @@
 
             <div asp-validation-summary="All" class="text-danger mb-3"></div>
 
-            <input asp-for="Product.Id" hidden />
+            <input asp-for="Id" hidden />
 
             <div class="row g-4">
                 <!-- LEFT SIDE -->
                 <div class="col-lg-7">
                     <div class="mb-3">
-                        <label asp-for="Product.Name" class="form-label"></label>
-                        <input asp-for="Product.Name"
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name"
                                class="form-control form-control-lg" />
-                        <span asp-validation-for="Product.Name" class="text-danger"></span>
+                        <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Product.ProductCategoryId" class="form-label">Category Name</label>
-                        <select asp-for="Product.ProductCategoryId"
+                        <label asp-for="ProductCategoryId" class="form-label">Category Name</label>
+                        <select asp-for="ProductCategoryId"
                                 asp-items="Model.Categories"
                                 class="form-select form-select-lg rounded-3 shadow-sm form-control">
                             <option value="">Select Category</option>
                         </select>
-                        <span asp-validation-for="Product.ProductCategoryId" class="text-danger"></span>
+                        <span asp-validation-for="ProductCategoryId" class="text-danger"></span>
                     </div>
 
-                    
+                    <div class="mb-3">
+                        <label asp-for="ProductSubCategoryId" class="form-label">Sub Category</label>
+                        <select asp-for="ProductSubCategoryId"
+                                asp-items="Model.SubCategories"
+                                class="form-select form-select-lg form-control">
+                            <option value="">Select Sub Category</option>
+                        </select>
+                        <span asp-validation-for="ProductSubCategoryId" class="text-danger"></span>
+                    </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label asp-for="Product.Price" class="form-label"></label>
-                            <input asp-for="Product.Price"
+                            <label asp-for="Price" class="form-label"></label>
+                            <input asp-for="Price"
                                    class="form-control form-control-lg" />
-                            <span asp-validation-for="Product.Price" class="text-danger"></span>
+                            <span asp-validation-for="Price" class="text-danger"></span>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label asp-for="Product.OldPrice" class="form-label"></label>
-                            <input asp-for="Product.OldPrice"
+                            <label asp-for="OldPrice" class="form-label"></label>
+                            <input asp-for="OldPrice"
                                    class="form-control form-control-lg" />
-                            <span asp-validation-for="Product.OldPrice" class="text-danger"></span>
+                            <span asp-validation-for="OldPrice" class="text-danger"></span>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Product.StockQuantity" class="form-label"></label>
-                        <input asp-for="Product.StockQuantity"
+                        <label asp-for="StockQuantity" class="form-label"></label>
+                        <input asp-for="StockQuantity"
                                class="form-control form-control-lg" />
-                        <span asp-validation-for="Product.StockQuantity" class="text-danger"></span>
+                        <span asp-validation-for="StockQuantity" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Product.Description" class="form-label"></label>
-                        <textarea asp-for="Product.Description"
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description"
                                   rows="4"
                                   class="form-control form-control-lg"></textarea>
-                        <span asp-validation-for="Product.Description" class="text-danger"></span>
+                        <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
 
                 </div>
@@ -148,9 +156,9 @@
                     </div>
                     <img id="imagePreview"
                          class="image-preview"
-                         src="@(string.IsNullOrEmpty(Model.Product.MainImageUrlPath)
+                         src="@(string.IsNullOrEmpty(Model.ExistingMainImageUrl)
                                                         ? "https://via.placeholder.com/400x400?text=No+Image"
-                                                        : Model.Product.MainImageUrlPath)" />
+                                                        : Model.ExistingMainImageUrl)" />
                          <div class="mt-4">
                              <label>Existing Images</label>
                              <div id="existingGallery" class="d-flex flex-wrap gap-2">
@@ -180,7 +188,7 @@
             </div>
 
             <div class="mt-5 d-flex justify-content-end gap-3">
-                <a asp-action="Detail" asp-controller="Product" asp-route-id="@Model.Product.Id"
+                <a asp-action="Detail" asp-controller="Product" asp-route-id="@Model.Id"
                    class="btn rounded-pill flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4">
                     Cancel
                 </a>
