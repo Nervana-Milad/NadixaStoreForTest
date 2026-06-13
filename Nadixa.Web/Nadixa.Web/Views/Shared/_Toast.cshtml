@@ -1,0 +1,78 @@
+﻿@* ═══════════════════════════════════════════════════════
+   _Toast.cshtml  —  Toast notification system (AJAX)
+   Include once in _Layout.cshtml before </body>
+   Usage: showToast('message', 'success'|'error'|'warning'|'info')
+   ═══════════════════════════════════════════════════════ *@
+
+<div id="nadixa-toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<style>
+#nadixa-toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 340px;
+}
+.nadixa-toast {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 13px 16px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+    animation: toastIn 0.25s ease;
+    min-width: 240px;
+    cursor: pointer;
+}
+@@keyframes toastIn {
+    from { opacity:0; transform:translateX(30px); }
+    to   { opacity:1; transform:translateX(0); }
+}
+.nadixa-toast-out {
+    animation: toastOut 0.3s ease forwards;
+}
+@@keyframes toastOut {
+    to { opacity:0; transform:translateX(30px); }
+}
+.nadixa-toast-success { background:#f0faf4; border:1px solid #b7e4c7; color:#1a6935; }
+.nadixa-toast-error   { background:#fff5f5; border:1px solid #f7c1c1; color:#9b2335; }
+.nadixa-toast-warning { background:#fffbeb; border:1px solid #fbd38d; color:#7d4a00; }
+.nadixa-toast-info    { background:#ebf8ff; border:1px solid #bee3f8; color:#1a5276; }
+.nadixa-toast-icon    { flex-shrink:0; margin-top:1px; }
+.nadixa-toast-msg     { flex:1; font-weight:500; }
+</style>
+
+<script>
+const _nadixaIcons = {
+    success: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>',
+    error:   '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>',
+    warning: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/></svg>',
+    info:    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>'
+};
+
+function showToast(message, type = 'success', duration = 4000) {
+    const container = document.getElementById('nadixa-toast-container');
+    const toast     = document.createElement('div');
+
+    toast.className = `nadixa-toast nadixa-toast-${type}`;
+    toast.innerHTML = `
+        <span class="nadixa-toast-icon">${_nadixaIcons[type] || _nadixaIcons.info}</span>
+        <span class="nadixa-toast-msg">${message}</span>
+    `;
+
+    toast.addEventListener('click', () => dismissToast(toast));
+    container.appendChild(toast);
+    setTimeout(() => dismissToast(toast), duration);
+}
+
+function dismissToast(toast) {
+    toast.classList.add('nadixa-toast-out');
+    setTimeout(() => toast.remove(), 300);
+}
+</script>

@@ -1,0 +1,498 @@
+﻿/* ============================================================
+   nadixa-luxury.css
+   Elegant & Luxury animation system for NadixaStore
+   Add ONE line in _Layout.cshtml <head>:
+   <link rel="stylesheet" href="~/css/nadixa-luxury.css" />
+   And ONE line before </body>:
+   <script src="~/js/nadixa-luxury.js"></script>
+   ============================================================ */
+
+/* ── 1. SMOOTH SCROLL ───────────────────────────────────────── */
+html {
+    scroll-behavior: smooth;
+}
+
+/* ── 2. PAGE TRANSITION (fade-in on load) ───────────────────── */
+body {
+    animation: nxPageIn .55s cubic-bezier(.4,0,.2,1) both;
+}
+
+@keyframes nxPageIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── 3. SCROLL REVEAL ───────────────────────────────────────── */
+/* Add class="nx-reveal" to any element you want to animate on scroll */
+.nx-reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1);
+}
+
+    .nx-reveal.nx-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+/* Stagger delays for grid children — add nx-reveal to the grid wrapper */
+.nx-reveal-group > *:nth-child(1) {
+    transition-delay: .05s;
+}
+
+.nx-reveal-group > *:nth-child(2) {
+    transition-delay: .13s;
+}
+
+.nx-reveal-group > *:nth-child(3) {
+    transition-delay: .21s;
+}
+
+.nx-reveal-group > *:nth-child(4) {
+    transition-delay: .29s;
+}
+
+.nx-reveal-group > *:nth-child(5) {
+    transition-delay: .37s;
+}
+
+.nx-reveal-group > *:nth-child(6) {
+    transition-delay: .45s;
+}
+
+.nx-reveal-group > * {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .65s cubic-bezier(.4,0,.2,1), transform .65s cubic-bezier(.4,0,.2,1);
+}
+
+.nx-reveal-group.nx-visible > * {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ── 4. PRODUCT CARD HOVER ──────────────────────────────────── */
+/* Applied automatically to .block2 (existing product card class) */
+.block2 {
+    transition: transform .45s cubic-bezier(.4,0,.2,1), box-shadow .45s cubic-bezier(.4,0,.2,1);
+    will-change: transform;
+}
+
+    .block2:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 48px rgba(108,122,224,.14);
+    }
+
+/* Product image zoom on hover */
+.block2-pic {
+    overflow: hidden;
+}
+
+    .block2-pic img:first-child {
+        transition: transform .65s cubic-bezier(.4,0,.2,1);
+        will-change: transform;
+    }
+
+.block2:hover .block2-pic img:first-child {
+    transform: scale(1.07);
+}
+
+/* ── 5. BUTTON HOVER — elegant underline sweep ──────────────── */
+.hov-btn1,
+.hov-btn3 {
+    position: relative;
+    overflow: hidden;
+    transition: color .3s ease, background .3s ease;
+}
+
+    .hov-btn1::after,
+    .hov-btn3::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(255,255,255,.08);
+        transform: translateX(-101%);
+        transition: transform .4s cubic-bezier(.4,0,.2,1);
+    }
+
+    .hov-btn1:hover::after,
+    .hov-btn3:hover::after {
+        transform: translateX(0);
+    }
+
+/* ── 6. NAV LINK UNDERLINE ANIMATION ────────────────────────── */
+.linone {
+    position: relative;
+}
+
+    .linone::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 1.5px;
+        background: #6c7ae0;
+        transition: width .35s cubic-bezier(.4,0,.2,1);
+    }
+
+    .linone:hover::after,
+    .linone.active-menu-item::after {
+        width: 100%;
+    }
+
+/* ── 7. IMAGE FADE-IN (lazy / src swap) ─────────────────────── */
+img {
+    transition: opacity .45s ease;
+}
+
+    img.nx-img-loading {
+        opacity: 0;
+    }
+
+    img.nx-img-loaded {
+        opacity: 1;
+    }
+
+/* ── 8. HERO SECTION ENTRANCE ───────────────────────────────── */
+.nx-hero-text {
+    animation: nxHeroText .8s cubic-bezier(.4,0,.2,1) .15s both;
+}
+
+@keyframes nxHeroText {
+    from {
+        opacity: 0;
+        transform: translateX(-28px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.nx-hero-img {
+    animation: nxHeroImg .8s cubic-bezier(.4,0,.2,1) .3s both;
+}
+
+@keyframes nxHeroImg {
+    from {
+        opacity: 0;
+        transform: translateX(28px) scale(.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+/* ── 9. SECTION TITLE REVEAL ────────────────────────────────── */
+.nx-title {
+    position: relative;
+    display: inline-block;
+}
+
+    .nx-title::after {
+        content: '';
+        position: absolute;
+        bottom: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 2px;
+        background: #6c7ae0;
+        transition: width .6s cubic-bezier(.4,0,.2,1);
+    }
+
+    .nx-title.nx-visible::after {
+        width: 48px;
+    }
+
+/* ── 10. WISHLIST / CART BUTTON PULSE ───────────────────────── */
+.nx-pulse {
+    animation: nxPulse .4s cubic-bezier(.4,0,.2,1);
+}
+
+@keyframes nxPulse {
+    0% {
+        transform: scale(1);
+    }
+
+    40% {
+        transform: scale(1.3);
+    }
+
+    70% {
+        transform: scale(.9);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* ── 11. ADD TO CART SUCCESS ANIMATION ──────────────────────── */
+.nx-cart-added {
+    animation: nxCartAdded .5s cubic-bezier(.4,0,.2,1);
+}
+
+@keyframes nxCartAdded {
+    0% {
+        transform: scale(1);
+    }
+
+    30% {
+        transform: scale(.93);
+        background: #6c7ae0;
+        color: #fff;
+    }
+
+    70% {
+        transform: scale(1.04);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* ── 12. FORM INPUTS LUXURY FOCUS ───────────────────────────── */
+.input100,
+.form-control {
+    transition: border-color .3s ease, box-shadow .3s ease;
+}
+
+    .input100:focus,
+    .form-control:focus {
+        border-color: #6c7ae0 !important;
+        box-shadow: 0 0 0 3px rgba(108,122,224,.12) !important;
+        outline: none;
+    }
+
+/* ── 13. CATEGORY FILTER PILL ANIMATION ─────────────────────── */
+.how-filter-btn {
+    transition: background .3s ease, color .3s ease, border-color .3s ease, transform .2s ease;
+}
+
+    .how-filter-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .how-filter-btn.is-checked {
+        background: #6c7ae0 !important;
+        color: #fff !important;
+        border-color: #6c7ae0 !important;
+    }
+
+/* ── 14. BLOG CARD HOVER ────────────────────────────────────── */
+.hov-img0 {
+    overflow: hidden;
+}
+
+    .hov-img0 img {
+        transition: transform .65s cubic-bezier(.4,0,.2,1);
+        will-change: transform;
+    }
+
+    .hov-img0:hover img {
+        transform: scale(1.06);
+    }
+
+/* ── 15. BACK-TO-TOP BUTTON ─────────────────────────────────── */
+#nx-back-top {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 44px;
+    height: 44px;
+    background: #6c7ae0;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(108,122,224,.35);
+    opacity: 0;
+    transform: translateY(16px) scale(.85);
+    transition: opacity .35s ease, transform .35s ease;
+    z-index: 999;
+    pointer-events: none;
+}
+
+    #nx-back-top.nx-show {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: all;
+    }
+
+    #nx-back-top:hover {
+        background: #3c3489;
+        transform: translateY(-3px) scale(1.05);
+    }
+
+/* ── 16. LOADING SKELETON ───────────────────────────────────── */
+.nx-skeleton {
+    background: linear-gradient(90deg, #f0f0f8 25%, #e4e4f0 50%, #f0f0f8 75%);
+    background-size: 200% 100%;
+    animation: nxSkeleton 1.4s ease infinite;
+    border-radius: 6px;
+}
+
+@keyframes nxSkeleton {
+    from {
+        background-position: 200% 0;
+    }
+
+    to {
+        background-position: -200% 0;
+    }
+}
+
+/* ── 17. ALERT SLIDE-IN ─────────────────────────────────────── */
+.nadixa-alert {
+    animation: nxAlertIn .4s cubic-bezier(.4,0,.2,1) both !important;
+}
+
+@keyframes nxAlertIn {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── 18. MODAL ELEGANT ENTRANCE ─────────────────────────────── */
+.modal-content {
+    animation: nxModalIn .4s cubic-bezier(.4,0,.2,1) both;
+}
+
+@keyframes nxModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ── 19. HEADER SCROLL SHADOW ───────────────────────────────── */
+header.nx-scrolled {
+    box-shadow: 0 2px 24px rgba(0,0,0,.08) !important;
+    transition: box-shadow .35s ease;
+}
+
+/* ── 20. RIPPLE ON BUTTONS ──────────────────────────────────── */
+.nx-ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.nx-ripple-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,.3);
+    transform: scale(0);
+    animation: nxRipple .55s linear;
+    pointer-events: none;
+}
+
+@keyframes nxRipple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* ── 21. ELEGANT HOVER LIFT (للإضافة على أي كرت أو عنصر) ───── */
+/* تمنح أي عنصر ارتفاعاً ناعماً وظلاً فاخراً عند مرور الماوس */
+.nx-hover-lift {
+    transition: transform .4s cubic-bezier(.25, 1, 0.5, 1), box-shadow .4s cubic-bezier(.25, 1, 0.5, 1) !important;
+    will-change: transform;
+}
+
+    .nx-hover-lift:hover {
+        transform: translateY(-6px) scale(1.01) !important;
+        box-shadow: 0 16px 36px rgba(0,0,0,.06) !important;
+    }
+
+/* ── 22. HEADER ICONS GENTLE POP (أيقونات البحث والكرت والقلب) ─ */
+/* تجعل الأيقونات تتفاعل وتكبر بنسبة بسيطة مع دوران خفيف غير ملحوظ */
+.wrap-icon-header a,
+.wrap-icon-header div,
+.icon-header-item {
+    transition: transform .3s cubic-bezier(.175, .885, .32, 1.275), color .3s ease !important;
+}
+
+    .wrap-icon-header a:hover,
+    .wrap-icon-header div:hover,
+    .icon-header-item:hover {
+        transform: scale(1.18) rotate(3deg) !important;
+    }
+
+/* ── 23. FOOTER LIST LINKS (روابط القوائم في الفوتر) ────────── */
+/* تجعل روابط القوائم تنزلق بخفة لليمين عند تمرير الماوس */
+.footer-links-item a {
+    display: inline-block;
+    transition: transform .3s cubic-bezier(.25, .46, .45, .94), color .3s ease;
+}
+
+    .footer-links-item a:hover {
+        transform: translateX(6px);
+        color: #6c7ae0 !important;
+    }
+
+/* ── 24. SOCIAL MEDIA ICONS (أيقونات السوشيال ميديا الدائرية) ─ */
+/* تجعل الدوائر الرمادية ترتفع للأعلى بنعومة وتكبر قليلاً مع لمعة بسيطة */
+.workday-style-footer a,
+.fs-18.cl7 {
+    transition: transform .35s cubic-bezier(.34, 1.56, .64, 1), background-color .3s ease !important;
+}
+
+    .workday-style-footer a:hover,
+    .fs-18.cl7:hover {
+        transform: translateY(-5px) scale(1.12) !important;
+        box-shadow: 0 6px 12px rgba(112, 124, 138, 0.25);
+    }
+
+/* ── 25. ELEGANT TEXT LINK SWEEP (للروابط النصية البسيطة) ──── */
+/* خط سفلي يمتد من المنتصف للخارج ليعطي شعوراً فاخراً للروابط النصية */
+.nx-text-hover-line {
+    position: relative;
+    text-decoration: none !important;
+    transition: color .3s ease;
+}
+
+    .nx-text-hover-line::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        transform: scaleX(0);
+        height: 1.5px;
+        bottom: -2px;
+        left: 0;
+        background-color: #6c7ae0;
+        transform-origin: bottom right;
+        transition: transform .35s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .nx-text-hover-line:hover::after {
+        transform: scaleX(1);
+        transform-origin: bottom left;
+    }

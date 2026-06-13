@@ -1,0 +1,76 @@
+﻿@if (TempData["Success"] != null)
+{
+    <div class="nadixa-alert nadixa-alert-success" role="alert">
+        <div class="nadixa-alert-icon">✓</div>
+        <div class="nadixa-alert-body">
+            <span class="nadixa-alert-message">@TempData["Success"]</span>
+        </div>
+        <button class="nadixa-alert-close" onclick="this.closest('.nadixa-alert').remove()">×</button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="nadixa-alert nadixa-alert-error" role="alert">
+        <div class="nadixa-alert-icon">✕</div>
+        <div class="nadixa-alert-body">
+            <span class="nadixa-alert-message">@TempData["Error"]</span>
+        </div>
+        <button class="nadixa-alert-close" onclick="this.closest('.nadixa-alert').remove()">×</button>
+    </div>
+}
+
+@if (TempData["Warning"] != null)
+{
+    <div class="nadixa-alert nadixa-alert-warning" role="alert">
+        <div class="nadixa-alert-icon">⚠</div>
+        <div class="nadixa-alert-body">
+            <span class="nadixa-alert-message">@TempData["Warning"]</span>
+        </div>
+        <button class="nadixa-alert-close" onclick="this.closest('.nadixa-alert').remove()">×</button>
+    </div>
+}
+
+@if (TempData["Info"] != null)
+{
+    <div class="nadixa-alert nadixa-alert-info" role="alert">
+        <div class="nadixa-alert-icon">ℹ</div>
+        <div class="nadixa-alert-body">
+            <span class="nadixa-alert-message">@TempData["Info"]</span>
+        </div>
+        <button class="nadixa-alert-close" onclick="this.closest('.nadixa-alert').remove()">×</button>
+    </div>
+}
+
+<style>
+.nadixa-alert {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px; border-radius: 10px;
+    margin: 12px 20px; font-size: 14px;
+    animation: nadixaAlertIn 0.3s ease;
+}
+@@keyframes nadixaAlertIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.nadixa-alert-success { background: #f0faf4; border: 1px solid #b7e4c7; color: #1a6935; }
+.nadixa-alert-error   { background: #fff5f5; border: 1px solid #f7c1c1; color: #9b2335; }
+.nadixa-alert-warning { background: #fffbeb; border: 1px solid #fbd38d; color: #7d4a00; }
+.nadixa-alert-info    { background: #ebf8ff; border: 1px solid #bee3f8; color: #1a5276; }
+.nadixa-alert-icon    { font-size: 16px; flex-shrink: 0; }
+.nadixa-alert-body    { flex: 1; }
+.nadixa-alert-close   { background: none; border: none; font-size: 20px; cursor: pointer; color: inherit; opacity: 0.6; margin-left: auto; }
+.nadixa-alert-close:hover { opacity: 1; }
+</style>
+
+<script>
+(function () {
+    document.querySelectorAll('.nadixa-alert').forEach(function (el) {
+        setTimeout(function () {
+            el.style.transition = 'opacity 0.4s ease';
+            el.style.opacity = '0';
+            setTimeout(function () { el.remove(); }, 400);
+        }, 5000);
+    });
+}());
+</script>
