@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
+using Nadixa.Infrastructure.Services;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Infrastructure.Repositories;
 using Nadixa.Web.Filters;
@@ -58,6 +59,7 @@ namespace Nadixa.Web
 
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
 
             var app = builder.Build();
 

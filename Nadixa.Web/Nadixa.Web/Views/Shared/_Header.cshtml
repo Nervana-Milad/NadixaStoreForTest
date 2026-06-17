@@ -133,6 +133,14 @@
 								@await Component.InvokeAsync("Wishlist")
 							</div>
 
+							@if (User.IsInRole("Admin"))
+							{
+								<a asp-controller="AdminDashboard" asp-action="Index"
+								   class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11" title="Admin Dashboard">
+									<i class="zmdi zmdi-view-dashboard fs-22"></i>
+								</a>
+							}
+
 							<a asp-controller="Auth" asp-action="Logout" class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11">
 								<i class="bi bi-box-arrow-right fs-30"></i>
 							</a>

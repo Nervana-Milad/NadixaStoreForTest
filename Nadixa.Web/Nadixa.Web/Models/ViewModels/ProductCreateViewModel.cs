@@ -22,10 +22,10 @@ namespace Nadixa.Web.Models.ViewModels
         [Range(0.01, 100000)]
         public decimal Price { get; set; }
         public decimal? OldPrice { get; set; }
-        [Required]
+        [Range(0, 100000, ErrorMessage = "Stock quantity must be between 0 and 100,000")]
         public int StockQuantity { get; set; }
 
-        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a category")]
         public int CategoryId { get; set; }
         [ValidateNever]
         public List<SelectListItem> Categories { get; set; } = new();

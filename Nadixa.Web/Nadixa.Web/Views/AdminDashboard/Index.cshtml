@@ -1,0 +1,306 @@
+﻿@using Nadixa.Application.DTOS
+@model DashboardStatsDto
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "_Layout";
+}
+
+<style>
+.dash-wrap        { padding: 100px 0 60px; background: #f8f9fb; min-height: 100vh; }
+.dash-header      { margin-bottom: 28px; }
+.dash-header h2   { font-size: 22px; font-weight: 600; color: #2d3748; margin: 0; }
+.dash-header p    { font-size: 13px; color: #718096; margin: 4px 0 0; }
+
+/* Metric Cards */
+.metric-grid   { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.metric-card   { background: #fff; border-radius: 12px; padding: 20px 22px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+.metric-label  { font-size: 12px; font-weight: 500; color: #718096; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+.metric-value  { font-size: 28px; font-weight: 700; color: #2d3748; line-height: 1; }
+.metric-sub    { font-size: 12px; margin-top: 6px; }
+.metric-up     { color: #38a169; }
+.metric-down   { color: #e53e3e; }
+.metric-icon   { float: right; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.icon-revenue  { background: #ebf8ff; color: #3182ce; }
+.icon-orders   { background: #fefcbf; color: #d69e2e; }
+.icon-products { background: #e9d8fd; color: #805ad5; }
+.icon-users    { background: #c6f6d5; color: #276749; }
+
+/* Status badges */
+.status-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; margin-bottom: 24px; }
+.status-card { background:#fff; border-radius:10px; padding:14px 16px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+.status-num  { font-size:22px; font-weight:700; }
+.status-lbl  { font-size:11px; color:#718096; font-weight:500; margin-top:3px; text-transform:uppercase; letter-spacing:.03em; }
+.s-pending   { color:#d69e2e; }
+.s-process   { color:#3182ce; }
+.s-shipped   { color:#805ad5; }
+.s-delivered { color:#38a169; }
+.s-cancelled { color:#e53e3e; }
+
+/* Two column layout */
+.dash-row    { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; margin-bottom: 24px; }
+.dash-row-3  { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.dash-card   { background: #fff; border-radius: 12px; padding: 20px 22px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+.dash-card-title { font-size: 14px; font-weight: 600; color: #2d3748; margin-bottom: 16px; display:flex; align-items:center; justify-content:space-between; }
+.dash-card-title a { font-size:12px; color:#6c7ae0; text-decoration:none; font-weight:400; }
+
+/* Table */
+.dash-table   { width: 100%; border-collapse: collapse; }
+.dash-table th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #a0aec0; font-weight: 500; padding: 0 0 10px; text-align: left; border-bottom: 1px solid #edf2f7; }
+.dash-table td { padding: 11px 0; border-bottom: 1px solid #f7fafc; font-size: 13px; color: #4a5568; vertical-align: middle; }
+.dash-table tr:last-child td { border-bottom: none; }
+.prod-img  { width: 36px; height: 36px; object-fit: cover; border-radius: 6px; margin-right: 10px; }
+.prod-name { font-weight: 500; color: #2d3748; }
+
+/* Status pill */
+.pill { display:inline-block; font-size:11px; font-weight:500; padding:3px 10px; border-radius:20px; }
+.pill-pending   { background:#fefcbf; color:#b7791f; }
+.pill-processing{ background:#bee3f8; color:#2b6cb0; }
+.pill-shipped   { background:#e9d8fd; color:#553c9a; }
+.pill-delivered { background:#c6f6d5; color:#276749; }
+.pill-cancelled { background:#fed7d7; color:#9b2c2c; }
+
+/* Chart bars */
+.chart-wrap  { height: 120px; display: flex; align-items: flex-end; gap: 6px; padding-top: 10px; }
+.chart-col   { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.chart-bar   { width: 100%; border-radius: 4px 4px 0 0; background: #6c7ae0; transition: height .3s; min-height: 3px; }
+.chart-lbl   { font-size: 10px; color: #a0aec0; }
+
+/* Low stock */
+.stock-row   { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid #f7fafc; }
+.stock-row:last-child { border-bottom: none; }
+.stock-img   { width: 36px; height: 36px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+.stock-name  { font-size: 13px; color: #2d3748; font-weight: 500; flex: 1; }
+.stock-qty   { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 20px; }
+.qty-out     { background: #fed7d7; color: #9b2c2c; }
+.qty-low     { background: #fefcbf; color: #b7791f; }
+
+@@media (max-width: 900px) {
+    .metric-grid { grid-template-columns: repeat(2,1fr); }
+    .status-grid { grid-template-columns: repeat(3,1fr); }
+    .dash-row, .dash-row-3 { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="dash-wrap">
+<div class="container">
+
+    <div class="dash-header">
+        <h2>Admin Dashboard</h2>
+        <p>@DateTime.Now.ToString("dddd, MMMM d, yyyy") — Overview of your store</p>
+    </div>
+
+    {{!-- ── Metric Cards ── --}}
+    <div class="metric-grid">
+
+        <div class="metric-card">
+            <div class="metric-icon icon-revenue">💰</div>
+            <div class="metric-label">Revenue This Month</div>
+            <div class="metric-value">EGP @Model.TotalRevenueThisMonth.ToString("N0")</div>
+            <div class="metric-sub @(Model.RevenueChangePercent >= 0 ? "metric-up" : "metric-down")">
+                @(Model.RevenueChangePercent >= 0 ? "▲" : "▼")
+                @Math.Abs(Model.RevenueChangePercent)% vs last month
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon icon-orders">📦</div>
+            <div class="metric-label">Orders This Month</div>
+            <div class="metric-value">@Model.TotalOrdersThisMonth</div>
+            <div class="metric-sub" style="color:#718096;">
+                @Model.PendingOrders pending · @Model.ProcessingOrders processing
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon icon-products">🛍️</div>
+            <div class="metric-label">Total Products</div>
+            <div class="metric-value">@Model.TotalProducts</div>
+            <div class="metric-sub @(Model.LowStockCount > 0 ? "metric-down" : "metric-up")">
+                @if (Model.LowStockCount > 0)
+                {
+                    <span>⚠️ @Model.LowStockCount low stock · @Model.OutOfStockCount out of stock</span>
+                }
+                else
+                {
+                    <span>All products in stock</span>
+                }
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon icon-users">👥</div>
+            <div class="metric-label">Total Users</div>
+            <div class="metric-value">@Model.TotalUsers</div>
+            <div class="metric-sub metric-up">
+                +@Model.NewUsersToday new today
+            </div>
+        </div>
+
+    </div>
+
+    {{!-- ── Order Status Row ── --}}
+    <div class="status-grid">
+        <div class="status-card">
+            <div class="status-num s-pending">@Model.PendingOrders</div>
+            <div class="status-lbl">Pending</div>
+        </div>
+        <div class="status-card">
+            <div class="status-num s-process">@Model.ProcessingOrders</div>
+            <div class="status-lbl">Processing</div>
+        </div>
+        <div class="status-card">
+            <div class="status-num s-shipped">@Model.ShippedOrders</div>
+            <div class="status-lbl">Shipped</div>
+        </div>
+        <div class="status-card">
+            <div class="status-num s-delivered">@Model.DeliveredOrders</div>
+            <div class="status-lbl">Delivered</div>
+        </div>
+        <div class="status-card">
+            <div class="status-num s-cancelled">@Model.CancelledOrders</div>
+            <div class="status-lbl">Cancelled</div>
+        </div>
+    </div>
+
+    {{!-- ── Revenue Chart + Top Products ── --}}
+    <div class="dash-row">
+
+        <div class="dash-card">
+            <div class="dash-card-title">
+                Revenue — Last 7 Days
+                <span style="font-size:12px;color:#a0aec0;">EGP</span>
+            </div>
+
+            @{
+                var maxRev = Model.DailyRevenue.Any() ? Model.DailyRevenue.Max(d => d.Revenue) : 1;
+                if (maxRev == 0) maxRev = 1;
+            }
+            <div class="chart-wrap">
+                @foreach (var day in Model.DailyRevenue)
+                {
+                    var pct = (double)day.Revenue / (double)maxRev * 100;
+                    <div class="chart-col">
+                        <div class="chart-bar"
+                             style="height:@(Math.Max(pct, 3))px;"
+                             title="EGP @day.Revenue.ToString("N0")">
+                        </div>
+                        <div class="chart-lbl">@day.Day</div>
+                    </div>
+                }
+            </div>
+
+            <div style="margin-top:12px; display:flex; gap:20px;">
+                <div style="font-size:12px; color:#718096;">
+                    This month: <strong style="color:#2d3748;">EGP @Model.TotalRevenueThisMonth.ToString("N0")</strong>
+                </div>
+                <div style="font-size:12px; color:#718096;">
+                    Last month: <strong style="color:#2d3748;">EGP @Model.TotalRevenueLastMonth.ToString("N0")</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="dash-card">
+            <div class="dash-card-title">
+                Top 5 Products
+                <a asp-controller="Home" asp-action="Index">View all</a>
+            </div>
+
+            @if (!Model.TopProducts.Any())
+            {
+                <p style="font-size:13px;color:#a0aec0;text-align:center;padding:20px 0;">No sales data yet</p>
+            }
+            else
+            {
+                @foreach (var p in Model.TopProducts)
+                {
+                    <div class="stock-row">
+                        <img src="@(p.ImageUrl ?? "/images/no-image.png")" class="stock-img" alt="">
+                        <div style="flex:1; min-width:0;">
+                            <div class="stock-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@p.Name</div>
+                            <div style="font-size:12px;color:#718096;">@p.TotalSold sold</div>
+                        </div>
+                        <div style="font-size:13px;font-weight:600;color:#6c7ae0;">EGP @p.Revenue.ToString("N0")</div>
+                    </div>
+                }
+            }
+        </div>
+
+    </div>
+
+    {{!-- ── Recent Orders + Low Stock ── --}}
+    <div class="dash-row-3">
+
+        <div class="dash-card">
+            <div class="dash-card-title">
+                Recent Orders
+                <a asp-controller="AdminOrder" asp-action="Index">View all →</a>
+            </div>
+
+            @if (!Model.RecentOrders.Any())
+            {
+                <p style="font-size:13px;color:#a0aec0;text-align:center;padding:20px 0;">No orders yet</p>
+            }
+            else
+            {
+                <table class="dash-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var o in Model.RecentOrders)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-controller="AdminOrder" asp-action="Details"
+                                       asp-route-id="@o.Id"
+                                       style="color:#6c7ae0;font-weight:500;">#@o.Id</a>
+                                </td>
+                                <td>@o.CustomerName</td>
+                                <td style="font-weight:500;">EGP @o.Total.ToString("N0")</td>
+                                <td>
+                                    <span class="pill pill-@o.Status.ToLower()">@o.Status</span>
+                                </td>
+                                <td style="color:#a0aec0;">@o.CreatedAt.ToString("MMM d")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+
+        <div class="dash-card">
+            <div class="dash-card-title">
+                ⚠️ Low Stock Alerts
+                <a asp-controller="Home" asp-action="Index">Manage →</a>
+            </div>
+
+            @if (!Model.LowStockProducts.Any())
+            {
+                <p style="font-size:13px;color:#38a169;text-align:center;padding:20px 0;">✓ All products are well stocked</p>
+            }
+            else
+            {
+                @foreach (var p in Model.LowStockProducts)
+                {
+                    <div class="stock-row">
+                        <img src="@(p.ImageUrl ?? "/images/no-image.png")" class="stock-img" alt="">
+                        <span class="stock-name">@p.Name</span>
+                        <span class="stock-qty @(p.StockQuantity == 0 ? "qty-out" : "qty-low")">
+                            @(p.StockQuantity == 0 ? "Out of stock" : $"{p.StockQuantity} left")
+                        </span>
+                    </div>
+                }
+            }
+        </div>
+
+    </div>
+
+</div>
+</div>

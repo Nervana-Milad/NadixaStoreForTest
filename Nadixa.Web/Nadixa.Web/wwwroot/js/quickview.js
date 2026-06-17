@@ -1,24 +1,9 @@
-﻿$(document).ready(function () {
-    $(".js-show-modal1").click(function (e) {
-        e.preventDefault();
-        var productId = $(this).data("id");
-
-        $.get("/Product/QuickView/" + productId, function (html) {
-            // نحط الـ html في body أو container مخصص
-            $("body").append(html);
-            $(".js-modal1").fadeIn();
-
-            // غلق المودال
-            $(".js-hide-modal1").click(function () {
-                $(".js-modal1").fadeOut(function () { $(this).remove(); });
-            });
-        });
-    });
-});
-
-$(document).on('click', '.js-show-modal1', function (e) {
+﻿$(document).on('click', '.js-show-modal1', function (e) {
 	e.preventDefault();
 	var productId = $(this).data('id');
+
+	// Defensive: clear any leftover modal content before loading the new one
+	$("#quickViewContainer").empty();
 
 	$.get("/Product/QuickView/" + productId, function (data) {
 		$("#quickViewContainer").html(data);
@@ -51,6 +36,10 @@ $(document).on('click', '.js-show-modal1', function (e) {
 		});
 	});
 });
+
 $(document).on('click', '.js-hide-modal1', function () {
 	$('.js-modal1').removeClass('show-modal1');
+	setTimeout(function () {
+		$("#quickViewContainer").empty();
+	}, 400); // matches the 0.4s CSS transition on .wrap-modal1
 });

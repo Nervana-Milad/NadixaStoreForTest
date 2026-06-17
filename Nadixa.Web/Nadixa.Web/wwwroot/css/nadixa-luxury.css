@@ -119,6 +119,7 @@ body {
         background: rgba(255,255,255,.08);
         transform: translateX(-101%);
         transition: transform .4s cubic-bezier(.4,0,.2,1);
+        pointer-events: none; /* critical: prevents this decorative layer from blocking clicks on the button beneath it */
     }
 
     .hov-btn1:hover::after,
