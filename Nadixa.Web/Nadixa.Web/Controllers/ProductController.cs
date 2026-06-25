@@ -405,7 +405,8 @@ namespace Nadixa.Web.Controllers
             }
 
             _context.Products.Remove(productFromDb);
-            await _context.SaveChangesAsync();
+
+            TempData["Success"] = AppMessages.ProductDeleted;
 
             return RedirectToAction("Index", "Product");
         }

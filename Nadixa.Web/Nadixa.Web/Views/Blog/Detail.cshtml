@@ -11,8 +11,8 @@
 		@if (User.IsInRole("Admin"))
 		{
 			<div class="d-flex justify-content-end mb-4">
-				<a class="btn mx-2 text-white my-3" style="background-color:rgb(113, 127, 224);" asp-controller="Blog" asp-action="Edit" asp-route-id="@Model.Blog.Id">Edit Blog</a>
-				<button class="btn btn-danger mx-2 my-3 delete-blog-btn" data-blog-title="@Model.Blog.Title">Delete Blog</button>
+				<a class="btn mx-2 hov-btn3 text-white my-3" style="background-color:rgb(113, 127, 224);" asp-controller="Blog" asp-action="Edit" asp-route-id="@Model.Blog.Id">Edit Blog</a>
+				<button class="btn btn-danger mx-2 hov-btn3 my-3 delete-blog-btn" data-blog-title="@Model.Blog.Title">Delete Blog</button>
 			</div>
 		}
 		<div class="row">

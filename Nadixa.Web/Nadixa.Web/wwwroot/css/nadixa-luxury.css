@@ -4,18 +4,11 @@
    Add ONE line in _Layout.cshtml <head>:
    <link rel="stylesheet" href="~/css/nadixa-luxury.css" />
    And ONE line before </body>:
-   <script src="~/js/nadixa-luxury.js"></script>
-   ============================================================ */
+   <script src="~/js/nadixa-luxury.js"></script>*/
+   ============================================================ 
 
 /* ── 1. SMOOTH SCROLL ───────────────────────────────────────── */
-html {
-    scroll-behavior: smooth;
-}
 
-/* ── 2. PAGE TRANSITION (fade-in on load) ───────────────────── */
-body {
-    animation: nxPageIn .55s cubic-bezier(.4,0,.2,1) both;
-}
 
 @keyframes nxPageIn {
     from {
@@ -78,35 +71,13 @@ body {
 }
 
 /* ── 4. PRODUCT CARD HOVER ──────────────────────────────────── */
-/* Applied automatically to .block2 (existing product card class) */
-.block2 {
-    transition: transform .45s cubic-bezier(.4,0,.2,1), box-shadow .45s cubic-bezier(.4,0,.2,1);
-    will-change: transform;
-}
-
-    .block2:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 48px rgba(108,122,224,.14);
-    }
-
-/* Product image zoom on hover */
-.block2-pic {
-    overflow: hidden;
-}
-
-    .block2-pic img:first-child {
-        transition: transform .65s cubic-bezier(.4,0,.2,1);
-        will-change: transform;
-    }
-
-.block2:hover .block2-pic img:first-child {
-    transform: scale(1.07);
-}
 
 /* ── 5. BUTTON HOVER — elegant underline sweep ──────────────── */
-.hov-btn1,
+
 .hov-btn3 {
     position: relative;
+}
+    .hov-btn1, .hov-btn3 {
     overflow: hidden;
     transition: color .3s ease, background .3s ease;
 }
@@ -119,7 +90,8 @@ body {
         background: rgba(255,255,255,.08);
         transform: translateX(-101%);
         transition: transform .4s cubic-bezier(.4,0,.2,1);
-        pointer-events: none; /* critical: prevents this decorative layer from blocking clicks on the button beneath it */
+        pointer-events: none;  
+/*        critical: prevents this decorative layer from blocking clicks on the button beneath it */
     }
 
     .hov-btn1:hover::after,
@@ -399,7 +371,7 @@ header.nx-scrolled {
     transition: box-shadow .35s ease;
 }
 
-/* ── 20. RIPPLE ON BUTTONS ──────────────────────────────────── */
+/* ── 20. RIPPLE ON BUTTOظNS ──────────────────────────────────── */
 .nx-ripple {
     position: relative;
     overflow: hidden;
@@ -421,8 +393,8 @@ header.nx-scrolled {
     }
 }
 
-/* ── 21. ELEGANT HOVER LIFT (للإضافة على أي كرت أو عنصر) ───── */
-/* تمنح أي عنصر ارتفاعاً ناعماً وظلاً فاخراً عند مرور الماوس */
+/* ── 21. ELEGANT HOVER LIFT (للإضافة على أي كرت أو عنصر) ───── 
+ تمنح أي عنصر ارتفاعاً ناعماً وظلاً فاخراً عند مرور الماوس */
 .nx-hover-lift {
     transition: transform .4s cubic-bezier(.25, 1, 0.5, 1), box-shadow .4s cubic-bezier(.25, 1, 0.5, 1) !important;
     will-change: transform;
@@ -433,22 +405,19 @@ header.nx-scrolled {
         box-shadow: 0 16px 36px rgba(0,0,0,.06) !important;
     }
 
-/* ── 22. HEADER ICONS GENTLE POP (أيقونات البحث والكرت والقلب) ─ */
-/* تجعل الأيقونات تتفاعل وتكبر بنسبة بسيطة مع دوران خفيف غير ملحوظ */
-.wrap-icon-header a,
-.wrap-icon-header div,
-.icon-header-item {
+/* ── 22. HEADER ICONS GENTLE POP (أيقونات البحث والكرت والقلب) ─ 
+ تجعل الأيقونات تتفاعل وتكبر بنسبة بسيطة مع دوران خفيف غير ملحوظ */
+
+.wrap-icon-header .icon-header-item {
     transition: transform .3s cubic-bezier(.175, .885, .32, 1.275), color .3s ease !important;
 }
 
-    .wrap-icon-header a:hover,
-    .wrap-icon-header div:hover,
-    .icon-header-item:hover {
+    .wrap-icon-header .icon-header-item:hover {
         transform: scale(1.18) rotate(3deg) !important;
     }
 
-/* ── 23. FOOTER LIST LINKS (روابط القوائم في الفوتر) ────────── */
-/* تجعل روابط القوائم تنزلق بخفة لليمين عند تمرير الماوس */
+/* ── 23. FOOTER LIST LINKS (روابط القوائم في الفوتر) ────────── 
+ تجعل روابط القوائم تنزلق بخفة لليمين عند تمرير الماوس */
 .footer-links-item a {
     display: inline-block;
     transition: transform .3s cubic-bezier(.25, .46, .45, .94), color .3s ease;
@@ -459,8 +428,8 @@ header.nx-scrolled {
         color: #6c7ae0 !important;
     }
 
-/* ── 24. SOCIAL MEDIA ICONS (أيقونات السوشيال ميديا الدائرية) ─ */
-/* تجعل الدوائر الرمادية ترتفع للأعلى بنعومة وتكبر قليلاً مع لمعة بسيطة */
+/* ── 24. SOCIAL MEDIA ICONS (أيقونات السوشيال ميديا الدائرية) ─ 
+ تجعل الدوائر الرمادية ترتفع للأعلى بنعومة وتكبر قليلاً مع لمعة بسيطة */
 .workday-style-footer a,
 .fs-18.cl7 {
     transition: transform .35s cubic-bezier(.34, 1.56, .64, 1), background-color .3s ease !important;
@@ -472,8 +441,8 @@ header.nx-scrolled {
         box-shadow: 0 6px 12px rgba(112, 124, 138, 0.25);
     }
 
-/* ── 25. ELEGANT TEXT LINK SWEEP (للروابط النصية البسيطة) ──── */
-/* خط سفلي يمتد من المنتصف للخارج ليعطي شعوراً فاخراً للروابط النصية */
+/* ── 25. ELEGANT TEXT LINK SWEEP (للروابط النصية البسيطة) ──── 
+ خط سفلي يمتد من المنتصف للخارج ليعطي شعوراً فاخراً للروابط النصية */
 .nx-text-hover-line {
     position: relative;
     text-decoration: none !important;

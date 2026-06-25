@@ -31,6 +31,11 @@
         public const string InvalidInput = "The input provided is invalid. Please check and try again.";
         public const string ServerError = "An unexpected error occurred. Please try again later.";
         public const string GenericError = "An error occurred. Please try again.";
+        public const string LoginSuccess = "Welcome back!";   //done
+        public const string RegisterSuccess = "Account created successfully. Please login.";   // done
+        public const string LogoutSuccess = "You have been logged out successfully.";    //done
+        public const string GoogleLoginSuccess = "Welcome! You have been logged in with Google.";
+        public const string LoginWithEmailFaild = "Unable to retrieve email from your Google account.";
 
 
 

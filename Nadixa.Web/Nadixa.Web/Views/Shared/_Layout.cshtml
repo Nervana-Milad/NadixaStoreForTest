@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Nadixa.Web</title>
-    <link rel="icon" type="image/png" href="~/images/icons/favicon.png" />
-    <link rel="stylesheet" type="text/css" href="~/vendor/bootstrap/css/bootstrap.min.css">
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"] - Nadixa.Web</title>
+	<link rel="icon" type="image/png" href="~/images/icons/favicon.png" />
+	<link rel="stylesheet" type="text/css" href="~/vendor/bootstrap/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="~/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" type="text/css" href="~/fonts/iconic/css/material-design-iconic-font.min.css">
 	<link rel="stylesheet" type="text/css" href="~/fonts/linearicons-v1.0.0/icon-font.min.css">
@@ -31,15 +31,13 @@
 
 	@Html.Partial("_Header")
 
-    <main role="main" class="pb-3">
-        @* ── Unified alert system (TempData: Success / Error / Warning / Info) ── *@
-        <partial name="_Alerts" />
-        @RenderBody()
-    </main>
+	<main role="main" class="pb-3">
+		@RenderBody()
+	</main>
 
 	@Html.Partial("_Footer")
 
-	
+
 	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="~/vendor/jquery/jquery-3.2.1.min.js"></script>
 	<script src="~/vendor/animsition/js/animsition.min.js"></script>
@@ -81,144 +79,7 @@
 		});
 	</script>
 	<script src="~/vendor/isotope/isotope.pkgd.min.js"></script>
-	<script src="~/vendor/sweetalert/sweetalert.min.js"></script>
 	<script src="~/js/main.js"></script>
-
-
-	<script>
-		function updateWishlistUI() {
-
-			$(".js-addwish-detail").each(function () {
-
-				var btn = $(this);
-				var productId = btn.data("product-id");
-
-						if (window.wishlistIds.includes(productId)) {
-			btn.addClass("js-addedwish-detail");
-			btn.find("i").removeClass("zmdi-favorite-outline").addClass("zmdi-favorite");
-		} else {
-			btn.removeClass("js-addedwish-detail");
-			btn.find("i").removeClass("zmdi-favorite").addClass("zmdi-favorite-outline");
-		}
-
-			});
-
-
-
-		}
-
-		$(document).on('click', '.js-addwish-detail', function (e) {
-
-			e.preventDefault();
-			e.stopPropagation();
-
-			var button = $(this);
-
-			if (button.prop("disabled")) return;
-			button.prop("disabled", true);
-
-			var productId   = button.data("product-id");
-			var nameProduct = button.data("product-name") || 'Item';
-
-			$.ajax({
-				url: "/Wishlist/Toggle",
-				type: "POST",
-				data: { productId: productId },
-				success: function (res) {
-					if (res.success) {
-						if (res.isAdded) {
-							if (!window.wishlistIds.includes(productId)) {
-								window.wishlistIds.push(productId);
-							}
-							showToast(nameProduct + ' added to wishlist!', 'success');
-						} else {
-							window.wishlistIds = window.wishlistIds.filter(id => id !== productId);
-							showToast(nameProduct + ' removed from wishlist.', 'info');
-						}
-						updateWishlistUI();
-						$("#wishlist-count").attr("data-notify", res.count ?? 0);
-					} else {
-						showToast(res.message || 'Could not update wishlist.', 'error');
-					}
-				},
-				error: function () {
-					showToast('Something went wrong. Please try again.', 'error');
-				},
-				complete: function () {
-					button.prop("disabled", false);
-				}
-			});
-
-		});
-
-		$(document).ready(function () {
-
-			updateWishlistUI();
-
-		});
-		/*---------------------------------------------*/
-
-		$(document).on('click', '.js-addcart-detail', function (e) {
-			e.preventDefault();
-			e.stopPropagation();
-			var button    = $(this);
-			var productId = button.data("product-id");
-			var nameProduct = $(this).closest('.js-product').find('.js-name-detail').text();
-			var quantity  = button.closest('.flex-w').find('.num-product').val() || 1;
-
-			// Disable button while request is in flight
-			button.prop('disabled', true);
-
-			$.ajax({
-				url: "/Cart/AddToCart",
-				type: "POST",
-				data: { productId: productId, quantity: quantity },
-				success: function (response) {
-					if (response.success) {
-						showToast((nameProduct || 'Item') + ' added to cart!', 'success');
-						document.getElementById("cart-count").setAttribute("data-notify", response.cartCount);
-						loadMiniCart();
-					} else {
-						showToast(response.message || 'Could not add to cart.', 'error');
-					}
-				},
-				error: function () {
-					showToast('Something went wrong. Please try again.', 'error');
-				},
-				complete: function () {
-					button.prop('disabled', false);
-				}
-			});
-		});
-
-		$(document).on('click', '.move-to-cart', function () {
-			var button    = $(this);
-			var productId = button.data("product-id");
-			var card      = button.closest(".wishlist-item");
-
-			button.prop('disabled', true);
-
-			$.post("/Cart/AddToCart", { productId: productId }, function (res) {
-				if (res.success) {
-					showToast('Item moved to cart!', 'success');
-					$("#cart-count").attr("data-notify", res.cartCount);
-					card.addClass("removing");
-					setTimeout(function () { card.remove(); }, 300);
-				} else {
-					showToast(res.message || 'Could not add to cart.', 'error');
-					button.prop('disabled', false);
-				}
-			}).fail(function () {
-				showToast('Something went wrong. Please try again.', 'error');
-				button.prop('disabled', false);
-			});
-		});
-
-
-
-
-	</script>
-
 	<script src="~/vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
 
 	<script>
@@ -237,79 +98,36 @@
 	</script>
 
 	<script>
-
-
-
-
-		$(document).on('click', '.js-show-modal1', function(e) {
-			e.preventDefault();
-			var productId = $(this).data('id');
-			console.log("clicked");
-			console.log(productId);
-				$.get("/Product/QuickView/" + productId, function(data) {
-					$("#quickViewContainer").html(data);
-					updateWishlistUI()
-					$('.js-modal1').addClass('show-modal1');
-					$('.wrap-slick3').each(function () {
-						var slick = $(this).find('.slick3');
-						if (slick.hasClass('slick-initialized')) {
-							slick.slick('unslick');
-						}
-						slick.slick({
-							slidesToShow: 1,
-							slidesToScroll: 1,
-							fade: true,
-							infinite: true,
-						arrows: true,
-						appendArrows: $(this).find('.wrap-slick3-arrows'),
-						prevArrow:'<button class="arrow-slick3 prev-slick3"><i class="fa fa-angle-left"></i></button>',
-						nextArrow:'<button class="arrow-slick3 next-slick3"><i class="fa fa-angle-right"></i></button>',
-						dots: true,
-						appendDots: $(this).find('.wrap-slick3-dots'),
-						dotsClass:'slick3-dots',
-						customPaging: function(slick, index) {
-							var portrait = $(slick.$slides[index]).data('thumb');
-							return '<img src="'+portrait+'"/><div class="slick3-dot-overlay"></div>';
-						}
-						});
-					});
-				});
-			});
-			$(document).on('click', '.js-hide-modal1', function(){
-				$('.js-modal1').removeClass('show-modal1');
-			});
-	</script>
-
-	<script>
 				document.addEventListener("click", function (e) {
+
 			const button = e.target.closest(".remove-from-cart");
-			if (!button) return;
 
-			let productId = button.dataset.productId;
-			button.disabled = true;
+			if (button) {
 
-			fetch("/Cart/RemoveFromCart", {
-				method: "POST",
-				headers: { "Content-Type": "application/x-www-form-urlencoded" },
-				body: "productId=" + productId
-			})
-			.then(res => res.json())
-			.then(data => {
-				if (data.success) {
-					showToast('Item removed from cart.', 'info');
-					button.closest("tr")?.remove();
-					document.querySelector(".icon-header-noti")
-						?.setAttribute("data-notify", data.cartCount);
-					loadMiniCart();
-				} else {
-					showToast('Could not remove item. Please try again.', 'error');
-					button.disabled = false;
-				}
-			})
-			.catch(() => {
-				showToast('Something went wrong. Please try again.', 'error');
-				button.disabled = false;
-			});
+				let productId = button.dataset.productId;
+
+				fetch("/Cart/RemoveFromCart", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					body: "productId=" + productId
+				})
+				.then(res => res.json())
+				.then(data => {
+
+					if (data.success) {
+
+						button.closest("tr").remove();
+
+						document
+							.querySelector(".icon-header-noti")
+							.setAttribute("data-notify", data.cartCount);
+
+						loadMiniCart();
+					}
+				});
+			}
 		});
 
 		$(document).ready(function () {
@@ -323,7 +141,44 @@
 		});
 
 		});
+
+		// =============================================================================
+
+				$('#myAccountBtn').on('click', function (e) {
+
+			e.preventDefault();
+
+			var isAuthenticated =
+				$('body').data('authenticated') === 'true';
+
+			if (!isAuthenticated) {
+
+		showLoginRequired(
+			"Please login to access your account.",
+			window.location.pathname
+		);
+				return;
+			}
+
+			window.location.href = '/Profile';
+		});
 	</script>
+	@if (TempData["Success"] != null)
+	{
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				Notify.success("@TempData["Success"]");
+			});
+		</script>
+	}
+	@if (TempData["Error"] != null)
+	{
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				Notify.error("@TempData["Error"]");
+			});
+		</script>
+	}
 
 	<script>
 		window.wishlistIds = @Html.Raw(Json.Serialize(ViewBag.WishlistIds ?? new List<int>()));
@@ -331,38 +186,18 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 	<div id="quickViewContainer"></div>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+	<script src="~/js/site.js"></script>
+	<script src="~/js/alerts.js"></script>
+	<script src="~/js/notifications.js"></script>
+	<script src="~/js/wishlist.js"></script>
+	<script src="~/js/cart.js"></script>
+	<script src="~/js/quickview.js"></script>
+	<script src="~/js/review.js"></script>
+	@Html.AntiForgeryToken()
 	@await RenderSectionAsync("Scripts", required: false)
-    @* ── Toast notification system (AJAX actions: cart, wishlist, review) ── *@
-    <partial name="_Toast" />
-    @* ── Luxury animation engine ── *@
-    <script src="~/js/nadixa-luxury.js"></script>
-
-    @* ── Submit button protection: disable on submit to prevent double-click ── *@
-    <script>
-    document.addEventListener('submit', function (e) {
-        var form = e.target;
-        // Skip AJAX forms that handle their own submission
-        if (form.dataset.noLoadingState) return;
-
-        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
-        if (!btn) return;
-
-        var originalText = btn.innerHTML || btn.value;
-        btn.disabled = true;
-
-        if (btn.tagName === 'BUTTON') {
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Processing...';
-        } else {
-            btn.value = 'Processing...';
-        }
-
-        // Re-enable after 8 seconds as safety fallback (server error etc.)
-        setTimeout(function () {
-            btn.disabled = false;
-            if (btn.tagName === 'BUTTON') btn.innerHTML = originalText;
-            else btn.value = originalText;
-        }, 8000);
-    });
-    </script>
 </body>
 </html>
+
