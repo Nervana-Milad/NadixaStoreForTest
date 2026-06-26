@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Web.Models.ViewModels;
+using Nadixa.Web.Services;
 
 namespace Nadixa.Web.Controllers
 {
@@ -15,6 +17,8 @@ namespace Nadixa.Web.Controllers
         private readonly NadixaDbContext _context;
         private readonly UserManager<AppUser> _userManager;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly EmailSender _emailSender;
+        private readonly IRazorViewRenderer _viewRenderer;
 
         // لنفترض أن مصاريف الشحن ثابتة 50 جنيه
         private const decimal SHIPPING_FEE = 50m;
@@ -22,11 +26,13 @@ namespace Nadixa.Web.Controllers
         public OrderController(
             NadixaDbContext context,
             UserManager<AppUser> userManager,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork , EmailSender emailSender , IRazorViewRenderer viewRenderer)
         {
             _context = context;
             _userManager = userManager;
             _unitOfWork = unitOfWork;
+            _emailSender = emailSender;
+            _viewRenderer = viewRenderer;
         }
 
         // ==============================================
@@ -148,6 +154,45 @@ namespace Nadixa.Web.Controllers
 
             await _unitOfWork.Repository<Order>().AddAsync(order);
             await _unitOfWork.CompleteAsync();
+            // ── Send order confirmation email ─────────────────────────────
+            try
+            {
+                var emailModel = new OrderConfirmationViewModel
+                {
+                    OrderId = order.Id,
+                    CustomerName = model.FullName,
+                    Address = model.Address,
+                    City = model.City,
+                    PhoneNumber = model.PhoneNumber,
+                    Notes = model.Notes,
+                    OrderDate = DateTime.Now,
+                    SubTotal = subTotal,
+                    ShippingFee = SHIPPING_FEE,
+                    GrandTotal = order.TotalPrice,
+                    Items = cart.Items.Select(i => new OrderConfirmationItem
+                    {
+                        ProductName = i.Product.Name,
+                        Quantity = i.Quantity,
+                        Price = i.Product.Price
+                    }).ToList()
+                };
+
+                var emailBody = await _viewRenderer.RenderAsync(
+                    "Emails/OrderConfirmation", emailModel);
+
+                _emailSender.SendEmail(
+                    senderName: "Nadixa Store",
+                    senderEmail: "your-email@gmail.com",
+                    toName: model.FullName,
+                    toEmail: user.Email!,
+                    subject: $"Order Confirmation #{order.Id}",
+                    textContent: emailBody
+                );
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Email failed: {ex.Message}");
+            }
 
             // Create OrderItems
             foreach (var item in cart.Items)

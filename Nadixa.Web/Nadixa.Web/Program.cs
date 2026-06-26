@@ -60,7 +60,8 @@ namespace Nadixa.Web
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IDashboardService, DashboardService>();
-
+            builder.Services.AddTransient<EmailSender>();
+            builder.Services.AddScoped<IRazorViewRenderer, RazorViewRenderer>();
             var app = builder.Build();
 
 
