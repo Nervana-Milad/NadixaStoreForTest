@@ -59,6 +59,7 @@ namespace Nadixa.Web.Controllers
                     await _userManager.AddToRoleAsync(user, "User");
                     await _signInManager.SignInAsync(user, true);
 
+                    TempData["Success"] = AppMessages.RegisterSuccess;
                     return RedirectToAction("Login", "Auth");
                 }
                 foreach (var error in result.Errors)
@@ -104,6 +105,7 @@ namespace Nadixa.Web.Controllers
                     ModelState.AddModelError("", AppMessages.InvalidLogin);
                     return View(model);
                 }
+                TempData["Success"] = AppMessages.LoginSuccess;
                 return RedirectToAction("Index", "Home");
             }
             return View(model);
@@ -114,6 +116,7 @@ namespace Nadixa.Web.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
+            TempData["Success"] = AppMessages.LogoutSuccess;
             return RedirectToAction("Index", "Home");
         }
 
@@ -148,6 +151,7 @@ namespace Nadixa.Web.Controllers
 
             if (result.Succeeded)
             {
+                TempData["Success"] = AppMessages.GoogleLoginSuccess;
                 return RedirectToAction("Index", "Home");
             }
 
@@ -155,7 +159,7 @@ namespace Nadixa.Web.Controllers
 
             if (string.IsNullOrEmpty(email))
             {
-                TempData["Error"] = "Unable to retrieve email from your Google account.";
+                TempData["Error"] = AppMessages.LoginWithEmailFaild;
                 return RedirectToAction("Login");
             }
 
@@ -178,7 +182,7 @@ namespace Nadixa.Web.Controllers
             await _userManager.AddLoginAsync(user, info);
 
             await _signInManager.SignInAsync(user, false);
-
+            TempData["Success"] = AppMessages.GoogleLoginSuccess;
             return RedirectToAction("Index", "Home");
         }
 

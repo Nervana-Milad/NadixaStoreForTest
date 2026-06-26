@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
+using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 
 namespace Nadixa.Web.Controllers
@@ -159,6 +160,8 @@ namespace Nadixa.Web.Controllers
                 order.Status = newStatus;
 
                 await _context.SaveChangesAsync();
+                TempData["Success"] = AppMessages.StatusUpdatedSuccess;
+
             }
 
             return RedirectToAction(nameof(Details),

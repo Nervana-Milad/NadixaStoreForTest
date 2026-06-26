@@ -193,6 +193,8 @@ namespace Nadixa.Web.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            TempData["Success"] = AppMessages.QuantityUpdated;
             return RedirectToAction("Index");
         }
         //[Authorize]
@@ -222,13 +224,15 @@ namespace Nadixa.Web.Controllers
             var cartCount = await _context.CartItems
     .Where(i => i.CartId == cart.Id)
     .SumAsync(i => i.Quantity);
-            //var cartCount = await cart.Items.Where(i => i.ProductId != productId).Sum(i => i.Quantity);
+
 
             return Json(new
             {
                 success = true,
-                cartCount
+                cartCount,
+                message = AppMessages.CartItemDeleted
             });
+
         }
 
 

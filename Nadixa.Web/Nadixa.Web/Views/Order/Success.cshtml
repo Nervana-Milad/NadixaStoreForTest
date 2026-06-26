@@ -41,14 +41,14 @@
                 </div>
 
                 <!-- زرار العودة -->
-                <a href="/" class="btn-premium-dark">
+                <a asp-controller="Product" asp-action="Index" class="btn-premium-dark hov-btn3">
                     Continue Shopping
                 </a>
 
                 <a asp-controller="Order"
                    asp-action="Details"
                    asp-route-id="@ViewBag.OrderId"
-                   class="btn-track-order">
+                   class="btn-track-order hov-btn3">
 
                     Track Your Order
 

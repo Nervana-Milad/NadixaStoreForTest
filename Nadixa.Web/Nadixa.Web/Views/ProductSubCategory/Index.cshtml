@@ -54,7 +54,7 @@
         @if (User.IsInRole("Admin"))
         {
             <a asp-action="Create"
-               class="btn px-4 py-2 rounded-pill shadow-sm"
+               class="btn px-4 py-2 hov-btn3 rounded-pill shadow-sm"
                style="background:#6c7ae0;color:white">
                 <i class="bi bi-plus-circle me-2"></i>
                 Add SubCategory
@@ -111,13 +111,13 @@
                                 <div class="mt-auto d-flex gap-2">
                                     <a asp-action="Edit"
                                        asp-route-id="@item.Id"
-                                       class="btn btn-outline-dark action-btn w-100">
+                                       class="btn btn-outline-dark hov-btn3 action-btn w-100">
                                         <i class="bi bi-pencil-square me-1"></i>
                                         Edit
                                     </a>
 
                                     <button type="button"
-                                            class="btn btn-danger action-btn w-100 delete-subcategory-btn"
+                                        class="btn btn-danger hov-btn3 action-btn w-100 delete-subcategory-btn"
                                             data-subcategory-id="@item.Id"
                                             data-subcategory-name="@item.Name">
                                         <i class="bi bi-trash me-1"></i>

@@ -77,8 +77,9 @@
 									</td>
 									<td class="column-5">L.E. @item.TotalPrice</td>
 									<td class="column-6">
-										<button class="remove-from-cart text-danger fs-20"
-												data-product-id="@item.ProductId" type="button">
+										<button class="remove-item-btn text-danger fs-20"
+												data-product-id="@item.ProductId"
+												 type="button">
 											<i class="bi bi-trash"></i>
 										</button>
 									</td>
@@ -156,11 +157,12 @@
 
 					<a asp-controller="Order"
    asp-action="Checkout"
-   class="btn btn-dark">
+   class="btn hov-btn3 btn-dark">
     Proceed To Checkout
 </a>
 				</div>
 			</div>
 		</div>
 	</div>
+
 </form>

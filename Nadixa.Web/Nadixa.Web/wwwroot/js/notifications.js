@@ -26,7 +26,7 @@
             title: options.title || 'Confirm Delete',
             text: options.message || 'Are you sure?',
             showCancelButton: true,
-            confirmButtonText: 'Yes, Delete',
+            confirmButtonText: 'Yes, Sure',
             cancelButtonText: 'No',
             confirmButtonColor: '#d33'
         }).then((result) => {
