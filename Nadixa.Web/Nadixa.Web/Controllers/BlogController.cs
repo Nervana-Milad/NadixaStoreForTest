@@ -284,6 +284,8 @@ namespace Nadixa.Web.Controllers
             };
             _context.BlogComments.Add(comment);
             await _context.SaveChangesAsync();
+
+            TempData["Success"] = AppMessages.CommentBlogCreated;
             return RedirectToAction("Detail", new { id = blogId });
         }
 

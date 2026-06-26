@@ -40,12 +40,11 @@
             @if (Model.Status == "Pending" || Model.Status == "Processing")
             {
                 <button type="button"
-                        class="btn btn-danger mt-3 hov-btn3"
-                        data-bs-toggle="modal"
-                        data-bs-target="#cancelOrderModal">
+                        class="btn btn-danger mt-3 hov-btn3 cancel-order-btn">
                     Cancel Order
                 </button>
             }
+            
         </div>
 
     </div>
@@ -202,68 +201,11 @@
         </div>
 
     </div>
-
-</div>
-
-<!-- Cancel Order Modal -->
-<div class="modal fade mt-5"
-     id="cancelOrderModal"
-     tabindex="-1">
-
-    <div class="modal-dialog modal-dialog-centered"
-         style="margin-top:80px">
-
-        <div class="modal-content">
-
-            <div class="modal-header bg-danger text-white">
-
-                <h5 class="modal-title">
-                    Cancel Order
-                </h5>
-
-                <button type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal">
-                </button>
-
-            </div>
-
-            <div class="modal-body text-center">
-
-                <p class="fw-semibold">
-                    Are you sure you want to cancel this order?
-                </p>
-
-                <h6 class="text-danger">
-                    Order #@Model.OrderId
-                </h6>
-
-            </div>
-
-            <div class="modal-footer">
-
-                <!-- NO -->
-                <button type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal">
-                    No
-                </button>
-
-                <!-- YES -->
-                <form asp-controller="Order"
-                      asp-action="CancelOrder"
-                      asp-route-id="@Model.OrderId"
-                      method="post">
-
-                    <button type="submit"
-                            class="btn btn-danger">
-                        Yes, Cancel
-                    </button>
-
-                </form>
-
-            </div>
-
-        </div>
-    </div>
+    <!-- Cancel Order Form (hidden) -->
+    <form id="cancelOrderConfirm"
+          asp-controller="Order"
+          asp-action="CancelOrder"
+          asp-route-id="@Model.OrderId"
+          method="post">
+    </form>
 </div>

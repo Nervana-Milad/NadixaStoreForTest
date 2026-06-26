@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
 using Nadixa.Infrastructure.Data;
+using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 
 namespace Nadixa.Web.Controllers
@@ -170,6 +171,7 @@ namespace Nadixa.Web.Controllers
             _context.CartItems.RemoveRange(cart.Items);
             await _context.SaveChangesAsync();
 
+            TempData["Success"] = AppMessages.OrderPlacedSuccessfully;
             // تمرير الـ id الخاص بالطلب الجديد للـ Success Page
             return RedirectToAction("Success", new { id = order.Id });
         }
@@ -259,8 +261,7 @@ namespace Nadixa.Web.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Order cancelled successfully";
-
+            TempData["Success"] = AppMessages.CancelOrder;
             return RedirectToAction("Details", new { id });
         }
     }

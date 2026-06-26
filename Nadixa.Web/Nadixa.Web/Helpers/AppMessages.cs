@@ -36,6 +36,15 @@
         public const string LogoutSuccess = "You have been logged out successfully.";    //done
         public const string GoogleLoginSuccess = "Welcome! You have been logged in with Google.";
         public const string LoginWithEmailFaild = "Unable to retrieve email from your Google account.";
+        public const string StatusUpdatedSuccess = "Status updated successfully.";      // done
+        public const string CommentBlogDeleted = "Comment deleted successfully.";        // done
+        public const string CommentBlogCreated = "Comment added successfully.";        // done
+        public const string QuantityUpdated = "Quantity Updated successfully.";        // done
+        public const string CartItemDeleted = "Cart Item Deleted successfully.";        // done
+        public const string OrderPlacedSuccessfully = "Order Placed Successfully.";        // done
+        public const string CancelOrder = "Order Canceled Successfully.";        // done
+
+
 
 
 

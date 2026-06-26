@@ -98,37 +98,37 @@
 	</script>
 
 	<script>
-				document.addEventListener("click", function (e) {
+		// 		document.addEventListener("click", function (e) {
 
-			const button = e.target.closest(".remove-from-cart");
+		// 	const button = e.target.closest(".remove-from-cart");
 
-			if (button) {
+		// 	if (button) {
 
-				let productId = button.dataset.productId;
+		// 		let productId = button.dataset.productId;
 
-				fetch("/Cart/RemoveFromCart", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/x-www-form-urlencoded"
-					},
-					body: "productId=" + productId
-				})
-				.then(res => res.json())
-				.then(data => {
+		// 		fetch("/Cart/RemoveFromCart", {
+		// 			method: "POST",
+		// 			headers: {
+		// 				"Content-Type": "application/x-www-form-urlencoded"
+		// 			},
+		// 			body: "productId=" + productId
+		// 		})
+		// 		.then(res => res.json())
+		// 		.then(data => {
 
-					if (data.success) {
+		// 			if (data.success) {
 
-						button.closest("tr").remove();
+		// 				button.closest("tr").remove();
 
-						document
-							.querySelector(".icon-header-noti")
-							.setAttribute("data-notify", data.cartCount);
+		// 				document
+		// 					.querySelector(".icon-header-noti")
+		// 					.setAttribute("data-notify", data.cartCount);
 
-						loadMiniCart();
-					}
-				});
-			}
-		});
+		// 				loadMiniCart();
+		// 			}
+		// 		});
+		// 	}
+		// });
 
 		$(document).ready(function () {
 

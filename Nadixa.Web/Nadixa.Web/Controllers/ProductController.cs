@@ -405,9 +405,9 @@ namespace Nadixa.Web.Controllers
             }
 
             _context.Products.Remove(productFromDb);
+            await _context.SaveChangesAsync(); // ← المفروض تكون هنا الأول
 
             TempData["Success"] = AppMessages.ProductDeleted;
-
             return RedirectToAction("Index", "Product");
         }
 
@@ -453,8 +453,8 @@ namespace Nadixa.Web.Controllers
             await _context.SaveChangesAsync();
 
             var avgRating = await _context.Reviews
-    .Where(r => r.ProductId == review.ProductId)
-    .AverageAsync(r => r.Rating);
+                .Where(r => r.ProductId == review.ProductId)
+                .AverageAsync(r => r.Rating);
 
             return Json(new
             {
