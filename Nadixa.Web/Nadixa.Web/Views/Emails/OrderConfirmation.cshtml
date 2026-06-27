@@ -12,14 +12,13 @@
 <body style="margin:0; padding:0; background:#f8f9fb; font-family:Arial, sans-serif;">
 
   <div style="max-width:600px; margin:30px auto; background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.08);">
-
-    {{-- ── HEADER ── --}}
+    @* HEADER *@
     <div style="background:#6c7ae0; padding:32px 40px; text-align:center;">
       <h1 style="color:#ffffff; margin:0; font-size:26px; letter-spacing:2px;">NADIXA</h1>
       <p style="color:rgba(255,255,255,0.85); margin:8px 0 0; font-size:14px;">Order Confirmation</p>
     </div>
 
-    {{-- ── BODY ── --}}
+      @* BODY *@
     <div style="padding:36px 40px;">
 
       <p style="font-size:16px; color:#2d3748; margin-top:0;">
@@ -29,8 +28,7 @@
         Thank you for your order! We've received it and it's now being processed.
         Here's a summary of what you ordered:
       </p>
-
-      {{-- ── ORDER INFO BOX ── --}}
+@* ORDER INFO BOX *@
       <div style="background:#f8f9fb; border-radius:8px; padding:16px 20px; margin:24px 0;">
         <table style="width:100%; border-collapse:collapse;">
           <tr>
@@ -51,8 +49,7 @@
           </tr>
         </table>
       </div>
-
-      {{-- ── ITEMS TABLE ── --}}
+   @* ITEMS TABLE *@
       <table style="width:100%; border-collapse:collapse; font-size:14px;">
         <thead>
           <tr style="background:#f8f9fb;">
@@ -74,8 +71,8 @@
           }
         </tbody>
       </table>
-
-      {{-- ── TOTALS ── --}}
+@* 
+      {{-- ── TOTALS ── --}} *@
       <div style="margin-top:20px; padding-top:16px; border-top:2px solid #f0f0f0;">
         <table style="width:100%; font-size:14px;">
           <tr>
@@ -93,7 +90,7 @@
         </table>
       </div>
 
-      {{-- ── NOTES ── --}}
+@*       {{-- ── NOTES ── --}} *@
       @if (!string.IsNullOrWhiteSpace(Model.Notes))
       {
         <div style="margin-top:20px; padding:14px 16px; background:#fffbeb; border-radius:8px; border-left:3px solid #f6c90e;">
@@ -103,7 +100,7 @@
         </div>
       }
 
-      {{-- ── CTA ── --}}
+@*       {{-- ── CTA ── --}} *@
       <div style="text-align:center; margin:32px 0 8px;">
         <p style="font-size:14px; color:#718096;">
           Questions about your order? Reply to this email or contact us anytime.
@@ -112,7 +109,7 @@
 
     </div>
 
-    {{-- ── FOOTER ── --}}
+   @*  {{-- ── FOOTER ── --}} *@
     <div style="background:#f8f9fb; padding:20px 40px; text-align:center; border-top:1px solid #edf2f7;">
       <p style="font-size:12px; color:#a0aec0; margin:0;">
         &copy; @DateTime.Now.Year Nadixa Store. All rights reserved.
