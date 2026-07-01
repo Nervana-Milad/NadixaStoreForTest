@@ -29,7 +29,7 @@ namespace Nadixa.Web.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(int? categoryId, string? search)
+        public async Task<IActionResult> Index(int? categoryId, int? subCategoryId, string? search)
         {
             var user = await _userManager.GetUserAsync(User);
 
@@ -40,8 +40,19 @@ namespace Nadixa.Web.Controllers
                 query = query.Where(p => p.ProductCategoryId == categoryId.Value);
                 var category = await _context.ProductCategories.FirstOrDefaultAsync(c => c.Id == categoryId);
                 ViewBag.CategoryName = category?.Name;
-            }
+                ViewBag.CurrentCategoryId = categoryId;
 
+
+                // هات الـ SubCategories بتاعت الـ Category دي
+                ViewBag.SubCategories = await _context.ProductSubCategories
+                    .Where(s => s.ProductCategoryId == categoryId)
+                    .ToListAsync();
+            }
+            ViewBag.Categories = await _context.ProductCategories.ToListAsync();
+            if (subCategoryId.HasValue)
+            {
+                query = query.Where(p => p.ProductSubCategoryId == subCategoryId.Value);
+            }
             if (!string.IsNullOrWhiteSpace(search))
             {
                 query = query.Where(p => p.Name.Contains(search) || p.Description.Contains(search));
@@ -215,7 +226,7 @@ namespace Nadixa.Web.Controllers
                 return NotFound();
             }
 
-            var product = _context.Products.Include(p => p.ProductCategory).Include(p => p.Colors).Include(p => p.Images).Include(p => p.Reviews).FirstOrDefault(p => p.Id == id);
+            var product = _context.Products.Include(p => p.ProductCategory).Include(p => p.ProductSubCategory).Include(p => p.Colors).Include(p => p.Images).Include(p => p.Reviews).FirstOrDefault(p => p.Id == id);
 
             if(product == null)
             {
@@ -326,9 +337,18 @@ namespace Nadixa.Web.Controllers
                     return View(editViewModel);
                 }
 
-                var existingFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", Path.GetFileName(productFromDb.MainImageUrlPath));
-                if (System.IO.File.Exists(existingFilePath))
-                    System.IO.File.Delete(existingFilePath);
+                if (!string.IsNullOrEmpty(productFromDb.MainImageUrlPath))
+                {
+                    var existingFilePath = Path.Combine(
+                        _webHostEnvironment.WebRootPath,
+                        "Images",
+                        Path.GetFileName(productFromDb.MainImageUrlPath));
+
+                    if (System.IO.File.Exists(existingFilePath))
+                    {
+                        System.IO.File.Delete(existingFilePath);
+                    }
+                }
 
                 productFromDb.MainImageUrlPath = await UploadFileToFolder(editViewModel.MainImageUrl);
             }
@@ -579,7 +599,7 @@ namespace Nadixa.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Search(string term)
         {
-            var products = await _context.Products
+            var products = await _context.Products.Include(p => p.ProductCategory)
                 .AsNoTracking()
                 .Where(p => string.IsNullOrEmpty(term)
                     || p.Name.Contains(term))
@@ -591,7 +611,8 @@ namespace Nadixa.Web.Controllers
                     description = p.Description.Length > 50
                         ? p.Description.Substring(0, 50) + "..."
                         : p.Description,
-                    mainImageUrlPath = p.MainImageUrlPath
+                    mainImageUrlPath = p.MainImageUrlPath,
+                    categoryName = p.ProductCategory.Name
                 })
                 .ToListAsync();
 

@@ -36,6 +36,49 @@ namespace Nadixa.Web.Controllers
             return View(products);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GlobalSearch(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+                return Json(new { products = new List<object>(), categories = new List<object>(), blogs = new List<object>() });
+
+            var products = await _context.Products
+                .Where(p => p.Name.Contains(term) || p.Description.Contains(term))
+                .Take(5)
+                .Select(p => new
+                {
+                    id = p.Id,
+                    name = p.Name,
+                    price = p.Price,
+                    imageUrl = p.MainImageUrlPath,
+                    url = "/Product/Detail/" + p.Id
+                })
+                .ToListAsync();
+
+            var categories = await _context.ProductCategories
+                .Where(c => c.Name.Contains(term))
+                .Take(3)
+                .Select(c => new
+                {
+                    id = c.Id,
+                    name = c.Name,
+                    url = "/Product/Index?categoryId=" + c.Id
+                })
+                .ToListAsync();
+
+            var blogs = await _context.Blogs
+                .Where(b => b.Title.Contains(term) || b.Content.Contains(term))
+                .Take(3)
+                .Select(b => new
+                {
+                    id = b.Id,
+                    name = b.Title,
+                    url = "/Blog/Detail/" + b.Id
+                })
+                .ToListAsync();
+
+            return Json(new { products, categories, blogs });
+        }
 
         public IActionResult About()
         {

@@ -8,30 +8,19 @@
 
 
 		<div class="flex-w flex-sb-m p-b-52">
+			
 			<div class="flex-w flex-l-m filter-tope-group m-tb-10">
 				<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1" data-filter="*">
 					All Products
 				</button>
-
-				<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".women">
-					Women
-				</button>
-
-				<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".men">
-					Men
-				</button>
-
-				<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".bag">
-					Bag
-				</button>
-
-				<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".shoes">
-					Shoes
-				</button>
-
-				<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".watches">
-					Watches
-				</button>
+				@foreach (var cat in ViewBag.Categories)
+				{
+					<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5"
+							data-filter=".cat-@cat.Id">
+						@cat.Name
+					</button>
+				}
+				
 			</div>
 
 			<div class="flex-w flex-c-m m-tb-10">
@@ -52,6 +41,32 @@
 						<i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-plus text-white"></i>
 						<a class="text-white" asp-controller="Product" asp-action="Create">Add Product</a>
 					</div>
+					<!-- Export -->
+					<a asp-controller="AdminProduct"
+					   asp-action="ExportToExcel"
+					   class="flex-c-m stext-106 cl0 size-105 bor4 trans-04 m-r-8 m-tb-4 px-3"
+					   style="background-color:#2ecc71; color:white; text-decoration:none;">
+						<i class="bi bi-file-earmark-excel m-r-6"></i>
+						Export
+					</a>
+
+					<!-- Import -->
+					<form asp-controller="AdminProduct"
+						  asp-action="ImportFromExcel"
+						  method="post"
+						  enctype="multipart/form-data"
+						  data-no-loading-state
+						  class="m-tb-4">
+						@Html.AntiForgeryToken()
+						<label class="flex-c-m stext-106 cl0 size-105 bor4 trans-04 px-3 mb-0"
+							   style="background-color:#f39c12; color:white; cursor:pointer;">
+							<i class="bi bi-upload m-r-6"></i>
+							Import
+							<input type="file" name="file" accept=".xlsx"
+								   class="d-none"
+								   onchange="this.form.submit()" />
+						</label>
+					</form>
 				}
 			</div>
 
@@ -273,7 +288,7 @@
 			
 			@foreach (var product in Model)
 			{
-				<div class="col-sm-6 col-md-4 col-lg-3 isotope-item bag pb-3">
+				<div class="col-sm-6 col-md-4 col-lg-3 isotope-item bag cat-@product.ProductCategoryId pb-3">
 					<div class="block2 block2-shadow h-100">
 						<div class="block2-pic hov-img0">
 							<img src="@product.MainImageUrlPath" alt="@product.Name" class="img-fluid"
@@ -326,93 +341,3 @@
 	</div>
 </section>
 
-
-
-@section Scripts {
-	<script>
-		let timeout = null;
-
-		$("#searchInput").on("keyup", function () {
-
-			let query = $(this).val();
-
-			clearTimeout(timeout);
-
-			timeout = setTimeout(function () {
-
-				$.ajax({
-					url: '@Url.Action("Search", "Product")',
-					type: 'GET',
-					data: { term: query },
-
-					success: function (data) {
-
-						let html = "";
-
-						if (data.length === 0) {
-
-							html = `
-								<div class="col-12 text-center">
-									<p>No products found</p>
-								</div>
-							`;
-						}
-						else {
-
-							data.forEach(p => {
-
-								html += `
-								<div class="col-sm-6 col-md-4 col-lg-3 isotope-item bag pb-3">
-
-									<div class="block2 block2-shadow h-100">
-
-										<div class="block2-pic hov-img0">
-											<img src="${p.mainImageUrlPath}"
-												 class="img-fluid"
-												 style="height:270px; object-fit:cover;">
-
-											<a href="/Product/Detail/${p.id}"
-											   class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
-												Quick View
-											</a>
-										</div>
-
-										<div class="block2-txt flex-w flex-t p-t-14">
-
-											<div class="block2-txt-child1 flex-col-l px-3">
-
-												<a href="/Product/Detail/${p.id}"
-												   class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-													${p.name}
-												</a>
-
-												<span class="stext-105 cl3">
-													$${p.price}
-												</span>
-
-											</div>
-
-										</div>
-
-										<div class="px-3 pt-2">
-											<p class="card-text">
-												${p.description}
-											</p>
-										</div>
-
-									</div>
-
-								</div>
-								`;
-							});
-						}
-
-						$("#productsContainer").html(html);
-					}
-				});
-
-			}, 300);
-
-		});
-	</script>
-}

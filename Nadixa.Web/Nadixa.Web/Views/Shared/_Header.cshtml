@@ -336,12 +336,17 @@
 				<img src="~/images/icons/icon-close2.png" alt="CLOSE">
 			</button>
 
-			<form class="wrap-search-header flex-w p-l-15">
+			<div class="wrap-search-header flex-w p-l-15 position-relative">
 				<button class="flex-c-m trans-04">
 					<i class="zmdi zmdi-search"></i>
 				</button>
-				<input class="plh3" type="text" name="search" placeholder="Search...">
-			</form>
+				<input id="globalSearchInput" type="text" placeholder="Search products, categories, blogs...">
+
+				<!-- Dropdown Results -->
+				<div id="globalSearchResults"
+					 style="display:none; position:absolute; top:100%; left:0; width:100%; background:#fff; border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:9999; max-height:400px; overflow-y:auto;">
+				</div>
+			</div>
 		</div>
 	</div>
 

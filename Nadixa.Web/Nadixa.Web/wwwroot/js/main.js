@@ -438,3 +438,78 @@ $(document).on("click", ".remove-item-btn", function () {
         }
     });
 });
+
+
+// global search
+let globalSearchTimeout = null;
+
+$("#globalSearchInput").on("keyup", function () {
+    var term = $(this).val().trim();
+
+    clearTimeout(globalSearchTimeout);
+
+    if (term.length < 2) {
+        $("#globalSearchResults").hide();
+        return;
+    }
+
+    globalSearchTimeout = setTimeout(function () {
+        $.ajax({
+            url: "/Home/GlobalSearch",
+            type: "GET",
+            data: { term: term },
+            success: function (data) {
+                var html = "";
+
+                if (data.products.length > 0) {
+                    html += `<div style="padding:10px 16px; font-size:11px; font-weight:600; color:#a0aec0; text-transform:uppercase; letter-spacing:.05em;">Products</div>`;
+                    data.products.forEach(p => {
+                        html += `
+                        <a href="${p.url}" style="display:flex; align-items:center; gap:12px; padding:10px 16px; text-decoration:none; border-bottom:1px solid #f7fafc;">
+                            <img src="${p.imageUrl || '/images/no-image.png'}" style="width:40px; height:40px; object-fit:cover; border-radius:6px;">
+                            <div>
+                                <div style="font-size:13px; font-weight:500; color:#2d3748;">${p.name}</div>
+                                <div style="font-size:12px; color:#6c7ae0;">$${p.price}</div>
+                            </div>
+                        </a>`;
+                    });
+                }
+
+                if (data.categories.length > 0) {
+                    html += `<div style="padding:10px 16px; font-size:11px; font-weight:600; color:#a0aec0; text-transform:uppercase; letter-spacing:.05em;">Categories</div>`;
+                    data.categories.forEach(c => {
+                        html += `
+                        <a href="${c.url}" style="display:flex; align-items:center; gap:12px; padding:10px 16px; text-decoration:none; border-bottom:1px solid #f7fafc;">
+                            <i class="zmdi zmdi-folder" style="font-size:20px; color:#6c7ae0;"></i>
+                            <div style="font-size:13px; font-weight:500; color:#2d3748;">${c.name}</div>
+                        </a>`;
+                    });
+                }
+
+                if (data.blogs.length > 0) {
+                    html += `<div style="padding:10px 16px; font-size:11px; font-weight:600; color:#a0aec0; text-transform:uppercase; letter-spacing:.05em;">Blogs</div>`;
+                    data.blogs.forEach(b => {
+                        html += `
+                        <a href="${b.url}" style="display:flex; align-items:center; gap:12px; padding:10px 16px; text-decoration:none; border-bottom:1px solid #f7fafc;">
+                            <i class="zmdi zmdi-assignment" style="font-size:20px; color:#6c7ae0;"></i>
+                            <div style="font-size:13px; font-weight:500; color:#2d3748;">${b.name}</div>
+                        </a>`;
+                    });
+                }
+
+                if (html === "") {
+                    html = `<div style="padding:16px; text-align:center; color:#a0aec0; font-size:13px;">No results found</div>`;
+                }
+
+                $("#globalSearchResults").html(html).show();
+            }
+        });
+    }, 300);
+});
+
+// ≈Œ›«¡ «·‹ results ·„« «·ÌÊ“— Ì÷€ÿ »—«
+$(document).on("click", function (e) {
+    if (!$(e.target).closest("#globalSearchInput, #globalSearchResults").length) {
+        $("#globalSearchResults").hide();
+    }
+});
