@@ -333,10 +333,61 @@
 		</div>
 
 		<!-- Load more -->
+		<!-- Pagination -->
 		<div class="flex-c-m flex-w w-full p-t-45">
-			<a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
-				Load More
-			</a>
+			@if (ViewBag.TotalPages > 1)
+			{
+				<div class="flex-c-m flex-w w-full">
+
+					<!-- زر الصفحة السابقة -->
+					@if (ViewBag.CurrentPage > 1)
+					{
+						<a asp-action="Index"
+						   asp-route-page="@(ViewBag.CurrentPage - 1)"
+						   asp-route-categoryId="@ViewBag.CurrentCategoryId"
+						   asp-route-subCategoryId="@ViewBag.CurrentSubCategoryId"
+						   asp-route-search="@ViewBag.Search"
+						   class="flex-c-m how-pagination1 trans-04 m-all-7">
+							<i class="zmdi zmdi-chevron-left"></i>
+						</a>
+					}
+
+					<!-- أرقام الصفحات -->
+					@for (int i = 1; i <= ViewBag.TotalPages; i++)
+					{
+						if (i == ViewBag.CurrentPage)
+						{
+							<span class="flex-c-m how-pagination1 trans-04 m-all-7 active-pagination1">
+								@i
+							</span>
+						}
+						else
+						{
+							<a asp-action="Index"
+							   asp-route-page="@i"
+							   asp-route-categoryId="@ViewBag.CurrentCategoryId"
+							   asp-route-subCategoryId="@ViewBag.CurrentSubCategoryId"
+							   asp-route-search="@ViewBag.Search"
+							   class="flex-c-m how-pagination1 trans-04 m-all-7">
+								@i
+							</a>
+						}
+					}
+
+					<!-- زر الصفحة التالية -->
+					@if (ViewBag.CurrentPage < ViewBag.TotalPages)
+					{
+						<a asp-action="Index"
+						   asp-route-page="@(ViewBag.CurrentPage + 1)"
+						   asp-route-categoryId="@ViewBag.CurrentCategoryId"
+						   asp-route-subCategoryId="@ViewBag.CurrentSubCategoryId"
+						   asp-route-search="@ViewBag.Search"
+						   class="flex-c-m how-pagination1 trans-04 m-all-7">
+							<i class="zmdi zmdi-chevron-right"></i>
+						</a>
+					}
+				</div>
+			}
 		</div>
 	</div>
 </section>

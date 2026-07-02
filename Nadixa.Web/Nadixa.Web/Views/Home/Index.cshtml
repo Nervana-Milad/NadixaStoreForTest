@@ -4,7 +4,65 @@
 @{
     ViewData["Title"] = "Home Page";
 }
+<style>
+	/* تصميم الشريط الترويجي الاحترافي (Banner) */
+	.category-banner {
+		/* تدريج لوني برتقالي مميز ليطابق الصورة */
+		background: linear-gradient(135deg, #6C7AED 0%, #6C7AED 100%);
+		border-radius: 6px;
+		min-height: 52px;
+	}
 
+	.see-all-link {
+		font-weight: 600;
+		opacity: 0.95;
+	}
+
+		.see-all-link:hover {
+			opacity: 1;
+			color: #fff !important;
+		}
+
+		/* إضافة حركة تفاعلية مرنة للسهم عند تمرير الماوس */
+		.see-all-link i {
+			transition: transform 0.3s ease;
+			display: inline-block;
+		}
+
+		.see-all-link:hover i {
+			transform: translateX(-4px); /* تحريك السهم لليسار برفق عند التمرير */
+		}
+
+	/* كود الـ CSS لتنسيق وتصغير حجم الصور لتصبح متناسقة تماماً */
+	.product-carousel-img {
+		height: 200px !important;
+		width: 100% !important;
+		object-fit: contain !important;
+		background-color: #f8f9fa;
+		padding: 10px;
+	}
+
+	/* تنسيق أسهم الحركة لتظهر بشكل لائق وجميل فوق السلايدر */
+	.custom-swiper-btn {
+		color: #333 !important;
+		background-color: rgba(255, 255, 255, 0.9);
+		width: 40px !important;
+		height: 40px !important;
+		border-radius: 50%;
+		box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+		transition: all 0.3s ease;
+	}
+
+		.custom-swiper-btn:hover {
+			background-color: #6c7ae0;
+			color: #fff !important;
+		}
+
+		.custom-swiper-btn::after {
+			font-size: 16px !important;
+			font-weight: bold;
+		}
+</style>
 
 
 <!-- Slider -->
@@ -127,326 +185,146 @@
 </div>
 
 
-<!-- Product -->
+<!-- Product Section -->
 <section class="bg0 p-t-23 p-b-140">
 	<div class="container">
-		<div class="p-b-10">
+		<div class="p-b-10 m-b-40">
 			<h3 class="ltext-103 cl5">
 				Product Overview
 			</h3>
 		</div>
 
-		<div class="flex-w flex-sb-m p-b-52">
-			<div class="flex-w flex-l-m filter-tope-group m-tb-10">
-				<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1" data-filter="*">
-					All Products
-				</button>
+		@* 1. تجميع المنتجات برمجياً بناءً على اسم القسم *@
+		@{
+			var groupedProducts = Model.GroupBy(p => p.ProductCategory?.Name ?? "Other");
+		}
 
-				<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".women">
-					Women
-				</button>
+		@* 2. عمل Loop على كل قسم لإنشاء السلايدر الخاص به *@
+		@foreach (var categoryGroup in groupedProducts)
+		{
+			<div class="category-swiper-section m-b-60">
 
-				<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".men">
-					Men
-				</button>
+				<!-- شريط القسم الاحترافي (Banner) المتوافق مع الصورة -->
+				<div class="category-banner d-flex justify-content-between align-items-center m-b-20 p-tb-12 p-lr-25 text-white shadow-sm" >
+					<!-- اسم القسم والترويج يميناً -->
+					<div class="d-flex align-items-center">
+						<span class="mtext-101 font-weight-bold text-uppercase fs-16">
+							@categoryGroup.Key
+						</span>
+						<span class="mx-3 d-none d-sm-inline opacity-5" style="border-left: 1px solid #fff; height: 18px;"></span>
+						<span class="stext-109 opacity-8 d-none d-sm-inline fs-14">
+							60% Discount For All Products
+						</span>
+					</div>
 
-				<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".bag">
-					Bag
-				</button>
+					<!-- رابط عرض الكل يساراً -->
+					@{
+						var firstProduct = categoryGroup.FirstOrDefault();
+						var categoryId = firstProduct?.ProductCategoryId;
+					}
+					<a asp-controller="Product" asp-action="Index" asp-route-categoryId="@categoryId"
+					   class="see-all-link stext-101 text-white d-flex align-items-center text-decoration-none trans-04 fs-14">
+						<span>see All</span>
+						<i class="bi bi-chevron-right m-l-5 align-self-center fs-12"></i>
 
-				<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".shoes">
-					Shoes
-				</button>
-
-				<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".watches">
-					Watches
-				</button>
-			</div>
-
-			<div class="flex-w flex-c-m m-tb-10">
-				<div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter">
-					<i class="icon-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-filter-list"></i>
-					<i class="icon-close-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
-					Filter
+					</a>
 				</div>
 
-				<div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-search">
-					<i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-search"></i>
-					<i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
-					Search
-				</div>	
-				@if (User.IsInRole("Admin"))
-				{
-					<div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 px-3" style="background-color:#6c7ae0; color:white">
-						<i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-plus text-white"></i>
-						<a class="text-white" asp-controller="Product" asp-action="Create">Add Product</a>
-					</div>
-				}
-			</div>
+				<!-- حاوية الـ Swiper الخاصة بهذا القسم -->
+				<div class="swiper product-swiper position-relative p-lr-15">
+					<div class="swiper-wrapper">
+						@foreach (var product in categoryGroup)
+						{
+							<div class="swiper-slide pb-4 h-auto">
+								<div class="block2 block2-shadow h-100 d-flex flex-column justify-content-between">
+									<div>
+										<div class="block2-pic hov-img0">
+											<img src="@product.MainImageUrlPath" alt="@product.Name" class="img-fluid product-carousel-img">
 
-			<!-- Search product -->
-			<div class="dis-none panel-search w-full p-t-10 p-b-15">
-				<div class="bor8 dis-flex p-l-15 position-relative">
-					<button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
-						<i class="zmdi zmdi-search"></i>
-					</button>
+											<a class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1 pointer"
+											   data-id="@product.Id">
+												Quick View
+											</a>
+										</div>
 
-					<input id="searchInput" class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" placeholder="Search">
+										<div class="block2-txt flex-w flex-t p-t-14">
+											<div class="block2-txt-child1 flex-col-l px-3">
+												<a asp-controller="Product" asp-action="Detail" asp-route-id="@product.Id" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+													@product.Name
+												</a>
 
-					<div id="searchResults"
-						class="bg-white border w-100 position-absolute"
-					style="top:100%; left:0; z-index:999; display:none">
+												<span class="stext-105 cl3">
+													$@product.Price
+												</span>
+											</div>
 
-					</div>
-				</div>
-			</div>
+											<div class="block2-txt-child2 flex-r p-3">
+												<button class="js-addwish-detail fs-20 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2"
+														data-product-id="@product.Id" data-product-name="@product.Name">
+													<i class="zmdi zmdi-favorite-outline"></i>
+												</button>
+											</div>
+										</div>
 
-			<!-- Filter -->
-			<div class="dis-none panel-filter w-full p-t-10">
-				<div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm">
-					<div class="filter-col1 p-r-15 p-b-27">
-						<div class="mtext-102 cl2 p-b-15">
-							Sort By
-						</div>
+										<div class="px-3 pt-2">
+											<p class="card-text" style="font-size: 13px; color: #666;">
+												@(@product.Description != null && product.Description.Length > 50 ? product.Description.Substring(0, 50) + "..." : product.Description)
+											</p>
+										</div>
+									</div>
 
-						<ul>
-							<li class="p-b-6">
-								<a href="#" class="filter-link stext-106 trans-04">
-									Default
-								</a>
-							</li>
-
-							<li class="p-b-6">
-								<a href="#" class="filter-link stext-106 trans-04">
-									Popularity
-								</a>
-							</li>
-
-							<li class="p-b-6">
-								<a href="#" class="filter-link stext-106 trans-04">
-									Average rating
-								</a>
-							</li>
-
-							<li class="p-b-6">
-								<a href="#" class="filter-link stext-106 trans-04 filter-link-active">
-									Newness
-								</a>
-							</li>
-
-							<li class="p-b-6">
-								<a href="#" class="filter-link stext-106 trans-04">
-									Price: Low to High
-								</a>
-							</li>
-
-							<li class="p-b-6">
-								<a href="#" class="filter-link stext-106 trans-04">
-									Price: High to Low
-								</a>
-							</li>
-						</ul>
+									<div class="px-3 pt-2 d-flex justify-content-end">
+										<span class="badge badge-secondary mb-4">@product.ProductCategory?.Name</span>
+									</div>
+								</div>
+							</div>
+						}
 					</div>
 
-					<div class="filter-col2 p-r-15 p-b-27">
-						<div class="mtext-102 cl2 p-b-15">
-							Price
-						</div>
-
-						<ul>
-							<li class="p-b-6">
-								<a href="#" class="filter-link stext-106 trans-04 filter-link-active">
-									All
-								</a>
-							</li>
-
-							<li class="p-b-6">
-								<a href="#" class="filter-link stext-106 trans-04">
-									$0.00 - $50.00
-								</a>
-							</li>
-
-							<li class="p-b-6">
-								<a href="#" class="filter-link stext-106 trans-04">
-									$50.00 - $100.00
-								</a>
-							</li>
-
-							<li class="p-b-6">
-								<a href="#" class="filter-link stext-106 trans-04">
-									$100.00 - $150.00
-								</a>
-							</li>
-
-							<li class="p-b-6">
-								<a href="#" class="filter-link stext-106 trans-04">
-									$150.00 - $200.00
-								</a>
-							</li>
-
-							<li class="p-b-6">
-								<a href="#" class="filter-link stext-106 trans-04">
-									$200.00+
-								</a>
-							</li>
-						</ul>
-					</div>
-
-					<div class="filter-col3 p-r-15 p-b-27">
-						<div class="mtext-102 cl2 p-b-15">
-							Color
-						</div>
-
-						<ul>
-							<li class="p-b-6">
-								<span class="fs-15 lh-12 m-r-6" style="color: #222;">
-									<i class="zmdi zmdi-circle"></i>
-								</span>
-
-								<a href="#" class="filter-link stext-106 trans-04">
-									Black
-								</a>
-							</li>
-
-							<li class="p-b-6">
-								<span class="fs-15 lh-12 m-r-6" style="color: #4272d7;">
-									<i class="zmdi zmdi-circle"></i>
-								</span>
-
-								<a href="#" class="filter-link stext-106 trans-04 filter-link-active">
-									Blue
-								</a>
-							</li>
-
-							<li class="p-b-6">
-								<span class="fs-15 lh-12 m-r-6" style="color: #b3b3b3;">
-									<i class="zmdi zmdi-circle"></i>
-								</span>
-
-								<a href="#" class="filter-link stext-106 trans-04">
-									Grey
-								</a>
-							</li>
-
-							<li class="p-b-6">
-								<span class="fs-15 lh-12 m-r-6" style="color: #00ad5f;">
-									<i class="zmdi zmdi-circle"></i>
-								</span>
-
-								<a href="#" class="filter-link stext-106 trans-04">
-									Green
-								</a>
-							</li>
-
-							<li class="p-b-6">
-								<span class="fs-15 lh-12 m-r-6" style="color: #fa4251;">
-									<i class="zmdi zmdi-circle"></i>
-								</span>
-
-								<a href="#" class="filter-link stext-106 trans-04">
-									Red
-								</a>
-							</li>
-
-							<li class="p-b-6">
-								<span class="fs-15 lh-12 m-r-6" style="color: #aaa;">
-									<i class="zmdi zmdi-circle-o"></i>
-								</span>
-
-								<a href="#" class="filter-link stext-106 trans-04">
-									White
-								</a>
-							</li>
-						</ul>
-					</div>
-
-					<div class="filter-col4 p-b-27">
-						<div class="mtext-102 cl2 p-b-15">
-							Tags
-						</div>
-
-						<div class="flex-w p-t-4 m-r--5">
-							<a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
-								Fashion
-							</a>
-
-							<a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
-								Lifestyle
-							</a>
-
-							<a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
-								Denim
-							</a>
-
-							<a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
-								Streetstyle
-							</a>
-
-							<a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
-								Crafts
-							</a>
-						</div>
-					</div>
+					<!-- أسهم الحركة لكل سلايدر على حدة -->
+					<div class="swiper-button-next custom-swiper-btn"></div>
+					<div class="swiper-button-prev custom-swiper-btn"></div>
 				</div>
 			</div>
-		</div>
-
-		@* isotope-grid                    حط دية جنب الرو عشان التفنيطة بتاعت البرودكتس*@
-		<div id="productsContainer" class="row isotope-grid g-3">
-			@foreach (var product in Model)
-			{
-				<div class="col-sm-6 col-md-4 col-lg-3 isotope-item bag pb-3">
-				<div class="block2 block2-shadow h-100">
-					<div class="block2-pic hov-img0">
-						<img src="@product.MainImageUrlPath" alt="@product.Name" class="img-fluid"
-							 style="height:270px; object-fit:cover;">
-
-							<a class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1 pointer"
-							   data-id="@product.Id">
-								Quick View
-							</a>
-					</div>
-
-					<div class="block2-txt flex-w flex-t p-t-14">
-							<div class="block2-txt-child1 flex-col-l px-3">
-								<a asp-controller="Product" asp-action="Detail" asp-route-id="@product.Id" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-								@product.Name
-							</a>
-
-							<span class="stext-105 cl3">
-								$@product.Price
-							</span>
-						</div>
-
-						<div class="block2-txt-child2 flex-r p-3">
-
-								<button class="js-addwish-detail fs-20 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2"
-										data-product-id="@product.Id" data-product-name="@product.Name">
-									<i class="zmdi zmdi-favorite-outline"></i>
-								</button>
-						</div>
-					</div>
-					<div class="px-3 pt-2">
-							<p class="card-text">
-								@(@product.Description.Length > 50 ? product.Description.Substring(0, 50) + "..." : product.Description)
-							</p>
-					</div>
-					<div class="px-3 pt-2 d-flex justify-content-end">
-						<span class="badge badge-secondary mb-4">@product.ProductCategory.Name</span>
-					</div>
-				</div>
-				</div>
-			}
-		</div>
-
-		<!-- Load more -->
-		<div class="flex-c-m flex-w w-full p-t-45">
-			<a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
-				Load More
-			</a>
-		</div>
+		}
 	</div>
-
-
 </section>
 
+@section Scripts {
+	<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			document.querySelectorAll('.product-swiper').forEach(function (el) {
+				const nextButton = el.querySelector('.swiper-button-next');
+				const prevButton = el.querySelector('.swiper-button-prev');
+
+				new Swiper(el, {
+					slidesPerView: 4,
+					spaceBetween: 25,
+					navigation: {
+						nextEl: nextButton,
+						prevEl: prevButton,
+					},
+					breakpoints: {
+						320: {
+							slidesPerView: 1,
+							spaceBetween: 10
+						},
+						576: {
+							slidesPerView: 2,
+							spaceBetween: 15
+						},
+						768: {
+							slidesPerView: 3,
+							spaceBetween: 20
+						},
+						1024: {
+							slidesPerView: 4,
+							spaceBetween: 25
+						}
+					}
+				});
+			});
+		});
+	</script>
+}

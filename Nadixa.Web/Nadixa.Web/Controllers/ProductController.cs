@@ -29,7 +29,7 @@ namespace Nadixa.Web.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(int? categoryId, int? subCategoryId, string? search)
+        public async Task<IActionResult> Index(int? categoryId, int? subCategoryId, string? search, int page = 1)  
         {
             var user = await _userManager.GetUserAsync(User);
 
@@ -52,14 +52,28 @@ namespace Nadixa.Web.Controllers
             if (subCategoryId.HasValue)
             {
                 query = query.Where(p => p.ProductSubCategoryId == subCategoryId.Value);
+                ViewBag.CurrentSubCategoryId = subCategoryId;
             }
             if (!string.IsNullOrWhiteSpace(search))
             {
                 query = query.Where(p => p.Name.Contains(search) || p.Description.Contains(search));
+                ViewBag.Search = search;
             }
 
-            var products = await query.OrderByDescending(p => p.Id).ToListAsync();
+            // 1. حساب إجمالي المنتجات المفلترة فقط قبل التقسيم
+            int totalProducts = await query.CountAsync();
+            int pageSize = 2;
 
+            // 2. تطبيق الترتيب والتقسيم (Pagination)
+            var products = await query
+                .OrderByDescending(p => p.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // 3. إرسال معلومات الصفحات للـ View
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
             return View(products);
         }
 
