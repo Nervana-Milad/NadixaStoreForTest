@@ -10,8 +10,10 @@ namespace Nadixa.Core.Entities
     public enum OrderStatus
     {
         Pending,
+        Confirmed,
         Processing,
         Shipped,
+        OutForDelivery,
         Delivered,
         Cancelled
     }
@@ -35,6 +37,9 @@ namespace Nadixa.Core.Entities
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public OrderStatus Status { get; set; }
-        public ICollection<OrderItem> OrderItems { get; set; } 
+        public ICollection<OrderItem> OrderItems { get; set; }
+
+        public ICollection<OrderStatusHistory> StatusHistory { get; set; }
+    = new List<OrderStatusHistory>();
     }
 }

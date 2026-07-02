@@ -6,7 +6,6 @@ using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
-
 namespace Nadixa.Web.Controllers
 {
     [Authorize(Roles = "Admin")]
@@ -24,22 +23,27 @@ namespace Nadixa.Web.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
+
             if (user == null)
             {
                 return RedirectToAction("Login", "Auth");
             }
+
             var orders = await _context.Orders
-                            .OrderByDescending(o => o.CreatedAt)
-                            .Select(o => new AdminOrderViewModel
-                            {
-                                Id = o.Id,
-                                CustomerName = o.FullName,
-                                CreatedAt = o.CreatedAt,
-                                Status = o.Status.ToString(),
-                                GrandTotal = o.TotalPrice,
-                            })
-                            .ToListAsync();
-            return View(orders);
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+
+            var model = orders.Select(o => new AdminOrderViewModel
+            {
+                Id = o.Id,
+                CustomerName = o.FullName,
+                CreatedAt = o.CreatedAt,
+                Status = o.Status,
+                AvailableStatuses = GetAvailableStatuses(o.Status),
+                GrandTotal = o.TotalPrice
+            }).ToList();
+
+            return View(model);
         }
 
 
@@ -78,39 +82,11 @@ namespace Nadixa.Web.Controllers
                 }).ToList()
             };
             var availableStatuses = new List<string>();
-
-            switch (model.Status)
-            {
-                case "Pending":
-                    availableStatuses.Add("Pending");
-                    availableStatuses.Add("Processing");
-                    availableStatuses.Add("Cancelled");
-                    break;
-
-                case "Processing":
-                    availableStatuses.Add("Processing");
-                    availableStatuses.Add("Shipped");
-                    availableStatuses.Add("Cancelled");
-                    break;
-
-                case "Shipped":
-                    availableStatuses.Add("Shipped");
-                    availableStatuses.Add("Delivered");
-                    break;
-
-                case "Delivered":
-                    availableStatuses.Add("Delivered");
-                    break;
-
-                case "Cancelled":
-                    availableStatuses.Add("Cancelled");
-                    break;
-            }
-
-            ViewBag.Statuses = availableStatuses;
+            ViewBag.Statuses = GetAvailableStatuses(order.Status)
+                                .Select(s => s.ToString())
+                                .ToList();
             return View(model);
         }
-
         [HttpPost]
         public async Task<IActionResult> UpdateStatus(int orderId, string status)
         {
@@ -122,50 +98,119 @@ namespace Nadixa.Web.Controllers
                 return NotFound();
             }
 
-            // Delivered و Cancelled حالات نهائية
-            if (order.Status == OrderStatus.Cancelled ||
-                order.Status == OrderStatus.Delivered)
+            // الحالات النهائية لا يمكن تعديلها
+            if (order.Status == OrderStatus.Delivered ||
+                order.Status == OrderStatus.Cancelled)
             {
-                return RedirectToAction(nameof(Details),
-                    new { id = order.Id });
+                return RedirectToAction(nameof(Details), new { id = order.Id });
             }
 
-            if (Enum.TryParse<OrderStatus>(status, out var newStatus))
+            if (!Enum.TryParse<OrderStatus>(status, out var newStatus))
             {
-                bool isValidTransition = order.Status switch
-                {
-                    OrderStatus.Pending =>
-                        newStatus == OrderStatus.Pending ||
-                        newStatus == OrderStatus.Processing ||
-                        newStatus == OrderStatus.Cancelled,
-
-                    OrderStatus.Processing =>
-                        newStatus == OrderStatus.Processing ||
-                        newStatus == OrderStatus.Shipped ||
-                        newStatus == OrderStatus.Cancelled,
-
-                    OrderStatus.Shipped =>
-                        newStatus == OrderStatus.Shipped ||
-                        newStatus == OrderStatus.Delivered,
-
-                    _ => false
-                };
-
-                if (!isValidTransition)
-                {
-                    return RedirectToAction(nameof(Details),
-                        new { id = order.Id });
-                }
-
-                order.Status = newStatus;
-
-                await _context.SaveChangesAsync();
-                TempData["Success"] = AppMessages.StatusUpdatedSuccess;
-
+                return RedirectToAction(nameof(Details), new { id = order.Id });
             }
 
-            return RedirectToAction(nameof(Details),
-                new { id = orderId });
+            var allowedStatuses = GetAvailableStatuses(order.Status);
+
+            if (!allowedStatuses.Contains(newStatus))
+            {
+                TempData["Error"] = "Invalid status transition.";
+                return RedirectToAction(nameof(Details), new { id = order.Id });
+            }
+            var admin = await _userManager.GetUserAsync(User);
+            order.Status = newStatus;
+            _context.OrderStatusHistories.Add(new OrderStatusHistory
+            {
+                OrderId = order.Id,
+                Status = newStatus,
+                ChangedAt = DateTime.UtcNow,
+                ChangedBy = admin?.UserName ?? "System"
+            });
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = AppMessages.StatusUpdatedSuccess;
+
+            return RedirectToAction(nameof(Details), new { id = order.Id });
+        }
+    private List<OrderStatus> GetAvailableStatuses(OrderStatus currentStatus)
+        {
+            return currentStatus switch
+            {
+                OrderStatus.Pending => new()
+        {
+            OrderStatus.Pending,
+            OrderStatus.Confirmed,
+            OrderStatus.Cancelled
+        },
+
+                OrderStatus.Confirmed => new()
+        {
+            OrderStatus.Confirmed,
+            OrderStatus.Processing,
+            OrderStatus.Cancelled
+        },
+
+                OrderStatus.Processing => new()
+        {
+            OrderStatus.Processing,
+            OrderStatus.Shipped
+        },
+
+                OrderStatus.Shipped => new()
+        {
+            OrderStatus.Shipped,
+            OrderStatus.OutForDelivery
+        },
+
+                OrderStatus.OutForDelivery => new()
+        {
+            OrderStatus.OutForDelivery,
+            OrderStatus.Delivered
+        },
+
+                _ => new()
+        {
+            currentStatus
+        }
+            };
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> QuickUpdateStatus(int orderId, string status)
+        {
+            var order = await _context.Orders.FindAsync(orderId);
+
+            if (order == null)
+                return NotFound();
+
+            if (!Enum.TryParse<OrderStatus>(status, out var newStatus))
+                return RedirectToAction(nameof(Index));
+
+            var allowedStatuses = GetAvailableStatuses(order.Status);
+
+            if (!allowedStatuses.Contains(newStatus))
+            {
+                TempData["Error"] = "Invalid status transition.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var admin = await _userManager.GetUserAsync(User);
+
+            order.Status = newStatus;
+
+            _context.OrderStatusHistories.Add(new OrderStatusHistory
+            {
+                OrderId = order.Id,
+                Status = newStatus,
+                ChangedAt = DateTime.UtcNow,
+                ChangedBy = admin?.UserName ?? "System"
+            });
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Order status updated successfully.";
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

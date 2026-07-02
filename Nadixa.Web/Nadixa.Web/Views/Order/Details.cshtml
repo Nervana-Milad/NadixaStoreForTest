@@ -1,211 +1,935 @@
-﻿@model Nadixa.Web.Models.ViewModels.OrderDetailsViewModel
+﻿@* @model Nadixa.Web.Models.ViewModels.OrderDetailsViewModel
 
 @{
     ViewData["Title"] = "Order Details";
 }
 
+<!-- ربط مكتبة FontAwesome لضمان ظهور الأيقونات بشكل ممتاز -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
 <div class="container order-section">
 
-    <!-- Header -->
-    <div class="order-card">
-
-        <div class="d-flex justify-content-between align-items-center flex-wrap">
-
-            <div>
-                <h2 class="order-title">
-                    Order #@Model.OrderId
-                </h2>
-
-                <p class="text-muted mb-0">
-                    Placed on
-                    @Model.CreatedAt.ToString("dd MMM yyyy")
-                </p>
+    <!-- 1. الهيدر (رقم الطلب وبجانبه الحالة مباشرة، وزر الإلغاء على اليمين) -->
+    <div class="order-card mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <!-- دمج اسم الاوردر والحالة بجانب بعضهما -->
+            <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                <h3 class="fw-bold mb-0 text-dark" style="font-size: 24px; line-height: 1.2;">Order #@Model.OrderId</h3>
+                <span class="status-badge">
+                    @Model.Status
+                </span>
             </div>
-
-            @{
-                var statusClass = Model.Status.ToLower() switch
-                {
-                    "pending" => "status-pending",
-                    "processing" => "status-processing",
-                    "shipped" => "status-shipped",
-                    "delivered" => "status-delivered",
-                    "cancelled" => "status-cancelled",
-                    _ => ""
-                };
-            }
-
-            <span class="status-badge @statusClass">
-                @Model.Status
-            </span>
-            @if (Model.Status == "Pending" || Model.Status == "Processing")
+            <!-- تاريخ الطلب بالأسفل -->
+            <p class="text-muted mb-0 small" style="font-size: 13px;">Placed on @(Model.CreatedAt != null ? Model.CreatedAt.ToString("dd MMM yyyy") : "14 Jun 2026")</p>
+        </div>
+        <div>
+            @if (Model.Status == "Pending")
             {
-                <button type="button"
-                        class="btn btn-danger mt-3 hov-btn3 cancel-order-btn">
+                <button type="button" class="btn btn-cancel-order" onclick="document.getElementById('cancelOrderConfirm').submit();">
                     Cancel Order
                 </button>
             }
-            
         </div>
-
     </div>
 
-    <!-- Customer Info -->
-    <div class="row">
+    <!-- 2. شريط تتبع حالة الطلب المحسن هندسياً (Order Progress) -->
+    <div class="order-card mb-4">
+        <h5 class="fw-bold mb-4 text-dark" style="font-size: 16px;">Order Progress</h5>
 
-        <div class="col-md-4 mb-4">
+        @{
+            var steps = new[]
+            {
+                "Pending",
+                "Confirmed",
+                "Processing",
+                "Shipped",
+                "On The Way",
+                "Delivered"
+                };
 
-            <div class="info-box">
-
-                <div class="info-title">
-                    Full Name
-                </div>
-
-                <div class="info-value">
-                    @Model.FullName
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-4 mb-4">
-
-            <div class="info-box">
-
-                <div class="info-title">
-                    Phone Number
-                </div>
-
-                <div class="info-value">
-                    @Model.Phone
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-4 mb-4">
-
-            <div class="info-box">
-
-                <div class="info-title">
-                    Shipping Address
-                </div>
-
-                <div class="info-value">
-                    @Model.Address
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- Products -->
-    <div class="order-card">
-
-        <h3 class="mb-4">
-            Ordered Products
-        </h3>
-
-        @foreach (var item in Model.Items)
-        {
-            <div class="product-item">
-
-                <div class="row align-items-center">
-
-                    <div class="col-md-2">
-
-                        <img src="@item.ImageUrl"
-                             class="product-image"
-                             alt="@item.ProductName" />
-
-                    </div>
-
-                    <div class="col-md-4">
-
-                        <div class="product-name">
-                            @item.ProductName
-                        </div>
-
-                    </div>
-
-                    <div class="col-md-2">
-
-                        <div class="product-meta">
-                            Qty: @item.Quantity
-                        </div>
-
-                    </div>
-
-                    <div class="col-md-2">
-
-                        <div class="product-meta">
-                            L.E. @item.Price
-                        </div>
-
-                    </div>
-
-                    <div class="col-md-2 text-end">
-
-                        <strong>
-                            L.E. @item.Total
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </div>
+            var currentIndex = Array.IndexOf(steps, Model.Status);
+            // حساب النسبة المئوية الدقيقة لتقدم الخط الأزرق بين الدوائر الستة
+            var progressPercent = 0;
+            if (currentIndex >= 0)
+            {
+                progressPercent = (currentIndex + 1) * 20;
+                if (progressPercent > 100) progressPercent = 100;
+                if (Model.Status == "Delivered") progressPercent = 100;
+            }
         }
 
+        <div class="order-progress-container">
+            <!-- الخط الرمادي الخلفي (يبدأ من مركز أول دائرة إلى مركز آخر دائرة) -->
+            <div class="progress-line-bg"></div>
+            <!-- الخط الأزرق النشط (متحرك بدقة تامة) -->
+            <div class="progress-line-active" style="width: @progressPercent%;"></div>
+
+            <div class="steps-wrapper">
+                @for (int i = 0; i < steps.Length; i++)
+                {
+                    var completed = i < currentIndex;
+                    var active = i == currentIndex;
+
+                    <div class="step-item @(completed ? "completed" : active ? "active" : "")">
+                        <div class="step-circle">
+                            @if (completed)
+                            {
+                                <i class="fa fa-check"></i>
+                            }
+                            else if (!active)
+                            {
+                                @(i + 1)
+                            }
+                        </div>
+                        <div class="step-label">
+                            @steps[i]
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
     </div>
 
-    <!-- Summary -->
-    <div class="row justify-content-end">
-
-        <div class="col-md-5">
-
-            <div class="summary-box">
-
-                <div class="summary-row">
-                    <span>TotalPrice</span>
-
-                    <span>
-                        L.E. @Model.SubTotal
-                    </span>
+    <!-- 3. كارت معلومات العميل الموحد (Customer Info) -->
+    <div class="order-card mb-4 py-4 px-3">
+        <div class="row align-items-center g-4 text-start">
+            <!-- الاسم -->
+            <div class="col-md-4 d-flex align-items-center gap-3 px-4">
+                <div class="info-icon">
+                    <i class="fa-regular fa-user"></i>
                 </div>
+                <div>
+                    <div class="info-label text-muted">Full Name</div>
+                    <div class="info-value">@Model.FullName</div>
+                </div>
+            </div>
+            <!-- رقم الهاتف -->
+            <div class="col-md-4 d-flex align-items-center gap-3 px-4 border-start-divider">
+                <div class="info-icon">
+                    <i class="fa-solid fa-phone"></i>
+                </div>
+                <div>
+                    <div class="info-label text-muted">Phone Number</div>
+                    <div class="info-value">@Model.Phone</div>
+                </div>
+            </div>
+            <!-- عنوان الشحن -->
+            <div class="col-md-4 d-flex align-items-center gap-3 px-4 border-start-divider">
+                <div class="info-icon">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <div>
+                    <div class="info-label text-muted">Shipping Address</div>
+                    <div class="info-value text-truncate-custom">@Model.Address</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- 4. المنتجات المطلوبة (Ordered Products) -->
+    <div class="order-card mb-4">
+        <h5 class="fw-bold mb-4 text-dark" style="font-size: 16px;">Ordered Products</h5>
+
+        <div class="product-list">
+            @foreach (var item in Model.Items)
+            {
+                <div class="product-item">
+                    <div class="row align-items-center g-3">
+                        <div class="col-auto">
+                            <img src="@item.ImageUrl" class="product-image" alt="@item.ProductName" />
+                        </div>
+                        <div class="col">
+                            <div class="product-name">@item.ProductName</div>
+                        </div>
+                        <div class="col-md-2 text-md-center">
+                            <span class="product-meta">Qty: @item.Quantity</span>
+                        </div>
+                        <div class="col-md-2 text-md-center">
+                            <span class="product-meta text-muted">L.E. @item.Price.ToString("N0")</span>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <strong class="product-total-item">L.E. @item.Total.ToString("N0")</strong>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- 5. ملخص الحساب (Summary) -->
+    <div class="row justify-content-end">
+        <div class="col-md-5">
+            <div class="summary-box">
+                <div class="summary-row">
+                    <span>Total Price</span>
+                    <span class="fw-bold text-dark">L.E. @Model.SubTotal.ToString("N0")</span>
+                </div>
                 <div class="summary-row">
                     <span>Shipping</span>
-
-                    <span>
-                        L.E. @Model.ShippingFee
-                    </span>
+                    <span class="fw-bold text-dark">L.E. @Model.ShippingFee.ToString("N0")</span>
                 </div>
-
-                <div class="summary-row total">
-
-                    <span>Total</span>
-
-                    <span>
-                        L.E. @Model.GrandTotal
-                    </span>
-
+                <div class="summary-row total mt-3 pt-3">
+                    <span class="fw-bold text-dark">Total</span>
+                    <span class="total-price">L.E. @Model.GrandTotal.ToString("N0")</span>
                 </div>
-
-
             </div>
-
         </div>
-
     </div>
-    <!-- Cancel Order Form (hidden) -->
+
+    <!-- نموذج إلغاء الطلب المخفي -->
     <form id="cancelOrderConfirm"
           asp-controller="Order"
           asp-action="CancelOrder"
           asp-route-id="@Model.OrderId"
-          method="post">
+          method="post"
+          style="display:none;">
     </form>
 </div>
+
+<!-- التنسيقات المخصصة والمحسنة بالكامل لتطابق التصميم -->
+<style>
+    body {
+        background-color: #f8fafc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* إبعاد الصفحة بالكامل عن شريط التنقل (Navbar) لمنع التداخل */
+    .order-section {
+        margin-top: 45px !important;
+        padding-top: 15px !important;
+    }
+
+    /* الكارت الرئيسي الموحد بظلال خفيفة ومظهر راقي */
+    .order-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
+        border: 1px solid #f1f5f9;
+    }
+
+    /* شارة الحالة - Pending بجانب اسم الأوردر مباشرة */
+    .status-badge {
+        height: 28px; /* تقليص الحجم لتناسب الكتابة بجانب العنوان */
+        padding: 0 14px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 600;
+        background-color: #fef3c7;
+        color: #d97706;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 8px; /* تباعد خفيف عن كلمة Order #6 */
+    }
+
+    /* زر الإلغاء */
+    .btn-cancel-order {
+        height: 40px;
+        background-color: #e11d48;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        padding: 0 22px;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease-in-out;
+    }
+
+        .btn-cancel-order:hover {
+            background-color: #be123c;
+            color: #ffffff;
+        }
+
+    /* شريط التتبع (Stepper) المنظم هندسياً */
+    .order-progress-container {
+        position: relative;
+        margin: 40px 0 20px 0;
+    }
+    /* يبدأ الخط بدقة من نصف عرض أول عنصر (80px / 2 = 40px) وينتهي عند نصف عرض آخر عنصر */
+    .progress-line-bg {
+        position: absolute;
+        top: 20px; /* منتصف الدائرة */
+        left: 40px;
+        right: 40px;
+        height: 2px;
+        background-color: #e2e8f0;
+        z-index: 1;
+    }
+
+    .progress-line-active {
+        position: absolute;
+        top: 20px;
+        left: 40px;
+        height: 2px;
+        background-color: #1b61ff;
+        z-index: 2;
+        transition: width 0.4s ease;
+    }
+
+    .steps-wrapper {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        z-index: 3;
+    }
+
+    .step-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 80px; /* عرض ثابت يضمن توسيط الدوائر بدقة */
+    }
+
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #ffffff;
+        border: 2px dashed #cbd5e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 600;
+        color: #64748b;
+        transition: all 0.3s ease;
+        margin-bottom: 12px;
+    }
+    /* الحالة النشطة والمكتملة */
+    .step-item.active .step-circle {
+        background-color: #1b61ff;
+        border: 2px solid #1b61ff;
+        color: #ffffff;
+        box-shadow: 0 0 0 6px rgba(27, 97, 255, 0.12);
+    }
+
+    .step-item.completed .step-circle {
+        background-color: #1b61ff;
+        border: 2px solid #1b61ff;
+        color: #ffffff;
+    }
+
+    .step-circle i {
+        font-size: 12px;
+    }
+
+    .step-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #64748b;
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    .step-item.active .step-label {
+        color: #1b61ff;
+        font-weight: 700;
+    }
+
+    /* تنسيق الكارت الموحد لمعلومات العميل والخطوط الفاصلة */
+    .info-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background-color: #eff6ff;
+        color: #1b61ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .info-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        margin-bottom: 2px;
+    }
+
+    .info-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #334155;
+    }
+
+    .text-truncate-custom {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    /* خط مخصص للفصل بين الأعمدة في الشاشات المتوسطة والكبيرة */
+    @@media (min-width: 768px) {
+        .border-start-divider {
+            border-left: 1px solid #f1f5f9;
+        }
+    }
+
+    /* قائمة المنتجات المحدثة */
+    .product-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-item {
+        padding: 20px 0;
+        border-bottom: 1px solid #f8fafc;
+    }
+
+        .product-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+    .product-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 10px;
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+
+    .product-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .product-meta {
+        font-size: 13px;
+        font-weight: 500;
+        color: #475569;
+    }
+
+    .product-total-item {
+        font-size: 14px;
+        color: #0f172a;
+    }
+
+    /* صندوق ملخص الفاتورة */
+    .summary-box {
+        background-color: #ffffff;
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.01);
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        font-size: 13px;
+        color: #475569;
+    }
+
+        .summary-row.total {
+            border-top: 1px solid #f1f5f9;
+            margin-bottom: 0;
+        }
+
+            .summary-row.total span {
+                font-size: 14px;
+                font-weight: 700;
+                color: #0f172a;
+            }
+
+            .summary-row.total .total-price {
+                font-size: 18px;
+                font-weight: 700;
+                color: #db3246; /* اللون الأحمر المخصص للإجمالي */
+            }
+</style> *@
+
+
+@model Nadixa.Web.Models.ViewModels.OrderDetailsViewModel
+
+@{
+    ViewData["Title"] = "Order Details";
+    var statusLower = Model.Status.ToLower();
+    var statusClass = statusLower switch
+    {
+        "pending" => "status-pending",
+        "processing" => "status-processing",
+        "shipped" => "status-shipped",
+        "delivered" => "status-delivered",
+        "cancelled" => "status-cancelled",
+        _ => ""
+    };
+    var steps = new[] { "Pending", "Processing", "Shipped", "Delivered" };
+    var currentIndex = Array.IndexOf(steps, Model.Status);
+    var progressPercent = currentIndex < 0 ? 0
+                        : Math.Min((currentIndex * 100) / (steps.Length - 1), 100);
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<div class="container cust-order-section">
+
+    <!-- 1. Header -->
+    <div class="co-card mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                <h3 class="fw-bold mb-0 text-dark" style="font-size:22px;">
+                    Order #@Model.OrderId
+                </h3>
+                <span class="status-badge @statusClass">@Model.Status</span>
+            </div>
+            <p class="text-muted mb-0" style="font-size:13px;">
+                Placed on @Model.CreatedAt.ToString("dd MMM yyyy")
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+            @if (Model.Status == "Pending" || Model.Status == "Processing")
+            {
+                <button type="button" class="btn-co-cancel"
+                        data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
+                    <i class="fa-regular fa-circle-xmark me-2"></i>Cancel Order
+                </button>
+            }
+            <a asp-controller="Order" asp-action="Index" class="btn-co-back">
+                <i class="fa-solid fa-arrow-left me-2"></i>My Orders
+            </a>
+        </div>
+    </div>
+
+    <!-- 2. Progress Stepper -->
+    @if (statusLower != "cancelled")
+    {
+        <div class="co-card mb-4">
+            <h6 class="fw-bold text-dark mb-4" style="font-size:14px; text-transform:uppercase; letter-spacing:.5px;">
+                Order Progress
+            </h6>
+
+            <div class="stepper-wrap">
+                <div class="stepper-line-bg"></div>
+                <div class="stepper-line-fill" style="width:@(progressPercent)%"></div>
+
+                <div class="stepper-steps">
+                    @for (int i = 0; i < steps.Length; i++)
+                    {
+                        var done = i < currentIndex;
+                        var active = i == currentIndex;
+                        <div class="stepper-step @(done ? "done" : active ? "active" : "")">
+                            <div class="stepper-circle">
+                                @if (done)
+                                {
+                                    <i class="fa fa-check"></i>
+                                }
+                                else
+                                {
+                                    <span>@(i + 1)</span>
+                                }
+                            </div>
+                            <div class="stepper-label">@steps[i]</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="co-card mb-4 d-flex align-items-center gap-3" style="background:#fef2f2; border-color:#fecaca;">
+            <i class="fa-regular fa-circle-xmark" style="font-size:22px; color:#b91c1c;"></i>
+            <div>
+                <div class="fw-bold text-danger" style="font-size:14px;">Order Cancelled</div>
+                <div class="text-muted" style="font-size:13px;">This order has been cancelled and will not be processed.</div>
+            </div>
+        </div>
+    }
+
+    <!-- 3. Customer Info -->
+    <div class="co-card mb-4">
+        <div class="row g-4">
+            <div class="col-md-4 d-flex align-items-start gap-3">
+                <div class="co-info-icon"><i class="fa-regular fa-user"></i></div>
+                <div>
+                    <div class="co-info-label">Full Name</div>
+                    <div class="co-info-value">@Model.FullName</div>
+                </div>
+            </div>
+            <div class="col-md-4 d-flex align-items-start gap-3">
+                <div class="co-info-icon"><i class="fa-solid fa-phone"></i></div>
+                <div>
+                    <div class="co-info-label">Phone Number</div>
+                    <div class="co-info-value">@Model.Phone</div>
+                </div>
+            </div>
+            <div class="col-md-4 d-flex align-items-start gap-3">
+                <div class="co-info-icon"><i class="fa-solid fa-location-dot"></i></div>
+                <div>
+                    <div class="co-info-label">Shipping Address</div>
+                    <div class="co-info-value">@Model.Address</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Products -->
+    <div class="co-card mb-4">
+        <h6 class="fw-bold text-dark mb-4" style="font-size:14px; text-transform:uppercase; letter-spacing:.5px;">
+            Ordered Products
+        </h6>
+
+        @foreach (var item in Model.Items)
+        {
+            <div class="co-product-row">
+                <div class="row align-items-center g-3">
+                    <div class="col-auto">
+                        <img src="@item.ImageUrl" alt="@item.ProductName" class="co-product-img" />
+                    </div>
+                    <div class="col">
+                        <div class="co-product-name">@item.ProductName</div>
+                    </div>
+                    <div class="col-auto col-md-2 text-md-center">
+                        <span class="co-product-meta">Qty: @item.Quantity</span>
+                    </div>
+                    <div class="col-auto col-md-2 text-md-center">
+                        <span class="co-product-meta text-muted">L.E. @item.Price.ToString("N0")</span>
+                    </div>
+                    <div class="col-auto text-end">
+                        <strong class="co-product-total">L.E. @item.Total.ToString("N0")</strong>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- 5. Summary -->
+    <div class="row justify-content-end mb-5">
+        <div class="col-md-5 col-lg-4">
+            <div class="co-summary">
+                <div class="co-summary-row">
+                    <span class="text-muted">Subtotal</span>
+                    <span class="fw-semibold">L.E. @Model.SubTotal.ToString("N0")</span>
+                </div>
+                <div class="co-summary-row">
+                    <span class="text-muted">Shipping Fee</span>
+                    <span class="fw-semibold">L.E. @Model.ShippingFee.ToString("N0")</span>
+                </div>
+                <hr style="border-color:#f1f5f9; margin:12px 0;">
+                <div class="co-summary-row">
+                    <span class="fw-bold text-dark" style="font-size:15px;">Total</span>
+                    <span class="co-grand-total">L.E. @Model.GrandTotal.ToString("N0")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Cancel Confirmation Modal -->
+<div class="modal fade" id="cancelOrderModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px; border:none; overflow:hidden;">
+            <div class="modal-header" style="background:#fef2f2; border-bottom:1px solid #fecaca;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-regular fa-circle-xmark text-danger" style="font-size:18px;"></i>
+                    <h6 class="modal-title fw-bold text-danger mb-0">Cancel Order</h6>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p class="text-dark fw-semibold mb-1" style="font-size:15px;">
+                    Are you sure you want to cancel this order?
+                </p>
+                <p class="text-muted mb-0" style="font-size:13px;">
+                    Order <strong>#@Model.OrderId</strong> will be permanently cancelled.
+                </p>
+            </div>
+            <div class="modal-footer" style="border-top:1px solid #f1f5f9;">
+                <button type="button" class="btn-co-back" data-bs-dismiss="modal">
+                    Keep Order
+                </button>
+                <form asp-controller="Order"
+                      asp-action="CancelOrder"
+                      asp-route-id="@Model.OrderId"
+                      method="post">
+                    <button type="submit" class="btn-co-cancel">
+                        <i class="fa-regular fa-circle-xmark me-2"></i>Yes, Cancel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #f8fafc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .cust-order-section {
+        margin-top: 45px;
+        padding-bottom: 60px;
+    }
+
+    /* ── Cards ── */
+    .co-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 28px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 4px 18px rgba(0,0,0,.02);
+    }
+
+    /* ── Status badges — same as Admin pages ── */
+    .status-badge {
+        height: 26px;
+        padding: 0 14px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .status-pending {
+        background: #fffbeb;
+        color: #b45309;
+    }
+
+    .status-processing {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .status-shipped {
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
+    .status-delivered {
+        background: #f0fdf4;
+        color: #16a34a;
+    }
+
+    .status-cancelled {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    /* ── Buttons ── */
+    .btn-co-back {
+        height: 38px;
+        padding: 0 18px;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        background: #fff;
+        color: #334155;
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        transition: all .2s;
+    }
+
+        .btn-co-back:hover {
+            background: #0f172a;
+            color: #fff;
+            border-color: #0f172a;
+        }
+
+    .btn-co-cancel {
+        height: 38px;
+        padding: 0 18px;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 8px;
+        border: none;
+        background: #fef2f2;
+        color: #b91c1c;
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+        transition: all .2s;
+    }
+
+        .btn-co-cancel:hover {
+            background: #b91c1c;
+            color: #fff;
+        }
+
+    /* ── Progress Stepper ── */
+    .stepper-wrap {
+        position: relative;
+        margin: 30px 0 10px;
+    }
+
+    .stepper-line-bg {
+        position: absolute;
+        top: 20px;
+        left: calc(100% / 8);
+        right: calc(100% / 8);
+        height: 2px;
+        background: #e2e8f0;
+        z-index: 1;
+    }
+
+    .stepper-line-fill {
+        position: absolute;
+        top: 20px;
+        left: calc(100% / 8);
+        height: 2px;
+        background: #1b61ff;
+        z-index: 2;
+        transition: width .4s ease;
+    }
+
+    .stepper-steps {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        z-index: 3;
+    }
+
+    .stepper-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+    }
+
+    .stepper-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px dashed #cbd5e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 600;
+        color: #94a3b8;
+        margin-bottom: 10px;
+        transition: all .3s;
+    }
+
+    .stepper-step.done .stepper-circle,
+    .stepper-step.active .stepper-circle {
+        background: #1b61ff;
+        border: 2px solid #1b61ff;
+        color: #fff;
+    }
+
+    .stepper-step.active .stepper-circle {
+        box-shadow: 0 0 0 6px rgba(27,97,255,.12);
+    }
+
+    .stepper-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #94a3b8;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .stepper-step.active .stepper-label {
+        color: #1b61ff;
+        font-weight: 700;
+    }
+
+    .stepper-step.done .stepper-label {
+        color: #475569;
+    }
+
+    /* ── Customer info ── */
+    .co-info-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: #eff6ff;
+        color: #1b61ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .co-info-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: #94a3b8;
+        margin-bottom: 3px;
+    }
+
+    .co-info-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #334155;
+    }
+
+    /* ── Products ── */
+    .co-product-row {
+        padding: 18px 0;
+        border-bottom: 1px solid #f8fafc;
+    }
+
+        .co-product-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+    .co-product-img {
+        width: 58px;
+        height: 58px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .co-product-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .co-product-meta {
+        font-size: 13px;
+        color: #475569;
+    }
+
+    .co-product-total {
+        font-size: 14px;
+        color: #0f172a;
+    }
+
+    /* ── Summary ── */
+    .co-summary {
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 4px 18px rgba(0,0,0,.01);
+    }
+
+    .co-summary-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        color: #475569;
+        margin-bottom: 10px;
+    }
+
+    .co-grand-total {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1b61ff;
+    }
+</style>

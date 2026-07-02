@@ -2,101 +2,587 @@
 
 @{
     ViewData["Title"] = "Orders Management";
+
+    // حساب الإحصائيات لحظياً بأمان تام عبر تحويل الـ Enum لنص مباشرة دون استخدام ? لمنع خطأ CS0023
+    var totalOrders = Model.Count();
+    var pendingCount = Model.Count(o => o.Status.ToString().Equals("Pending", StringComparison.OrdinalIgnoreCase));
+    var processingCount = Model.Count(o => o.Status.ToString().Equals("Processing", StringComparison.OrdinalIgnoreCase) || o.Status.ToString().Equals("Confirmed", StringComparison.OrdinalIgnoreCase));
+    var shippedCount = Model.Count(o => o.Status.ToString().Equals("Shipped", StringComparison.OrdinalIgnoreCase) || o.Status.ToString().Equals("On The Way", StringComparison.OrdinalIgnoreCase));
+    var deliveredCount = Model.Count(o => o.Status.ToString().Equals("Delivered", StringComparison.OrdinalIgnoreCase));
+    var cancelledCount = Model.Count(o => o.Status.ToString().Equals("Cancelled", StringComparison.OrdinalIgnoreCase));
 }
 
-<div class="container profile-section">
+<!-- ربط مكتبة الأيقونات الفاخرة FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-    <div class="orders-card">
+<div class="container admin-orders-section">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="orders-title mb-0">
-                Orders Management
-            </h3>
-
-            <span class="badge bg-dark fs-16">
-                Total Orders: @Model.Count()
-            </span>
+    <!-- العنوان الرئيسي للوحة التحكم -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold text-dark mb-1" style="font-size: 26px;">Orders Management</h2>
+            <p class="text-muted mb-0 small">Monitor, track status updates, and manage customer transactions efficiently.</p>
         </div>
+        <span class="badge badge-total-orders">
+            <i class="fa-solid fa-boxes-stacked me-2"></i> Total: @totalOrders Orders
+        </span>
+    </div>
 
+    <!-- كروت الإحصائيات العلوية (Dashboard KPI Cards) -->
+    <div class="row g-3 mb-4">
+        <!-- قيد الانتظار -->
+        <div class="col-md-2-4 col-sm-6">
+            <div class="kpi-card kpi-pending">
+                <div class="kpi-icon-wrapper">
+                    <i class="fa-regular fa-clock"></i>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-title">Pending</span>
+                    <h3 class="kpi-value">@pendingCount</h3>
+                </div>
+            </div>
+        </div>
+        <!-- جاري المعالجة -->
+        <div class="col-md-2-4 col-sm-6">
+            <div class="kpi-card kpi-processing">
+                <div class="kpi-icon-wrapper">
+                    <i class="fa-solid fa-spinner fa-spin-slow"></i>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-title">Processing</span>
+                    <h3 class="kpi-value">@processingCount</h3>
+                </div>
+            </div>
+        </div>
+        <!-- تم الشحن -->
+        <div class="col-md-2-4 col-sm-6">
+            <div class="kpi-card kpi-shipped">
+                <div class="kpi-icon-wrapper">
+                    <i class="fa-solid fa-truck-fast"></i>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-title">Shipped</span>
+                    <h3 class="kpi-value">@shippedCount</h3>
+                </div>
+            </div>
+        </div>
+        <!-- تم التوصيل -->
+        <div class="col-md-2-4 col-sm-6">
+            <div class="kpi-card kpi-delivered">
+                <div class="kpi-icon-wrapper">
+                    <i class="fa-regular fa-circle-check"></i>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-title">Delivered</span>
+                    <h3 class="kpi-value">@deliveredCount</h3>
+                </div>
+            </div>
+        </div>
+        <!-- ملغى -->
+        <div class="col-md-2-4 col-sm-6">
+            <div class="kpi-card kpi-cancelled">
+                <div class="kpi-icon-wrapper">
+                    <i class="fa-regular fa-circle-xmark"></i>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-title">Cancelled</span>
+                    <h3 class="kpi-value">@cancelledCount</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- أدوات البحث والفلترة السريعة الفورية (Search & Filters) -->
+    <div class="order-card mb-4 py-3 px-4">
+        <div class="row g-3 align-items-center">
+            <!-- صندوق البحث الذكي -->
+            <div class="col-md-6 col-lg-4">
+                <div class="search-box-container">
+                    <i class="fa fa-search search-box-icon"></i>
+                    <input type="text" id="adminOrderSearch" class="form-control search-input" placeholder="Search by Order ID or Customer Name..." onkeyup="instantAdminFilter()">
+                </div>
+            </div>
+            <!-- فلتر الحالة السريع -->
+            <div class="col-md-4 col-lg-3">
+                <select id="adminStatusFilter" class="form-select filter-select" onchange="instantAdminFilter()">
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول إدارة الطلبات -->
+    <div class="order-card p-0 overflow-hidden">
         @if (Model.Any())
         {
             <div class="table-responsive">
-                <table class="table align-middle">
-
+                <table class="table admin-table mb-0" id="adminOrdersTable">
                     <thead>
                         <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
+                            <th class="ps-4">Order ID</th>
+                            <th>Customer Name</th>
                             <th>Date</th>
-                            <th>Status</th>
-                            <th>Total</th>
-                            <th>Actions</th>
+                            <th>Current Status</th>
+                            <th>Direct Status Update</th>
+                            <th>Grand Total</th>
+                            <th class="pe-4 text-end">Actions</th>
                         </tr>
                     </thead>
-
                     <tbody>
                         @foreach (var order in Model)
                         {
-                            var statusClass = order.Status.ToLower() switch
+                            // تحويل الـ Enum لنص مباشرة دون استخدام ?
+                            var statusStr = order.Status.ToString();
+                            var statusLower = statusStr.ToLower();
+                            var badgeClass = statusLower switch
                             {
                                 "pending" => "status-pending",
+                                "confirmed" => "status-processing",
                                 "processing" => "status-processing",
                                 "shipped" => "status-shipped",
+                                "on the way" => "status-shipped",
                                 "delivered" => "status-delivered",
                                 "cancelled" => "status-cancelled",
                                 _ => ""
                             };
 
-                            <tr>
+                            <tr class="order-table-row" data-id="#@order.Id" data-customer="@order.CustomerName.ToLower()" data-status="@statusLower">
+                                <!-- رقم الطلب -->
+                                <td class="ps-4">
+                                    <span class="order-id-tag">#@order.Id</span>
+                                    end
+                                    <!-- اسم العميل -->
                                 <td>
-                                    <strong>#@order.Id</strong>
+                                    <div class="fw-semibold text-dark">@order.CustomerName</div>
                                 </td>
-
+                                <!-- التاريخ -->
                                 <td>
-                                    @order.CustomerName
+                                    <div class="text-muted small">@order.CreatedAt.ToString("dd MMM yyyy")</div>
                                 </td>
-
+                                <!-- شارة الحالة الحالية -->
                                 <td>
-                                    @order.CreatedAt.ToString("dd MMM yyyy")
-                                </td>
-
-                                <td>
-                                    <span class="status-badge @statusClass">
-                                        @order.Status
+                                    <span class="status-badge @badgeClass">
+                                        @statusStr
                                     </span>
                                 </td>
-
+                                <!-- تحديث الحالة المباشر -->
                                 <td>
-                                    <strong>
-                                        L.E. @order.GrandTotal
-                                    </strong>
+                                    @if (statusLower != "delivered" && statusLower != "cancelled")
+                                    {
+                                        <form asp-controller="AdminOrder" asp-action="UpdateStatus" method="post" class="d-inline-block">
+                                            <input type="hidden" name="orderId" value="@order.Id" />
+                                            <select name="newStatus" class="form-select inline-status-select select-@statusLower" onchange="this.form.submit()">
+                                                <option value="" disabled selected>Update to...</option>
+
+                                                @if (statusLower == "pending")
+                                                {
+                                                    <option value="Processing">Processing</option>
+                                                    <option value="Cancelled">Cancelled</option>
+                                                }
+                                                else if (statusLower == "processing" || statusLower == "confirmed")
+                                                {
+                                                    <option value="Shipped">Shipped</option>
+                                                    <option value="Cancelled">Cancelled</option>
+                                                }
+                                                else if (statusLower == "shipped" || statusLower == "on the way")
+                                                {
+                                                    <option value="Delivered">Delivered</option>
+                                                }
+                                            </select>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small"><i class="fa-solid fa-lock me-1"></i> Lifecycle Ended</span>
+                                    }
                                 </td>
-
+                                <!-- الإجمالي -->
                                 <td>
+                                    <strong class="text-dark">L.E. @order.GrandTotal.ToString("N0")</strong>
+                                </td>
+                                <!-- الأزرار والإجراءات -->
+                                <td class="pe-4 text-end">
                                     <a asp-controller="AdminOrder"
                                        asp-action="Details"
                                        asp-route-id="@order.Id"
-                                       class="btn btn-dark btn-sm">
-                                        View Details
+                                       class="btn btn-view-details">
+                                        <i class="fa-regular fa-eye me-1"></i> Details
                                     </a>
                                 </td>
                             </tr>
                         }
                     </tbody>
-
                 </table>
+            </div>
+
+            <div id="noResultsFound" class="empty-orders py-5 d-none">
+                <i class="fa-solid fa-magnifying-glass mb-3" style="font-size: 32px; color: #94a3b8;"></i>
+                <h5>No matching orders found</h5>
+                <p class="text-muted small">Try adjusting your search criteria or status filters.</p>
             </div>
         }
         else
         {
-            <div class="empty-orders">
+            <div class="empty-orders py-5">
+                <i class="fa-solid fa-box-open mb-3" style="font-size: 40px; color: #94a3b8;"></i>
                 <h5>No Orders Found</h5>
-                <p>
-                    There are currently no orders in the system.
-                </p>
+                <p class="text-muted small">There are currently no customer orders in the system.</p>
             </div>
         }
-
     </div>
 
 </div>
+
+<!-- نظام الفلترة والبحث الفوري الفعال -->
+<script>
+    function instantAdminFilter() {
+        const searchInput = document.getElementById('adminOrderSearch').value.toLowerCase().trim();
+        const statusFilter = document.getElementById('adminStatusFilter').value.toLowerCase().trim();
+        const rows = document.querySelectorAll('.order-table-row');
+        let matchedCount = 0;
+
+        rows.forEach(row => {
+            const orderId = row.getAttribute('data-id').toLowerCase();
+            const customerName = row.getAttribute('data-customer').toLowerCase();
+            const status = row.getAttribute('data-status').toLowerCase();
+
+            const matchesSearch = orderId.includes(searchInput) || customerName.includes(searchInput);
+            const matchesStatus = statusFilter === "" || status === statusFilter;
+
+            if (matchesSearch && matchesStatus) {
+                row.classList.remove('d-none');
+                matchedCount++;
+            } else {
+                row.classList.add('d-none');
+            }
+        });
+
+        const noResults = document.getElementById('noResultsFound');
+        const table = document.getElementById('adminOrdersTable');
+        if (noResults) {
+            if (matchedCount === 0 && rows.length > 0) {
+                noResults.classList.remove('d-none');
+                if (table) table.querySelector('thead').style.display = 'none';
+            } else {
+                noResults.classList.add('d-none');
+                if (table) table.querySelector('thead').style.display = 'table-header-group';
+            }
+        }
+    }
+</script>
+
+<!-- التنسيقات الفاخرة للوحة التحكم الإدارية -->
+<style>
+    body {
+        background-color: #f8fafc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .admin-orders-section {
+        margin-top: 45px !important;
+        padding-top: 15px !important;
+    }
+
+    .order-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
+        border: 1px solid #f1f5f9;
+    }
+
+    .badge-total-orders {
+        background-color: #0f172a;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 10px 18px;
+        border-radius: 30px;
+    }
+
+    .col-md-2-4 {
+        flex: 0 0 20%;
+        max-width: 20%;
+    }
+
+    @@media (max-width: 992px) {
+        .col-md-2-4 {
+            flex: 0 0 50%;
+            max-width: 50%;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .col-md-2-4 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
+
+    .kpi-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.015);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(0, 0, 0, 0.03);
+        }
+
+    .kpi-icon-wrapper {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .kpi-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .kpi-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #64748b;
+        letter-spacing: 0.5px;
+    }
+
+    .kpi-value {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 0;
+        color: #0f172a;
+    }
+
+    .fa-spin-slow {
+        animation: fa-spin 3s linear infinite;
+    }
+
+    .kpi-pending .kpi-icon-wrapper {
+        background: #fffbeb;
+        color: #b45309;
+    }
+
+    .kpi-processing .kpi-icon-wrapper {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .kpi-shipped .kpi-icon-wrapper {
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
+    .kpi-delivered .kpi-icon-wrapper {
+        background: #f0fdf4;
+        color: #16a34a;
+    }
+
+    .kpi-cancelled .kpi-icon-wrapper {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    .search-box-container {
+        position: relative;
+    }
+
+    .search-box-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 14px;
+    }
+
+    .search-input {
+        padding-left: 38px !important;
+        height: 42px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        font-size: 14px;
+    }
+
+        .search-input:focus {
+            border-color: #1b61ff;
+            box-shadow: 0 0 0 3px rgba(27, 97, 255, 0.12);
+        }
+
+    .filter-select {
+        height: 42px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        font-size: 14px;
+        color: #475569;
+        cursor: pointer;
+    }
+
+        .filter-select:focus {
+            border-color: #1b61ff;
+            box-shadow: 0 0 0 3px rgba(27, 97, 255, 0.12);
+        }
+
+    .admin-table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        .admin-table thead th {
+            background-color: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 16px 12px;
+        }
+
+        .admin-table tbody td {
+            padding: 18px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+    .order-table-row {
+        transition: background-color 0.15s ease;
+    }
+
+        .order-table-row:hover {
+            background-color: #f8fafc;
+        }
+
+    .order-id-tag {
+        font-weight: 700;
+        color: #1b61ff;
+    }
+
+    .status-badge {
+        height: 28px;
+        padding: 0 14px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+    }
+
+    .status-pending {
+        background-color: #fffbeb;
+        color: #b45309;
+    }
+
+    .status-processing {
+        background-color: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .status-shipped {
+        background-color: #f0fdf4;
+        color: #15803d;
+    }
+
+    .status-delivered {
+        background-color: #f0fdf4;
+        color: #16a34a;
+    }
+
+    .status-cancelled {
+        background-color: #fef2f2;
+        color: #b91c1c;
+    }
+
+    .inline-status-select {
+        height: 32px;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 0 28px 0 10px;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        cursor: pointer;
+        background-size: 10px;
+        background-position: right 10px center;
+        width: 140px;
+        transition: all 0.2s ease;
+    }
+
+        .inline-status-select:focus {
+            border-color: #1b61ff;
+            box-shadow: 0 0 0 3px rgba(27, 97, 255, 0.1);
+        }
+
+    .select-pending {
+        border-color: #fcd34d;
+        background-color: #fffdf5;
+        color: #b45309;
+    }
+
+    .select-processing {
+        border-color: #93c5fd;
+        background-color: #f7faff;
+        color: #1d4ed8;
+    }
+
+    .select-shipped {
+        border-color: #86efac;
+        background-color: #fafdfa;
+        color: #15803d;
+    }
+
+    .btn-view-details {
+        height: 34px;
+        padding: 0 16px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        background-color: #ffffff;
+        color: #334155;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+        .btn-view-details:hover {
+            background-color: #0f172a;
+            color: #ffffff;
+            border-color: #0f172a;
+        }
+
+    .empty-orders {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+        .empty-orders h5 {
+            font-weight: 600;
+            color: #334155;
+            margin-top: 12px;
+        }
+</style>

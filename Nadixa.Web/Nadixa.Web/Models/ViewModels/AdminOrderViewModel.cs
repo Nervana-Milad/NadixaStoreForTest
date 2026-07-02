@@ -1,4 +1,6 @@
-﻿namespace Nadixa.Web.Models.ViewModels
+﻿using Nadixa.Core.Entities;
+
+namespace Nadixa.Web.Models.ViewModels
 {
     public class AdminOrderViewModel
     {
@@ -8,8 +10,10 @@
 
         public DateTime CreatedAt { get; set; }
 
-        public string Status { get; set; }
+        public  OrderStatus Status { get; set; }
 
         public decimal GrandTotal { get; set; }
+        public List<OrderStatus> AvailableStatuses { get; set; }
+    = new();
     }
 }

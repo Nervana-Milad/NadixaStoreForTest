@@ -3900,3 +3900,81 @@ input.num-product::-webkit-inner-spin-button {
 }
 
 
+/////////
+/////////////////////////////////////////
+///////////////////////////////////////////////////////////////////// Order Progress Tracker
+/*==========================
+    ORDER PROGRESS
+===========================*/
+.order-progress {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: 40px;
+    padding: 20px 10px;
+}
+
+.order-progress::before {
+    content: "";
+    position: absolute;
+    top: 38px;
+    left: 55px;
+    right: 55px;
+    height: 3px;
+    background: #e5e5e5;
+    z-index: 1;
+}
+
+.progress-step {
+    position: relative;
+    z-index: 2;
+    width: 16.6%;
+    text-align: center;
+}
+
+.step-circle {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    border: 2px solid #d9d9d9;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    margin: auto;
+    transition: .3s;
+}
+
+    .step-circle.completed {
+        background: #28a745;
+        border-color: #28a745;
+        color: #fff;
+    }
+
+    .step-circle.active {
+        background: #2575fc;
+        border-color: #2575fc;
+        color: #fff;
+    }
+
+.step-title {
+    margin-top: 15px;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.step-circle i {
+    font-size: 18px;
+}
+
+@media(max-width:992px) {
+
+    .order-progress {
+        overflow-x: auto;
+        min-width: 900px;
+        padding-bottom: 20px;
+    }
+}
