@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Web.Models;
 using Nadixa.Web.Models.ViewModels;
@@ -23,7 +24,9 @@ namespace Nadixa.Web.Controllers
         }
         public IActionResult Index(int? categoryId)
         {
-            var productQuery = _context.Products.Include(p => p.ProductCategory).AsQueryable();
+            var productQuery = _context.Products
+                .Include(p => p.ProductCategory)
+                .AsQueryable();
 
             if (categoryId.HasValue)
             {
@@ -32,7 +35,18 @@ namespace Nadixa.Web.Controllers
 
             var products = productQuery.ToList();
 
+            // ? Best Sellers: ???????? ???? IsFeatured = true
+            var bestSellers = _context.OrderItems
+     .Where(oi => oi.Order.Status != OrderStatus.Cancelled)
+     .GroupBy(oi => oi.ProductId)
+     .OrderByDescending(g => g.Sum(oi => oi.Quantity))
+     .Take(8)
+     .Select(g => g.First().Product)
+     .ToList();
+
             ViewBag.Categories = _context.ProductCategories.ToList();
+            ViewBag.BestSellers = bestSellers; // ? ?????? ??? View
+
             return View(products);
         }
 
