@@ -3,7 +3,9 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Nadixa.Core.DTOS;
 using Nadixa.Core.Entities;
+using Nadixa.Core.Interfaces.Excel;
 using Nadixa.Infrastructure.Data;
 
 namespace Nadixa.Web.Controllers
@@ -12,62 +14,44 @@ namespace Nadixa.Web.Controllers
     public class AdminProductController : Controller
     {
         private readonly NadixaDbContext _context;
-        public AdminProductController(NadixaDbContext context)
+        private readonly IExcelService _excelService;
+        public AdminProductController(NadixaDbContext context, IExcelService excelService)
         {
             _context = context;
+            _excelService = excelService;
+        }
+
+        public async Task<IActionResult> ExportToExcel(CancellationToken ct = default)
+        {
+            var stream = await _excelService.ExportAsync(GetProductsAsync(), "Products", ct);
+
+            return File(stream,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                $"Products_{DateTime.Now:yyyyMMdd}.xlsx");
         }
 
 
-        [HttpGet]
-        public async Task<IActionResult> ExportToExcel()
+        private async IAsyncEnumerable<ProductExportDto> GetProductsAsync()
         {
-            var products = await _context.Products
+            await foreach (var product in _context.Products
                 .Include(p => p.ProductCategory)
                 .Include(p => p.ProductSubCategory)
                 .Where(p => !p.IsDeleted)
                 .OrderBy(p => p.Id)
-                .ToListAsync();
-
-            using var workbook = new XLWorkbook();
-            var worksheet = workbook.Worksheets.Add("Products");
-
-            // Add headers
-            var headers = new[]
+                .AsAsyncEnumerable())
             {
-                "Id", "Name", "Description", "Price", "OldPrice", "StockQuantity", "Category", "SubCategory"
-            };
-
-            for(int i = 0; i < headers.Length; i++)
-            {
-                var cell = worksheet.Cell(1, i + 1);
-                cell.Value = headers[i];
-                cell.Style.Font.Bold = true;
-                cell.Style.Fill.BackgroundColor = XLColor.FromHtml("6c7ae0");
-                cell.Style.Font.FontColor = XLColor.White;
+                yield return new ProductExportDto
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Description = product.Description,
+                    Price = product.Price,
+                    OldPrice = product.OldPrice ?? 0,
+                    StockQuantity = product.StockQuantity,
+                    CategoryName = product.ProductCategory?.Name ?? "",
+                    SubCategoryName = product.ProductSubCategory?.Name ?? ""
+                };
             }
-
-            // Add product data
-            for(int i = 0; i < products.Count; i++)
-            {
-                var row = i + 2; // Start from row 2
-                var product = products[i];
-
-                worksheet.Cell(row, 1).Value = product.Id;
-                worksheet.Cell(row, 2).Value = product.Name;
-                worksheet.Cell(row, 3).Value = product.Description;
-                worksheet.Cell(row, 4).Value = product.Price;
-                worksheet.Cell(row, 5).Value = product.OldPrice ?? 0;
-                worksheet.Cell(row, 6).Value = product.StockQuantity;
-                worksheet.Cell(row, 7).Value = product.ProductCategory?.Name ?? "N/A";
-                worksheet.Cell(row, 8).Value = product.ProductSubCategory?.Name ?? "N/A";
-            }
-
-            worksheet.Columns().AdjustToContents();
-
-            using var stream = new MemoryStream();
-            workbook.SaveAs(stream);
-
-            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Products_{DateTime.Now:yyyyMMdd}.xlsx");
         }
 
 
@@ -168,6 +152,20 @@ namespace Nadixa.Web.Controllers
                             errors.Add($"Row {row.RowNumber()}: Product with Id {id} not found.");
                             continue;
                         }
+                        bool hasChanges =
+                           product.Name != name ||
+                           product.Description != description ||
+                           product.Price != price ||
+                           product.OldPrice != (oldPrice > 0 ? oldPrice : null) ||
+                           product.StockQuantity != stockQuantity ||
+                           product.ProductCategoryId != category.Id ||
+                           product.ProductSubCategoryId != subCategory.Id;
+
+                        if (!hasChanges)
+                        {
+                            continue; // مفيش تغيير، سيبيه من غير ما نزود العداد أو نعمل Update
+                        }
+
                         product.Name = name;
                         product.Description = description;
                         product.Price = price;

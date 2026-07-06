@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Web.Models;
 using Nadixa.Web.Models.ViewModels;
@@ -15,14 +17,20 @@ namespace Nadixa.Web.Controllers
 
         private readonly ILogger<HomeController> _logger;
         private readonly NadixaDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
 
-        public HomeController(ILogger<HomeController> logger, NadixaDbContext context)
+        public HomeController(ILogger<HomeController> logger, NadixaDbContext context, UserManager<AppUser> userManager)
+
         {
             _logger = logger;
             _context = context;
+            _userManager = userManager;
+
         }
-        public IActionResult Index(int? categoryId)
+        public async Task<IActionResult> Index(int? categoryId)
         {
+            var user = await _userManager.GetUserAsync(User);
+
             var productQuery = _context.Products.Include(p => p.ProductCategory).AsQueryable();
 
             if (categoryId.HasValue)
@@ -30,9 +38,23 @@ namespace Nadixa.Web.Controllers
                 productQuery = productQuery.Where(p => p.ProductCategoryId == categoryId);
             }
 
-            var products = productQuery.ToList();
+            var products = await productQuery.ToListAsync();
 
-            ViewBag.Categories = _context.ProductCategories.ToList();
+            ViewBag.Categories = await _context.ProductCategories.ToListAsync();
+
+            Dictionary<int, int> cartItems = new();
+
+            if (user != null)
+            {
+                cartItems = await _context.Carts
+                    .Where(c => c.UserId == user.Id)
+                    .SelectMany(c => c.Items)
+                    .ToDictionaryAsync(
+                        i => i.ProductId,
+                        i => i.Quantity);
+            }
+
+            ViewBag.CartItems = cartItems;
             return View(products);
         }
 

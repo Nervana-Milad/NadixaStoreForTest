@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
-using Nadixa.Infrastructure.Services;
+using Nadixa.Core.Interfaces.Excel;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Infrastructure.Repositories;
+using Nadixa.Infrastructure.Services;
+using Nadixa.Infrastructure.Services.Excel;
 using Nadixa.Web.Filters;
 using Nadixa.Web.Services;
 using System.Threading.Tasks;
@@ -50,6 +52,8 @@ namespace Nadixa.Web
                 options.SlidingExpiration = true;
             });
 
+           
+
             builder.Services.AddScoped<LoadWishlistFilter>();
 
             builder.Services.AddControllersWithViews(options =>
@@ -62,6 +66,10 @@ namespace Nadixa.Web
             builder.Services.AddScoped<IDashboardService, DashboardService>();
             builder.Services.AddTransient<EmailSender>();
             builder.Services.AddScoped<IRazorViewRenderer, RazorViewRenderer>();
+
+            builder.Services.AddScoped<IExcelService, ExcelService>();
+            builder.Services.AddScoped<IExcelHelperService, ExcelHelperService>();
+
             var app = builder.Build();
 
 

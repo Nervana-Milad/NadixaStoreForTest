@@ -285,7 +285,10 @@
 		}
 		@* isotope-grid                    حط دية جنب الرو عشان التفنيطة بتاعت البرودكتس*@
 		<div id="productsContainer" class="row isotope-grid g-3">
-			
+			@{
+				var cartItems = ViewBag.CartItems as Dictionary<int, int>
+				?? new Dictionary<int, int>();
+			}
 			@foreach (var product in Model)
 			{
 				<div class="col-sm-6 col-md-4 col-lg-3 isotope-item bag cat-@product.ProductCategoryId pb-3">
@@ -326,6 +329,36 @@
 						</div>
 						<div class="px-3 pt-2 d-flex justify-content-end">
 							<span class="badge badge-secondary mb-4">@product.ProductCategory.Name</span>
+						</div>
+						@* // add to cart buton *@
+						<div class="px-3 pb-3 mt-auto">
+							<div class="cart-controls"
+								 data-product-id="@product.Id">
+								@if (cartItems.ContainsKey(product.Id))
+								{
+									var qty = cartItems[product.Id];
+									<div class="cart-counter">
+										<button class="cart-minus"
+												data-product-id="@product.Id">
+											@(qty == 1 ? "🗑" : "-")
+										</button>
+										<span class="cart-qty">
+											@qty in cart
+										</span>
+										<button class="cart-plus"
+												data-product-id="@product.Id">
+											+
+										</button>
+									</div>
+								}
+								else
+								{
+									<button class="btn-addcart-card js-addcart-detail hov-btn3"
+											data-product-id="@product.Id">
+										Add to Cart
+									</button>
+								}
+							</div>
 						</div>
 					</div>
 				</div>

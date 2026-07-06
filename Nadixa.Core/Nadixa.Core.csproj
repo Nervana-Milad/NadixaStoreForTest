@@ -9,6 +9,7 @@
 	<ItemGroup>
 		<!-- دي المكتبة الوحيدة المطلوبة هنا -->
 		<PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="9.0.0" />
+		<PackageReference Include="SpreadCheetah" Version="1.28.0" />
 	</ItemGroup>
 
 </Project>

@@ -29,7 +29,7 @@ namespace Nadixa.Web.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(int? categoryId, int? subCategoryId, string? search, int page = 1)  
+        public async Task<IActionResult> Index(int? categoryId, int? subCategoryId, string? search, int page = 1)
         {
             var user = await _userManager.GetUserAsync(User);
 
@@ -62,7 +62,7 @@ namespace Nadixa.Web.Controllers
 
             // 1. حساب إجمالي المنتجات المفلترة فقط قبل التقسيم
             int totalProducts = await query.CountAsync();
-            int pageSize = 2;
+            int pageSize = 10;
 
             // 2. تطبيق الترتيب والتقسيم (Pagination)
             var products = await query
@@ -74,6 +74,22 @@ namespace Nadixa.Web.Controllers
             // 3. إرسال معلومات الصفحات للـ View
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
+
+            Dictionary<int, int> cartItems = new();
+
+            if (user != null)
+            {
+                cartItems = await _context.Carts
+                    .Include(c => c.Items)
+                    .Where(c => c.UserId == user.Id)
+                    .SelectMany(c => c.Items)
+                    .ToDictionaryAsync(
+                        i => i.ProductId,
+                        i => i.Quantity
+                    );
+            }
+
+            ViewBag.CartItems = cartItems;
             return View(products);
         }
 
@@ -229,7 +245,7 @@ namespace Nadixa.Web.Controllers
             TempData["Success"] = AppMessages.ProductCreated;
             return RedirectToAction("Index");
         }
-        
+
         [HttpGet]
         public async Task<IActionResult> Detail(int id)
         {
@@ -242,7 +258,7 @@ namespace Nadixa.Web.Controllers
 
             var product = _context.Products.Include(p => p.ProductCategory).Include(p => p.ProductSubCategory).Include(p => p.Colors).Include(p => p.Images).Include(p => p.Reviews).FirstOrDefault(p => p.Id == id);
 
-            if(product == null)
+            if (product == null)
             {
                 return NotFound();
             }
@@ -504,7 +520,7 @@ namespace Nadixa.Web.Controllers
         }
 
 
-       
+
         private async Task<string> UploadFileToFolder(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -517,7 +533,7 @@ namespace Nadixa.Web.Controllers
             var wwwRootPath = _webHostEnvironment.WebRootPath;
             var imagesFolderPath = Path.Combine(wwwRootPath, "images", "products");
 
-            if(!Directory.Exists(imagesFolderPath))
+            if (!Directory.Exists(imagesFolderPath))
             {
                 Directory.CreateDirectory(imagesFolderPath);
             }
@@ -531,12 +547,12 @@ namespace Nadixa.Web.Controllers
 
             try
             {
-                await using(var fileStream = new FileStream(filePath, FileMode.Create))
+                await using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await file.CopyToAsync(fileStream);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return "Error Uploading Images: " + ex.Message;
             }
@@ -613,25 +629,48 @@ namespace Nadixa.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Search(string term)
         {
-            var products = await _context.Products.Include(p => p.ProductCategory)
+            var user = await _userManager.GetUserAsync(User);
+
+            Dictionary<int, int> cartItems = new();
+
+            if (user != null)
+            {
+                cartItems = await _context.Carts
+                    .Where(c => c.UserId == user.Id)
+                    .SelectMany(c => c.Items)
+                    .ToDictionaryAsync(
+                        i => i.ProductId,
+                        i => i.Quantity
+                    );
+            }
+
+            var products = await _context.Products
+                .Include(p => p.ProductCategory)
                 .AsNoTracking()
                 .Where(p => string.IsNullOrEmpty(term)
                     || p.Name.Contains(term))
-                .Select(p => new
-                {
-                    id = p.Id,
-                    name = p.Name,
-                    price = p.Price,
-                    description = p.Description.Length > 50
-                        ? p.Description.Substring(0, 50) + "..."
-                        : p.Description,
-                    mainImageUrlPath = p.MainImageUrlPath,
-                    categoryName = p.ProductCategory.Name
-                })
                 .ToListAsync();
 
-            return Json(products);
+            var result = products.Select(p => new
+            {
+                id = p.Id,
+                name = p.Name,
+                price = p.Price,
+                description = p.Description.Length > 50
+                    ? p.Description.Substring(0, 50) + "..."
+                    : p.Description,
+                mainImageUrlPath = p.MainImageUrlPath,
+                categoryName = p.ProductCategory.Name,
+
+                cartQuantity = cartItems.ContainsKey(p.Id)
+                    ? cartItems[p.Id]
+                    : 0
+            });
+
+            return Json(result);
         }
+
+
 
     }
 }

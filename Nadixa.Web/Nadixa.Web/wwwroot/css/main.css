@@ -3978,3 +3978,41 @@ input.num-product::-webkit-inner-spin-button {
         padding-bottom: 20px;
     }
 }
+
+/*address stop cart button*/
+.btn-addcart-card {
+    width: 100%;
+    height: 42px;
+    border: none;
+    border-radius: 25px;
+    background: #6C7AED;
+    color: #fff;
+    font-weight: 600;
+    transition: .2s;
+}
+
+    .btn-addcart-card:hover {
+        background: #6C7AED;
+    }
+
+.cart-counter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 42px;
+    border: 2px solid #6C7AED;
+    border-radius: 25px;
+    padding: 0 12px;
+}
+
+    .cart-counter button {
+        border: none;
+        background: none;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .cart-counter span {
+        font-weight: 600;
+    }

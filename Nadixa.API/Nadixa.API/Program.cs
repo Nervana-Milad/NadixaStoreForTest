@@ -3,8 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Nadixa.Application.Helpers;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
+using Nadixa.Core.Interfaces.Excel;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Infrastructure.Repositories;
+using Nadixa.Infrastructure.Services.Excel;
 using System.Reflection;
 
 namespace Nadixa.API
@@ -46,6 +48,10 @@ namespace Nadixa.API
 
             // تسجيل الـ Repository و UnitOfWork
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            //builder.Services.AddScoped<IExcelService, ExcelService>();
+            //builder.Services.AddScoped<IExcelHelperService, ExcelHelperService>();
+
 
             builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
             //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
