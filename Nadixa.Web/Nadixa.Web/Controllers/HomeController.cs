@@ -33,12 +33,14 @@ namespace Nadixa.Web.Controllers
 
             var productQuery = _context.Products.Include(p => p.ProductCategory).AsQueryable();
 
+
             if (categoryId.HasValue)
             {
                 productQuery = productQuery.Where(p => p.ProductCategoryId == categoryId);
             }
 
             var products = await productQuery.ToListAsync();
+
 
             ViewBag.Categories = await _context.ProductCategories.ToListAsync();
 
@@ -55,6 +57,19 @@ namespace Nadixa.Web.Controllers
             }
 
             ViewBag.CartItems = cartItems;
+
+            var bestSellers = _context.OrderItems
+                 .Where(oi => oi.Order.Status != OrderStatus.Cancelled)
+                 .GroupBy(oi => oi.ProductId)
+                 .OrderByDescending(g => g.Sum(oi => oi.Quantity))
+                 .Take(8)
+                 .Select(g => g.First().Product)
+                 .ToList();
+
+            ViewBag.Categories = _context.ProductCategories.ToList();
+            ViewBag.BestSellers = bestSellers; // ? ?????? ??? View
+
+
             return View(products);
         }
 
