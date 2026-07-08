@@ -125,21 +125,24 @@ namespace Nadixa.Web.Controllers
                 });
             }
 
+            CartItem item;
+
             if (existingItem != null)
             {
                 existingItem.Quantity += quantity;
+                item = existingItem;
             }
             else
             {
-                var cartItem = new CartItem
+                item = new CartItem
                 {
                     ProductId = productId,
                     Quantity = quantity,
                     CartId = cart.Id
                 };
 
-                _context.CartItems.Add(cartItem);
-                cart.Items.Add(cartItem);
+                _context.CartItems.Add(item);
+                cart.Items.Add(item);
             }
 
             await _context.SaveChangesAsync();
@@ -150,9 +153,66 @@ namespace Nadixa.Web.Controllers
             {
                 success = true,
                 cartCount,
+                quantity = item.Quantity,
                 message = AppMessages.CartAdded
             });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> DecreaseQuantity(int productId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var cart = await _context.Carts
+                .Include(c => c.Items)
+                .FirstOrDefaultAsync(c => c.UserId == user.Id);
+
+            if (cart == null)
+            {
+                return Json(new { success = false });
+            }
+
+            var item = cart.Items
+                .FirstOrDefault(i => i.ProductId == productId);
+
+            if (item == null)
+            {
+                return Json(new { success = false });
+            }
+
+            if (item.Quantity > 1)
+            {
+                item.Quantity--;
+            }
+            else
+            {
+                _context.CartItems.Remove(item);
+            }
+
+            await _context.SaveChangesAsync();
+
+            var cartCount = await _context.CartItems
+                .Where(i => i.CartId == cart.Id)
+                .SumAsync(i => i.Quantity);
+
+            var currentItem = await _context.CartItems
+                .FirstOrDefaultAsync(i =>
+                    i.CartId == cart.Id &&
+                    i.ProductId == productId);
+
+            return Json(new
+            {
+                success = true,
+                cartCount,
+                quantity = currentItem?.Quantity ?? 0
+            });
+        }
+
 
         [Authorize]
         [HttpPost]
@@ -235,7 +295,32 @@ namespace Nadixa.Web.Controllers
 
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetCartItems()
+        {
+            var user = await _userManager.GetUserAsync(User);
 
+            if (user == null)
+            {
+                return Json(new { });
+            }
+
+            var cart = await _context.Carts
+                .Include(c => c.Items)
+                .FirstOrDefaultAsync(c => c.UserId == user.Id);
+
+            if (cart == null)
+            {
+                return Json(new { });
+            }
+
+            return Json(
+                cart.Items.ToDictionary(
+                    x => x.ProductId,
+                    x => x.Quantity
+                )
+            );
+        }
         public IActionResult GetMiniCart()
         {
             return ViewComponent("Cart");

@@ -2,6 +2,38 @@
 let timeout = null;
 
 function buildProductCard(p) {
+    let cartHtml = "";
+
+    if (p.cartQuantity > 0) {
+
+        cartHtml = `
+            <div class="cart-counter">
+                <button class="cart-minus"
+                        data-product-id="${p.id}">
+                    ${p.cartQuantity == 1 ? "🗑" : "-"}
+                </button>
+
+                <span class="cart-qty">
+                    ${p.cartQuantity} in cart
+                </span>
+
+                <button class="cart-plus"
+                        data-product-id="${p.id}">
+                    +
+                </button>
+            </div>
+        `;
+
+    } else {
+
+        cartHtml = `
+            <button class="btn-addcart-card js-addcart-detail hov-btn3"
+                    data-product-id="${p.id}">
+                Add to Cart
+            </button>
+        `;
+    }
+
     return `
     <div class="col-sm-6 col-md-4 col-lg-3 isotope-item bag pb-3">
         <div class="block2 block2-shadow h-100">
@@ -36,6 +68,11 @@ function buildProductCard(p) {
             </div>
             <div class="px-3 pt-2 d-flex justify-content-end">
                 <span class="badge badge-secondary mb-4">${p.categoryName}</span>
+            </div>
+            <div class="px-3 pb-3 mt-auto">
+                <div class="cart-controls" data-product-id="${p.id}">
+                    ${cartHtml}
+                </div>
             </div>
         </div>
     </div>`;

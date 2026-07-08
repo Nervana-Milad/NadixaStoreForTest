@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -16,36 +17,58 @@ namespace Nadixa.Web.Controllers
 
         private readonly ILogger<HomeController> _logger;
         private readonly NadixaDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
 
-        public HomeController(ILogger<HomeController> logger, NadixaDbContext context)
+        public HomeController(ILogger<HomeController> logger, NadixaDbContext context, UserManager<AppUser> userManager)
+
         {
             _logger = logger;
             _context = context;
+            _userManager = userManager;
+
         }
-        public IActionResult Index(int? categoryId)
+        public async Task<IActionResult> Index(int? categoryId)
         {
-            var productQuery = _context.Products
-                .Include(p => p.ProductCategory)
-                .AsQueryable();
+            var user = await _userManager.GetUserAsync(User);
+
+            var productQuery = _context.Products.Include(p => p.ProductCategory).AsQueryable();
+
 
             if (categoryId.HasValue)
             {
                 productQuery = productQuery.Where(p => p.ProductCategoryId == categoryId);
             }
 
-            var products = productQuery.ToList();
+            var products = await productQuery.ToListAsync();
 
-            // ? Best Sellers: ???????? ???? IsFeatured = true
+
+            ViewBag.Categories = await _context.ProductCategories.ToListAsync();
+
+            Dictionary<int, int> cartItems = new();
+
+            if (user != null)
+            {
+                cartItems = await _context.Carts
+                    .Where(c => c.UserId == user.Id)
+                    .SelectMany(c => c.Items)
+                    .ToDictionaryAsync(
+                        i => i.ProductId,
+                        i => i.Quantity);
+            }
+
+            ViewBag.CartItems = cartItems;
+
             var bestSellers = _context.OrderItems
-     .Where(oi => oi.Order.Status != OrderStatus.Cancelled)
-     .GroupBy(oi => oi.ProductId)
-     .OrderByDescending(g => g.Sum(oi => oi.Quantity))
-     .Take(8)
-     .Select(g => g.First().Product)
-     .ToList();
+                 .Where(oi => oi.Order.Status != OrderStatus.Cancelled)
+                 .GroupBy(oi => oi.ProductId)
+                 .OrderByDescending(g => g.Sum(oi => oi.Quantity))
+                 .Take(8)
+                 .Select(g => g.First().Product)
+                 .ToList();
 
             ViewBag.Categories = _context.ProductCategories.ToList();
             ViewBag.BestSellers = bestSellers; // ? ?????? ??? View
+
 
             return View(products);
         }

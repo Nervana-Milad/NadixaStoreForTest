@@ -274,19 +274,16 @@
 			</h3>
 		</div>
 
-		@* 1. تجميع المنتجات برمجياً بناءً على اسم القسم *@
 		@{
 			var groupedProducts = Model.GroupBy(p => p.ProductCategory?.Name ?? "Other");
 		}
 
-		@* 2. عمل Loop على كل قسم لإنشاء السلايدر الخاص به *@
 		@foreach (var categoryGroup in groupedProducts)
 		{
 			<div class="category-swiper-section m-b-60">
 
-				<!-- شريط القسم الاحترافي (Banner) المتوافق مع الصورة -->
 				<div class="category-banner d-flex justify-content-between align-items-center m-b-20 p-tb-12 p-lr-25 text-white shadow-sm" >
-					<!-- اسم القسم والترويج يميناً -->
+
 					<div class="d-flex align-items-center">
 						<span class="mtext-101 font-weight-bold text-uppercase fs-16">
 							@categoryGroup.Key
@@ -297,7 +294,6 @@
 						</span>
 					</div>
 
-					<!-- رابط عرض الكل يساراً -->
 					@{
 						var firstProduct = categoryGroup.FirstOrDefault();
 						var categoryId = firstProduct?.ProductCategoryId;
@@ -310,9 +306,12 @@
 					</a>
 				</div>
 
-				<!-- حاوية الـ Swiper الخاصة بهذا القسم -->
 				<div class="swiper product-swiper position-relative p-lr-15">
 					<div class="swiper-wrapper">
+						@{
+							var cartItems = ViewBag.CartItems as Dictionary<int, int>
+											?? new Dictionary<int, int>();
+						}
 						@foreach (var product in categoryGroup)
 						{
 							<div class="swiper-slide pb-4 h-auto">
@@ -355,6 +354,36 @@
 
 									<div class="px-3 pt-2 d-flex justify-content-end">
 										<span class="badge badge-secondary mb-4">@product.ProductCategory?.Name</span>
+									</div>
+									@* // add to cart buton *@
+									<div class="px-3 pb-3 mt-auto">
+										<div class="cart-controls"
+											 data-product-id="@product.Id">
+											@if (cartItems.ContainsKey(product.Id))
+											{
+												var qty = cartItems[product.Id];
+												<div class="cart-counter">
+													<button class="cart-minus"
+															data-product-id="@product.Id">
+														@(qty == 1 ? "🗑" : "-")
+													</button>
+													<span class="cart-qty">
+														@qty in cart
+													</span>
+													<button class="cart-plus"
+															data-product-id="@product.Id">
+														+
+													</button>
+												</div>
+											}
+											else
+											{
+												<button class="btn-addcart-card js-addcart-detail hov-btn3"
+														data-product-id="@product.Id">
+													Add to Cart
+												</button>
+											}
+										</div>
 									</div>
 								</div>
 							</div>
