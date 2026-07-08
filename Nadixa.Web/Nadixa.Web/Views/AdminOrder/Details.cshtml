@@ -1,234 +1,256 @@
-﻿
+﻿@using Nadixa.Core.Entities
 @model Nadixa.Web.Models.ViewModels.OrderDetailsViewModel
 
 @{
     ViewData["Title"] = "Order Details";
 }
 
+<!-- ربط مكتبة FontAwesome لضمان ظهور الأيقونات بشكل ممتاز -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
 <div class="container order-section">
 
-    <!-- Order Header -->
-    <div class="order-card">
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-
-            <h2 class="order-title">
-                Order #@Model.OrderId
-            </h2>
-
-            @{
-                var statusClass = Model.Status.ToLower() switch
-                {
-                    "pending" => "status-pending",
-                    "processing" => "status-processing",
-                    "shipped" => "status-shipped",
-                    "delivered" => "status-delivered",
-                    "cancelled" => "status-cancelled",
-                    _ => ""
-                };
-            }
-
-            <span class="status-badge @statusClass">
-                @Model.Status
-            </span>
-
+    <!-- 1. الهيدر (رقم الطلب وبجانبه الحالة مباشرة، وزر الإلغاء على اليمين) -->
+    <div class="order-card mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <!-- دمج اسم الاوردر والحالة بجانب بعضهما -->
+            <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                <h3 class="fw-bold mb-0 text-dark" style="font-size: 24px; line-height: 1.2;">Order #@Model.OrderId</h3>
+                <span class="status-badge">
+                    @(Model.Status == OrderStatus.OutForDelivery ? "On The Way" : Model.Status.ToString())
+                </span>
+            </div>
+            <!-- تاريخ الطلب بالأسفل -->
+            <p class="text-muted mb-0 small" style="font-size: 13px;">Placed on @(Model.CreatedAt != null ? Model.CreatedAt.ToString("dd MMM yyyy") : "14 Jun 2026")</p>
         </div>
-
-        <!-- Update Status -->
-        <div class="mb-4">
-
-            <h5 class="mb-3">
-                Update Order Status
-            </h5>
-
-            @if(Model.Status != "Delivered" && Model.Status != "Cancelled")
+        <div>
+            @if (Model.Status == OrderStatus.Pending)
             {
-                <form asp-action="UpdateStatus"
-                      asp-controller="AdminOrder"
-                      method="post">
-
-                    <input type="hidden"
-                           name="orderId"
-                           value="@Model.OrderId" />
-
-                    <div class="row">
-
-                        <div class="col-md-8">
-                            <select name="status"
-                                    class="form-control">
-
-                                @foreach (var status in ViewBag.Statuses)
-                                {
-                                    if (status == Model.Status)
-                                    {
-                                        <option value="@status" selected>
-                                            @status
-                                        </option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@status">
-                                            @status
-                                        </option>
-                                    }
-                                }
-
-                            </select>
-                        </div>
-
-                        <div class="col-md-4">
-                            <button type="submit"
-                                    class="btn btn-dark w-100">
-                                Save Status
-                            </button>
-                        </div>
-
-                    </div>
-
-                </form>
-
+                <button type="button" class="btn btn-cancel-order" onclick="document.getElementById('cancelOrderConfirm').submit();">
+                    Cancel Order
+                </button>
             }
-            else
+        </div>
+    </div>
+
+    <!-- 2. استدعاء شريط تتبع حالة الطلب المشترك والاحترافي (Shared) -->
+    <partial name="_OrderProgress" model="Model.Status" />
+
+    <!-- 3. كارت معلومات العميل الموحد (Customer Info) -->
+    <div class="order-card mb-4 py-4 px-3">
+        <div class="row align-items-center g-4 text-start">
+            <!-- الاسم -->
+            <div class="col-md-4 d-flex align-items-center gap-3 px-4">
+                <div class="info-icon">
+                    <i class="fa-regular fa-user"></i>
+                </div>
+                <div>
+                    <div class="info-label text-muted">Full Name</div>
+                    <div class="info-value">@Model.FullName</div>
+                </div>
+            </div>
+            <!-- رقم الهاتف -->
+            <div class="col-md-4 d-flex align-items-center gap-3 px-4 border-start-divider">
+                <div class="info-icon">
+                    <i class="fa-solid fa-phone"></i>
+                </div>
+                <div>
+                    <div class="info-label text-muted">Phone Number</div>
+                    <div class="info-value">@Model.Phone</div>
+                </div>
+            </div>
+            <!-- عنوان الشحن -->
+            <div class="col-md-4 d-flex align-items-center gap-3 px-4 border-start-divider">
+                <div class="info-icon">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <div>
+                    <div class="info-label text-muted">Shipping Address</div>
+                    <div class="info-value text-truncate-custom">@Model.Address</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. المنتجات المطلوبة (Ordered Products) -->
+    <div class="order-card mb-4">
+        <h5 class="fw-bold mb-4 text-dark" style="font-size: 16px;">Ordered Products</h5>
+
+        <div class="product-list">
+            @foreach (var item in Model.Items)
             {
-                <div class="alert alert-secondary">
-                    This order status can no longer be changed.
+                <div class="product-item">
+                    <div class="row align-items-center g-3">
+                        <div class="col-auto">
+                            <img src="@item.ImageUrl" class="product-image" alt="@item.ProductName" />
+                        </div>
+                        <div class="col">
+                            <div class="product-name">@item.ProductName</div>
+                        </div>
+                        <div class="col-md-2 text-md-center">
+                            <span class="product-meta">Qty: @item.Quantity</span>
+                        </div>
+                        <div class="col-md-2 text-md-center">
+                            <span class="product-meta text-muted">L.E. @item.Price.ToString("N0")</span>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <strong class="product-total-item">L.E. @item.Total.ToString("N0")</strong>
+                        </div>
+                    </div>
                 </div>
             }
         </div>
+    </div>
 
-        <!-- Customer Info -->
-        <div class="row">
-
-            <div class="col-md-4 mb-3">
-                <div class="info-box">
-                    <div class="info-title">
-                        Customer Name
-                    </div>
-
-                    <div class="info-value">
-                        @Model.FullName
-                    </div>
+    <!-- 5. ملخص الحساب (Summary) -->
+    <div class="row justify-content-end">
+        <div class="col-md-5">
+            <div class="summary-box">
+                <div class="summary-row">
+                    <span>Total Price</span>
+                    <span class="fw-bold text-dark">L.E. @Model.SubTotal.ToString("N0")</span>
                 </div>
-            </div>
-
-            <div class="col-md-4 mb-3">
-                <div class="info-box">
-                    <div class="info-title">
-                        Phone Number
-                    </div>
-
-                    <div class="info-value">
-                        @Model.Phone
-                    </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span class="fw-bold text-dark">L.E. @Model.ShippingFee.ToString("N0")</span>
                 </div>
-            </div>
-
-            <div class="col-md-4 mb-3">
-                <div class="info-box">
-                    <div class="info-title">
-                        Order Date
-                    </div>
-
-                    <div class="info-value">
-                        @Model.CreatedAt.ToString("dd MMM yyyy")
-                    </div>
+                <div class="summary-row total mt-3 pt-3">
+                    <span class="fw-bold text-dark">Total</span>
+                    <span class="total-price">L.E. @Model.GrandTotal.ToString("N0")</span>
                 </div>
-            </div>
-
-        </div>
-
-        <div class="info-box mt-3">
-            <div class="info-title">
-                Shipping Address
-            </div>
-
-            <div class="info-value">
-                @Model.Address
             </div>
         </div>
-
     </div>
 
-    <!-- Products -->
-    <div class="order-card">
-
-        <h3 class="mb-4">
-            Products
-        </h3>
-
-        @foreach (var item in Model.Items)
-        {
-            <div class="product-item">
-
-                <div class="row align-items-center">
-
-                    <div class="col-md-2">
-                        <img src="@item.ImageUrl"
-                             alt="@item.ProductName"
-                             class="product-image">
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="product-name">
-                            @item.ProductName
-                        </div>
-                    </div>
-
-                    <div class="col-md-2">
-                        Qty: @item.Quantity
-                    </div>
-
-                    <div class="col-md-2">
-                        L.E. @item.Price
-                    </div>
-
-                    <div class="col-md-2 text-end">
-                        <strong>
-                            L.E. @item.Total
-                        </strong>
-                    </div>
-
-                </div>
-
-            </div>
-        }
-
-    </div>
-
-    <!-- Summary -->
-    <div class="order-card">
-
-        <h3 class="mb-4">
-            Order Summary
-        </h3>
-
-        <div class="summary-box">
-
-            <div class="summary-row">
-                <span>Subtotal</span>
-                <span>L.E. @Model.SubTotal</span>
-            </div>
-
-            <div class="summary-row">
-                <span>Shipping Fee</span>
-                <span>L.E. @Model.ShippingFee</span>
-            </div>
-
-            <div class="summary-row total">
-                <span>Total</span>
-                <span>L.E. @Model.GrandTotal</span>
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="text-center mt-4">
-        <a asp-action="Index"
-           asp-controller="AdminOrder"
-           class="btn btn-outline-dark">
-            Back To Orders
-        </a>
-    </div>
-
+    <!-- نموذج إلغاء الطلب المخفي -->
+    <form id="cancelOrderConfirm"
+          asp-controller="Order"
+          asp-action="CancelOrder"
+          asp-route-id="@Model.OrderId"
+          method="post"
+          style="display:none;">
+    </form>
 </div>
+
+<style>
+    body {
+        background-color: #f8fafc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* التنسيقات العامة لبقية عناصر الصفحة */
+    .info-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background-color: #eff6ff;
+        color: #1b61ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .info-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        margin-bottom: 2px;
+    }
+
+    .info-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #334155;
+    }
+
+    .text-truncate-custom {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    @@media (min-width: 768px) {
+        .border-start-divider {
+            border-left: 1px solid #f1f5f9;
+        }
+    }
+
+    .product-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-item {
+        padding: 20px 0;
+        border-bottom: 1px solid #f8fafc;
+    }
+
+    .product-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .product-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 10px;
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+
+    .product-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .product-meta {
+        font-size: 13px;
+        font-weight: 500;
+        color: #475569;
+    }
+
+    .product-total-item {
+        font-size: 14px;
+        color: #0f172a;
+    }
+
+    .summary-box {
+        background-color: #ffffff;
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.01);
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        font-size: 13px;
+        color: #475569;
+    }
+
+    .summary-row.total {
+        border-top: 1px solid #f1f5f9;
+        margin-bottom: 0;
+    }
+
+    .summary-row.total span {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .summary-row.total .total-price {
+        font-size: 18px;
+        font-weight: 700;
+        color: #db3246;
+    }
+</style>

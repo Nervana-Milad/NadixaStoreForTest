@@ -176,24 +176,27 @@
                                     {
                                         <form asp-controller="AdminOrder" asp-action="UpdateStatus" method="post" class="d-inline-block">
                                             <input type="hidden" name="orderId" value="@order.Id" />
-                                            <select name="newStatus" class="form-select inline-status-select select-@statusLower" onchange="this.form.submit()">
-                                                <option value="" disabled selected>Update to...</option>
+                                    <select name="status"
+                                                    class="form-select inline-status-select select-@statusLower"
+                                                    onchange="this.form.submit()">
 
-                                                @if (statusLower == "pending")
+                                                @foreach (var status in order.AvailableStatuses)
                                                 {
-                                                    <option value="Processing">Processing</option>
-                                                    <option value="Cancelled">Cancelled</option>
+                                                    if (status == order.Status)
+                                                    {
+                                                        <option value="@status" selected>
+                                                            @status
+                                                        </option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@status">
+                                                            @status
+                                                        </option>
+                                                    }
                                                 }
-                                                else if (statusLower == "processing" || statusLower == "confirmed")
-                                                {
-                                                    <option value="Shipped">Shipped</option>
-                                                    <option value="Cancelled">Cancelled</option>
-                                                }
-                                                else if (statusLower == "shipped" || statusLower == "on the way")
-                                                {
-                                                    <option value="Delivered">Delivered</option>
-                                                }
-                                            </select>
+
+                                </select>
                                         </form>
                                     }
                                     else

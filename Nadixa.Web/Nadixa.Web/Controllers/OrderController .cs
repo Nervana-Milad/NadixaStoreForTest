@@ -257,7 +257,7 @@ namespace Nadixa.Web.Controllers
                 Address = order.Address,
                 Phone = order.PhoneNumber,
                 CreatedAt = order.CreatedAt,
-                Status = order.Status.ToString(),
+                Status = order.Status,
                 ShippingFee = shippingFee,
                 SubTotal = subtotal,
                 GrandTotal = order.TotalPrice,

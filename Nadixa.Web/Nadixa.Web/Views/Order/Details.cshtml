@@ -1,4 +1,5 @@
-﻿@model Nadixa.Web.Models.ViewModels.OrderDetailsViewModel
+﻿@using Nadixa.Core.Entities
+@model Nadixa.Web.Models.ViewModels.OrderDetailsViewModel
 
 @{
     ViewData["Title"] = "Order Details";
@@ -16,14 +17,14 @@
             <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
                 <h3 class="fw-bold mb-0 text-dark" style="font-size: 24px; line-height: 1.2;">Order #@Model.OrderId</h3>
                 <span class="status-badge">
-                    @Model.Status
+                    @(Model.Status == OrderStatus.OutForDelivery ? "On The Way" : Model.Status.ToString())
                 </span>
             </div>
             <!-- تاريخ الطلب بالأسفل -->
             <p class="text-muted mb-0 small" style="font-size: 13px;">Placed on @(Model.CreatedAt != null ? Model.CreatedAt.ToString("dd MMM yyyy") : "14 Jun 2026")</p>
         </div>
         <div>
-            @if (Model.Status == "Pending")
+            @if (Model.Status == OrderStatus.Pending)
             {
                 <button type="button" class="btn btn-cancel-order" onclick="document.getElementById('cancelOrderConfirm').submit();">
                     Cancel Order
@@ -32,63 +33,8 @@
         </div>
     </div>
 
-    <!-- 2. شريط تتبع حالة الطلب المحسن هندسياً (Order Progress) -->
-    <div class="order-card mb-4">
-        <h5 class="fw-bold mb-4 text-dark" style="font-size: 16px;">Order Progress</h5>
-
-        @{
-            var steps = new[]
-            {
-                "Pending",
-                "Confirmed",
-                "Processing",
-                "Shipped",
-                "On The Way",
-                "Delivered"
-                };
-
-            var currentIndex = Array.IndexOf(steps, Model.Status);
-            // حساب النسبة المئوية الدقيقة لتقدم الخط الأزرق بين الدوائر الستة
-            var progressPercent = 0;
-            if (currentIndex >= 0)
-            {
-                progressPercent = (currentIndex + 1) * 20;
-                if (progressPercent > 100) progressPercent = 100;
-                if (Model.Status == "Delivered") progressPercent = 100;
-            }
-        }
-
-        <div class="order-progress-container">
-            <!-- الخط الرمادي الخلفي (يبدأ من مركز أول دائرة إلى مركز آخر دائرة) -->
-            <div class="progress-line-bg"></div>
-            <!-- الخط الأزرق النشط (متحرك بدقة تامة) -->
-            <div class="progress-line-active" style="width: @progressPercent%;"></div>
-
-            <div class="steps-wrapper">
-                @for (int i = 0; i < steps.Length; i++)
-                {
-                    var completed = i < currentIndex;
-                    var active = i == currentIndex;
-
-                    <div class="step-item @(completed ? "completed" : active ? "active" : "")">
-                        <div class="step-circle">
-                            @if (completed)
-                            {
-                                <i class="fa fa-check"></i>
-                            }
-                            else if (!active)
-                            {
-                                @(i + 1)
-                            }
-                        </div>
-                        <div class="step-label">
-                            @steps[i]
-                        </div>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
+    <!-- 2. استدعاء شريط تتبع حالة الطلب المشترك (Shared) -->
+    <partial name="_OrderProgress" model="Model.Status" />
 
     <!-- 3. كارت معلومات العميل الموحد (Customer Info) -->
     <div class="order-card mb-4 py-4 px-3">
@@ -186,151 +132,13 @@
     </form>
 </div>
 
-<!-- التنسيقات المخصصة والمحسنة بالكامل لتطابق التصميم -->
 <style>
     body {
         background-color: #f8fafc;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    /* إبعاد الصفحة بالكامل عن شريط التنقل (Navbar) لمنع التداخل */
-    .order-section {
-        margin-top: 45px !important;
-        padding-top: 15px !important;
-    }
-
-    /* الكارت الرئيسي الموحد بظلال خفيفة ومظهر راقي */
-    .order-card {
-        background: #ffffff;
-        border-radius: 16px;
-        padding: 30px;
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
-        border: 1px solid #f1f5f9;
-    }
-
-    /* شارة الحالة - Pending بجانب اسم الأوردر مباشرة */
-    .status-badge {
-        height: 28px; /* تقليص الحجم لتناسب الكتابة بجانب العنوان */
-        padding: 0 14px;
-        border-radius: 30px;
-        font-size: 12px;
-        font-weight: 600;
-        background-color: #fef3c7;
-        color: #d97706;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin-left: 8px; /* تباعد خفيف عن كلمة Order #6 */
-    }
-
-    /* زر الإلغاء */
-    .btn-cancel-order {
-        height: 40px;
-        background-color: #e11d48;
-        color: #ffffff;
-        border: none;
-        border-radius: 8px;
-        padding: 0 22px;
-        font-size: 13px;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease-in-out;
-    }
-
-        .btn-cancel-order:hover {
-            background-color: #be123c;
-            color: #ffffff;
-        }
-
-    /* شريط التتبع (Stepper) المنظم هندسياً */
-    .order-progress-container {
-        position: relative;
-        margin: 40px 0 20px 0;
-    }
-    /* يبدأ الخط بدقة من نصف عرض أول عنصر (80px / 2 = 40px) وينتهي عند نصف عرض آخر عنصر */
-    .progress-line-bg {
-        position: absolute;
-        top: 20px; /* منتصف الدائرة */
-        left: 40px;
-        right: 40px;
-        height: 2px;
-        background-color: #e2e8f0;
-        z-index: 1;
-    }
-
-    .progress-line-active {
-        position: absolute;
-        top: 20px;
-        left: 40px;
-        height: 2px;
-        background-color: #1b61ff;
-        z-index: 2;
-        transition: width 0.4s ease;
-    }
-
-    .steps-wrapper {
-        display: flex;
-        justify-content: space-between;
-        position: relative;
-        z-index: 3;
-    }
-
-    .step-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 80px; /* عرض ثابت يضمن توسيط الدوائر بدقة */
-    }
-
-    .step-circle {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: #ffffff;
-        border: 2px dashed #cbd5e1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 13px;
-        font-weight: 600;
-        color: #64748b;
-        transition: all 0.3s ease;
-        margin-bottom: 12px;
-    }
-    /* الحالة النشطة والمكتملة */
-    .step-item.active .step-circle {
-        background-color: #1b61ff;
-        border: 2px solid #1b61ff;
-        color: #ffffff;
-        box-shadow: 0 0 0 6px rgba(27, 97, 255, 0.12);
-    }
-
-    .step-item.completed .step-circle {
-        background-color: #1b61ff;
-        border: 2px solid #1b61ff;
-        color: #ffffff;
-    }
-
-    .step-circle i {
-        font-size: 12px;
-    }
-
-    .step-label {
-        font-size: 11px;
-        font-weight: 600;
-        color: #64748b;
-        white-space: nowrap;
-        text-align: center;
-    }
-
-    .step-item.active .step-label {
-        color: #1b61ff;
-        font-weight: 700;
-    }
-
-    /* تنسيق الكارت الموحد لمعلومات العميل والخطوط الفاصلة */
+    /* التنسيقات العامة لبقية عناصر الصفحة */
     .info-icon {
         width: 44px;
         height: 44px;
@@ -365,14 +173,13 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
-    /* خط مخصص للفصل بين الأعمدة في الشاشات المتوسطة والكبيرة */
+
     @@media (min-width: 768px) {
         .border-start-divider {
             border-left: 1px solid #f1f5f9;
         }
     }
 
-    /* قائمة المنتجات المحدثة */
     .product-list {
         display: flex;
         flex-direction: column;
@@ -383,10 +190,10 @@
         border-bottom: 1px solid #f8fafc;
     }
 
-        .product-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
+    .product-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
 
     .product-image {
         width: 60px;
@@ -414,7 +221,6 @@
         color: #0f172a;
     }
 
-    /* صندوق ملخص الفاتورة */
     .summary-box {
         background-color: #ffffff;
         border-radius: 16px;
@@ -431,20 +237,20 @@
         color: #475569;
     }
 
-        .summary-row.total {
-            border-top: 1px solid #f1f5f9;
-            margin-bottom: 0;
-        }
+    .summary-row.total {
+        border-top: 1px solid #f1f5f9;
+        margin-bottom: 0;
+    }
 
-            .summary-row.total span {
-                font-size: 14px;
-                font-weight: 700;
-                color: #0f172a;
-            }
+    .summary-row.total span {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+    }
 
-            .summary-row.total .total-price {
-                font-size: 18px;
-                font-weight: 700;
-                color: #db3246; /* اللون الأحمر المخصص للإجمالي */
-            }
+    .summary-row.total .total-price {
+        font-size: 18px;
+        font-weight: 700;
+        color: #db3246;
+    }
 </style>

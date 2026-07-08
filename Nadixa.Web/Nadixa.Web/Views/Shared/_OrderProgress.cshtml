@@ -1,0 +1,147 @@
+﻿@model Nadixa.Core.Entities.OrderStatus
+@using Nadixa.Core.Entities
+
+<div class="order-card mb-4">
+    <h5 class="fw-bold mb-4 text-dark" style="font-size:16px;">
+        Order Progress
+    </h5>
+    @{
+        var steps = new[]
+        {
+            (Value: OrderStatus.Pending, Display: "Pending"),
+            (Value: OrderStatus.Confirmed, Display: "Confirmed"),
+            (Value: OrderStatus.Processing, Display: "Processing"),
+            (Value: OrderStatus.Shipped, Display: "Shipped"),
+            (Value: OrderStatus.OutForDelivery, Display: "On The Way"),
+            (Value: OrderStatus.Delivered, Display: "Delivered")
+        };
+        var currentIndex = Array.FindIndex(steps, s => s.Value == Model);
+    }
+    <div class="tracker-flex-container">
+        @for (int i = 0; i < steps.Length; i++)
+        {
+            var completed = i < currentIndex;
+            var active = i == currentIndex;
+            
+            <!-- 1. الدائرة والكلمة الخاصة بالخطوة -->
+            <div class="tracker-node @(completed ? "completed" : active ? "active" : "")">
+                <div class="tracker-circle">
+                    @if (completed)
+                    {
+                        <i class="fa fa-check"></i>
+                    }
+                    else
+                    {
+                        @(i + 1)
+                    }
+                </div>
+                <div class="tracker-label">
+                    @steps[i].Display
+                </div>
+            </div>
+            
+            <!-- 2. قطعة الخط الفاصلة بين هذه الدائرة والدائرة التالية (لا تظهر بعد الخطوة الأخيرة) -->
+            @if (i < steps.Length - 1)
+            {
+                // الخط يكون أزرق نشط فقط إذا كانت الخطوة التالية مكتملة أو نشطة حالياً
+                var lineActive = i < currentIndex;
+                <div class="tracker-segment @(lineActive ? "active" : "")"></div>
+            }
+        }
+    </div>
+</div>
+
+<style>
+    /* الحاوية المرنة الرئيسية لشريط التتبع */
+    .tracker-flex-container {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: flex-start !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        position: relative !important;
+    }
+
+    /* العقدة التي تحتوي على الدائرة والكلمة أسفلها */
+    .tracker-node {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        width: 80px !important;
+        flex-shrink: 0 !important; /* يمنع الدوائر من الانضغاط على الشاشات الصغيرة */
+        z-index: 2 !important; /* لكي تظهر الدوائر فوق الخطوط الخلفية */
+        background: transparent !important;
+    }
+
+    /* شكل الدائرة */
+    .tracker-circle {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+        background-color: #ffffff !important;
+        border: 2px dashed #cbd5e1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: #64748b !important;
+        transition: all 0.3s ease !important;
+        margin-bottom: 12px !important;
+        z-index: 2 !important;
+    }
+
+    /* حالة الاكتمال للدوائر */
+    .tracker-node.completed .tracker-circle {
+        background-color: #1b61ff !important;
+        border: 2px solid #1b61ff !important;
+        color: #ffffff !important;
+    }
+
+    /* حالة النشاط الحالي للدوائر */
+    .tracker-node.active .tracker-circle {
+        background-color: #1b61ff !important;
+        border: 2px solid #1b61ff !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 0 6px rgba(27, 97, 255, 0.12) !important;
+    }
+
+    .tracker-circle i {
+        font-size: 12px !important;
+    }
+
+    /* الكلمة أسفل الدائرة */
+    .tracker-label {
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        color: #64748b !important;
+        white-space: nowrap !important;
+        text-align: center !important;
+    }
+
+    .tracker-node.active .tracker-label {
+        color: #1b61ff !important;
+        font-weight: 700 !important;
+    }
+
+    /* قطع الخطوط الذكية الفاصلة بين الدوائر */
+    .tracker-segment {
+        flex: 1 1 auto !important; /* الخط يتمدد وينكمش تلقائياً ليملأ الفراغ بالبكسل بدقة */
+        min-width: 10px !important; /* الحد الأدنى لطول الخط على الشاشات الصغيرة جداً */
+        height: 2px !important;
+        background-color: #e2e8f0 !important; /* الخط الرمادي التلقائي */
+        margin-top: 20px !important; /* توسيط الخط تماماً مع منتصف الدوائر (40px / 2) */
+        
+        /* سحب أطراف الخطوط للخلف لتتلاقى وتختفي خلف الدوائر تماماً */
+        margin-left: -20px !important; 
+        margin-right: -20px !important;
+        
+        z-index: 1 !important; /* لجعل الخط يمر خلف الدوائر */
+        transition: background-color 0.4s ease !important;
+    }
+
+    /* لون القطعة النشطة باللون الأزرق */
+    .tracker-segment.active {
+        background-color: #1b61ff !important;
+    }
+</style>

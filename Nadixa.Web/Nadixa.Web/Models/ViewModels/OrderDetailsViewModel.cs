@@ -1,4 +1,6 @@
-﻿namespace Nadixa.Web.Models.ViewModels
+﻿using Nadixa.Core.Entities;
+
+namespace Nadixa.Web.Models.ViewModels
 {
     public class OrderDetailsViewModel
     {
@@ -16,8 +18,7 @@
 
         public DateTime CreatedAt { get; set; }
 
-        public string Status { get; set; }
-
+        public OrderStatus Status { get; set; }
         public List<OrderItemViewModel> Items { get; set; } = new();
     }
 }
