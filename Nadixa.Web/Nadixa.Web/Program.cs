@@ -69,7 +69,8 @@ namespace Nadixa.Web
 
             builder.Services.AddScoped<IExcelService, ExcelService>();
             builder.Services.AddScoped<IExcelHelperService, ExcelHelperService>();
-
+            builder.Services.AddScoped<EmailSender>();
+            builder.Services.AddScoped<OrderEmailService>();
             var app = builder.Build();
 
 

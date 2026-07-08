@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Nadixa.Application\Nadixa.Application\Nadixa.Application.csproj" />
     <ProjectReference Include="..\..\Nadixa.Core\Nadixa.Core.csproj" />
     <ProjectReference Include="..\..\Nadixa.Infrastructure\Nadixa.Infrastructure\Nadixa.Infrastructure.csproj" />
   </ItemGroup>

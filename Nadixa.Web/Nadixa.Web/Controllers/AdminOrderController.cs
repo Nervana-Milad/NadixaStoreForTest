@@ -6,6 +6,7 @@ using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
+using Nadixa.Web.Services;
 namespace Nadixa.Web.Controllers
 {
     [Authorize(Roles = "Admin")]
@@ -13,12 +14,12 @@ namespace Nadixa.Web.Controllers
     {
         private readonly NadixaDbContext _context;
         private readonly UserManager<AppUser> _userManager;
-
-
-        public AdminOrderController(NadixaDbContext context, UserManager<AppUser> userManager)
+        private readonly OrderEmailService _orderEmailService;
+        public AdminOrderController(NadixaDbContext context, UserManager<AppUser> userManager, OrderEmailService orderEmailService)
         {
             _context = context;
             _userManager = userManager;
+            _orderEmailService = orderEmailService;
         }
         public async Task<IActionResult> Index()
         {
@@ -121,6 +122,7 @@ namespace Nadixa.Web.Controllers
                 ChangedBy = admin?.UserName ?? "System"
             });
             await _context.SaveChangesAsync();
+            await _orderEmailService.SendOrderStatusEmailAsync(order);
 
             TempData["Success"] = AppMessages.StatusUpdatedSuccess;
 
@@ -201,6 +203,7 @@ namespace Nadixa.Web.Controllers
             });
 
             await _context.SaveChangesAsync();
+            await _orderEmailService.SendOrderStatusEmailAsync(order);
 
             TempData["Success"] = "Order status updated successfully.";
 

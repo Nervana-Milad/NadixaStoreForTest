@@ -21,11 +21,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\Nadixa.Application\Nadixa.Application\Nadixa.Application.csproj" />
+	  <Folder Include="Migrations\" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Migrations\" />
+	  <ProjectReference Include="..\..\Nadixa.Application\Nadixa.Application\Nadixa.Application.csproj" />
 	</ItemGroup>
 
 	
