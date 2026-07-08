@@ -53,25 +53,20 @@ namespace Nadixa.Web.Controllers
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                 .FirstOrDefaultAsync(o => o.Id == id);
-
             if (order == null)
             {
                 return NotFound();
             }
-
             var model = new OrderDetailsViewModel
             {
                 OrderId = order.Id,
                 FullName = order.FullName,
                 Address = $"{order.Address}, {order.City}",
                 Phone = order.PhoneNumber,
-
                 CreatedAt = order.CreatedAt,
-                Status = order.Status.ToString(),
-
+                Status = order.Status,
                 SubTotal = order.TotalPrice,
                 GrandTotal = order.TotalPrice,
-
                 Items = order.OrderItems.Select(item => new OrderItemViewModel
                 {
                     ProductId = item.ProductId,
@@ -81,10 +76,9 @@ namespace Nadixa.Web.Controllers
                     Price = item.Price
                 }).ToList()
             };
-            var availableStatuses = new List<string>();
-            ViewBag.Statuses = GetAvailableStatuses(order.Status)
-                                .Select(s => s.ToString())
-                                .ToList();
+
+            ViewBag.Statuses = GetAvailableStatuses(order.Status).ToList();
+
             return View(model);
         }
         [HttpPost]
