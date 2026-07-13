@@ -432,6 +432,8 @@ $(document).on("click", ".remove-item-btn", function () {
                     if (response.success) {
                         row.fadeOut(300, function () {
                             $(this).remove();
+
+                            updateStockWarningState();
                         });
                         showSuccess(response.message);
                         document.querySelector(".icon-header-noti")
@@ -448,7 +450,25 @@ $(document).on("click", ".remove-item-btn", function () {
         }
     });
 });
+function updateStockWarningState() {
+    var stillHasIssues = $("tr[data-stock-issue='true']").length > 0;
 
+    if (stillHasIssues) {
+        $("#stockWarningContainer").show();
+        $("#checkoutBtn")
+            .addClass("disabled")
+            .attr("aria-disabled", "true")
+            .attr("tabindex", "-1")
+            .css({ "pointer-events": "none", "opacity": "0.5", "cursor": "not-allowed" });
+    } else {
+        $("#stockWarningContainer").hide();
+        $("#checkoutBtn")
+            .removeClass("disabled")
+            .attr("aria-disabled", "false")
+            .removeAttr("tabindex")
+            .css({ "pointer-events": "auto", "opacity": "1", "cursor": "pointer" });
+    }
+}
 
 // global search
 let globalSearchTimeout = null;
@@ -522,4 +542,33 @@ $(document).on("click", function (e) {
     if (!$(e.target).closest("#globalSearchInput, #globalSearchResults").length) {
         $("#globalSearchResults").hide();
     }
+});
+
+// Notify Me button
+$(document).on("click", ".btn-notify-me", function () {
+    var btn = $(this);
+    var productId = btn.data("product-id");
+
+    $.ajax({
+        url: "/Product/NotifyMeWhenAvailable",
+        type: "POST",
+        data: { productId: productId },
+        success: function (response) {
+            if (response.requiresLogin) {
+                showError(response.message);
+                return;
+            }
+            if (response.success) {
+                showSuccess(response.message);
+                btn.prop("disabled", true)
+                    .css({ opacity: 0.6, cursor: "not-allowed" })
+                    .html('<i class="zmdi zmdi-check"></i> We\'ll notify you!');
+            } else {
+                showError(response.message);
+            }
+        },
+        error: function () {
+            showError("Something went wrong");
+        }
+    });
 });

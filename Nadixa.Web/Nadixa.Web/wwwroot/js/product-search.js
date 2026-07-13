@@ -1,35 +1,54 @@
-﻿// product-search.js
+﻿
 let timeout = null;
 
 function buildProductCard(p) {
+    // السعر + السعر القديم لو موجود
+    const priceHtml = (p.oldPrice > 0 && p.oldPrice > p.price)
+        ? `<span class="stext-105 cl3 mr-2">$${p.price}</span>
+           <span class="stext-105" style="text-decoration: line-through; color:#999; font-size: 0.85em;">$${p.oldPrice}</span>`
+        : `<span class="stext-105 cl3">$${p.price}</span>`;
+
+    // الكمية المتاحة
+    const stockBadge = p.stockQuantity > 0
+        ? `<span class="badge badge-light text-success" style="font-size: 0.75em;">${p.stockQuantity} in stock</span>`
+        : `<span class="badge badge-light text-danger" style="font-size: 0.75em;">Out of stock</span>`;
+
+    // زرار الكارت / Notify Me
     let cartHtml = "";
-
     if (p.cartQuantity > 0) {
-
         cartHtml = `
             <div class="cart-counter">
-                <button class="cart-minus"
-                        data-product-id="${p.id}">
+                <button class="cart-minus" data-product-id="${p.id}">
                     ${p.cartQuantity == 1 ? "🗑" : "-"}
                 </button>
-
-                <span class="cart-qty">
-                    ${p.cartQuantity} in cart
-                </span>
-
+                <span class="cart-qty">${p.cartQuantity} in cart</span>
                 <button class="cart-plus"
-                        data-product-id="${p.id}">
+                        data-product-id="${p.id}"
+                        ${p.cartQuantity >= p.stockQuantity ? "disabled" : ""}>
                     +
                 </button>
             </div>
         `;
-
-    } else {
-
+    } else if (p.stockQuantity > 0) {
         cartHtml = `
             <button class="btn-addcart-card js-addcart-detail hov-btn3"
                     data-product-id="${p.id}">
                 Add to Cart
+            </button>
+        `;
+    } else if (p.notifyRequested) {
+        cartHtml = `
+            <button class="btn-notify-me hov-btn3 w-100" disabled
+                    style="background-color:#333; color:#fff; opacity:0.6; cursor:not-allowed;">
+                <i class="zmdi zmdi-check"></i> We'll notify you!
+            </button>
+        `;
+    } else {
+        cartHtml = `
+            <button class="btn-notify-me hov-btn3 w-100"
+                    data-product-id="${p.id}"
+                    style="background-color:#333; color:#fff;">
+                <i class="zmdi zmdi-notifications-none"></i> Notify Me When Available
             </button>
         `;
     }
@@ -53,7 +72,9 @@ function buildProductCard(p) {
                        class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
                         ${p.name}
                     </a>
-                    <span class="stext-105 cl3">$${p.price}</span>
+                    <div class="d-flex align-items-center flex-wrap">
+                        ${priceHtml}
+                    </div>
                 </div>
                 <div class="block2-txt-child2 flex-r p-3">
                     <button class="js-addwish-detail fs-20 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 wishlist-btn"
@@ -66,7 +87,10 @@ function buildProductCard(p) {
             <div class="px-3 pt-2">
                 <p class="card-text">${p.description}</p>
             </div>
-            <div class="px-3 pt-2 d-flex justify-content-end">
+            <div class="px-3 pt-2 d-flex justify-content-between">
+                <div class="mt-1">
+                    ${stockBadge}
+                </div>
                 <span class="badge badge-secondary mb-4">${p.categoryName}</span>
             </div>
             <div class="px-3 pb-3 mt-auto">
@@ -81,7 +105,6 @@ function buildProductCard(p) {
 $("#searchInput").on("keyup", function () {
     let query = $(this).val();
     clearTimeout(timeout);
-
     timeout = setTimeout(function () {
         $.ajax({
             url: "/Product/Search",
@@ -91,7 +114,6 @@ $("#searchInput").on("keyup", function () {
                 let html = data.length === 0
                     ? `<div class="col-12 text-center"><p>No products found</p></div>`
                     : data.map(p => buildProductCard(p)).join("");
-
                 $("#productsContainer").html(html);
                 $("#productsContainer").isotope("destroy");
                 $("#productsContainer").isotope({

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
+using Nadixa.Infrastructure.Services;
 using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 using System.Threading.Tasks;
@@ -21,12 +22,15 @@ namespace Nadixa.Web.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly UserManager<AppUser> _userManager;
         private readonly string[] _allowedExtension = { ".jpg", ".jpeg", ".png", ".jfif" };
+        private readonly StockNotificationService _stockNotificationService;
 
-        public ProductController(NadixaDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<AppUser> userManager)
+
+        public ProductController(NadixaDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<AppUser> userManager, StockNotificationService stockNotificationService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
+            _stockNotificationService = stockNotificationService;
         }
 
         public async Task<IActionResult> Index(int? categoryId, int? subCategoryId, string? search, int page = 1)
@@ -90,6 +94,18 @@ namespace Nadixa.Web.Controllers
             }
 
             ViewBag.CartItems = cartItems;
+            var notifyRequestedProductIds = new HashSet<int>();
+
+            if (user != null)
+            {
+                notifyRequestedProductIds = (await _context.StockNotificationRequests
+                    .Where(r => r.UserId == user.Id && !r.IsNotified)
+                    .Select(r => r.ProductId)
+                    .ToListAsync())
+                    .ToHashSet();
+            }
+
+            ViewBag.NotifyRequestedProductIds = notifyRequestedProductIds;
             return View(products);
         }
 
@@ -413,6 +429,8 @@ namespace Nadixa.Web.Controllers
                 }
             }
 
+            int oldStock = productFromDb.StockQuantity;   
+
             productFromDb.Name = editViewModel.Name;
             productFromDb.Price = editViewModel.Price;
             productFromDb.Description = editViewModel.Description;
@@ -425,10 +443,64 @@ namespace Nadixa.Web.Controllers
 
             await _context.SaveChangesAsync();
 
+            Console.WriteLine($"DEBUG: oldStock={oldStock}, newStock={productFromDb.StockQuantity}"); // 👈 ضيفي السطر ده مؤقتًا
+
+            if (oldStock <= 0 && productFromDb.StockQuantity > 0)
+            {
+                Console.WriteLine("DEBUG: Condition met, calling NotifySubscribersAsync"); // 👈 وده كمان
+                await _stockNotificationService.NotifySubscribersAsync(productFromDb.Id);
+            }
+
             TempData["Success"] = AppMessages.ProductUpdated;
             return RedirectToAction("Index");
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> NotifyMeWhenAvailable(int productId)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Json(new
+                {
+                    success = false,
+                    requiresLogin = true,
+                    message = "Please login to get notified when this product is back in stock."
+                });
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null)
+            {
+                return Json(new { success = false, message = "Product not found." });
+            }
+
+            if (product.StockQuantity > 0)
+            {
+                return Json(new { success = false, message = "This product is already in stock." });
+            }
+
+            var alreadyRequested = await _context.StockNotificationRequests
+                .AnyAsync(r => r.ProductId == productId && r.UserId == user.Id && !r.IsNotified);
+
+            if (alreadyRequested)
+            {
+                return Json(new { success = true, message = "You're already on the notify list for this item." });
+            }
+
+            _context.StockNotificationRequests.Add(new StockNotificationRequest
+            {
+                ProductId = productId,
+                UserId = user.Id
+            });
+
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "We'll email you as soon as it's back in stock!" });
+        }
+        
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -632,6 +704,8 @@ namespace Nadixa.Web.Controllers
             var user = await _userManager.GetUserAsync(User);
 
             Dictionary<int, int> cartItems = new();
+            HashSet<int> notifyRequestedIds = new();
+
 
             if (user != null)
             {
@@ -642,6 +716,12 @@ namespace Nadixa.Web.Controllers
                         i => i.ProductId,
                         i => i.Quantity
                     );
+
+                notifyRequestedIds = (await _context.StockNotificationRequests
+                    .Where(r => r.UserId == user.Id && !r.IsNotified)
+                    .Select(r => r.ProductId)
+                    .ToListAsync())
+                    .ToHashSet();
             }
 
             var products = await _context.Products
@@ -656,15 +736,18 @@ namespace Nadixa.Web.Controllers
                 id = p.Id,
                 name = p.Name,
                 price = p.Price,
+                oldPrice = p.OldPrice,
+                stockQuantity = p.StockQuantity,
                 description = p.Description.Length > 50
                     ? p.Description.Substring(0, 50) + "..."
                     : p.Description,
                 mainImageUrlPath = p.MainImageUrlPath,
                 categoryName = p.ProductCategory.Name,
-
                 cartQuantity = cartItems.ContainsKey(p.Id)
                     ? cartItems[p.Id]
-                    : 0
+                    : 0,
+                notifyRequested = notifyRequestedIds.Contains(p.Id)
+
             });
 
             return Json(result);

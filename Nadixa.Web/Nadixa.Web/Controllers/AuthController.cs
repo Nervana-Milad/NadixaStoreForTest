@@ -6,6 +6,7 @@ using Nadixa.Core.Entities;
 using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 using Nadixa.Web.Services;
+using Nadixa.Infrastructure.Services;
 
 namespace Nadixa.Web.Controllers
 {

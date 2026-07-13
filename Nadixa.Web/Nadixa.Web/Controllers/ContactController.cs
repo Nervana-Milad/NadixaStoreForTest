@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Nadixa.Web.Services;
+using Nadixa.Infrastructure.Services;
+using Nadixa.Web.Helpers;
 
 namespace Nadixa.Web.Controllers
 {
@@ -21,32 +22,31 @@ namespace Nadixa.Web.Controllers
         [HttpPost]
         public IActionResult Index(string email, string msg)
         {
-            if(string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(msg))
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(msg))
             {
-                ViewBag.Error = "Please fill all fields";
-                return View();
+                TempData["Error"] = AppMessages.ContactFieldsRequired;
+                return RedirectToAction("Index");
             }
 
-
             var isSent = _emailSender.SendEmail(
-                senderName: "NadixaStore Conatct",
-                senderEmail: "nervanamilad143@gmail.com",
+                senderName: "NadixaStore Contact",
+                senderEmail: "vanamilad2@gmail.com",   // 👈 لازم يكون نفس SmtpUsername بتاعك
                 toName: "Admin",
-                toEmail: "nardinmilad83@gmail.com",
+                toEmail: "vanamilad2@gmail.com",       // 👈 إيميل الأدمن الثابت اللي بيستقبل الرسائل
                 subject: "New Contact Message",
                 textContent: $"You have received a new message from {email}:\n\n{msg}"
-
-                );
+            );
 
             if (isSent)
             {
-                ViewBag.Success = "Your message has been sent successfully!";
+                TempData["Success"] = AppMessages.ContactMessageSent;
             }
-            else {
-                ViewBag.Error = "Failed to send message. Please try again!";
+            else
+            {
+                TempData["Error"] = AppMessages.ContactMessageFailed;
             }
 
-            return View();
+            return RedirectToAction("Index");
         }
     }
 }

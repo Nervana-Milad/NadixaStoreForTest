@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
 using Nadixa.Infrastructure.Data;
+using Nadixa.Infrastructure.Services;
 using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 using Nadixa.Web.Services;
@@ -80,6 +82,7 @@ namespace Nadixa.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Checkout(CheckoutVM model)
         {
+            Console.WriteLine("🔴 CHECKOUT ACTION HIT");
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
@@ -181,18 +184,20 @@ namespace Nadixa.Web.Controllers
                 var emailBody = await _viewRenderer.RenderAsync(
                     "Emails/OrderConfirmation", emailModel);
 
+                
                 _emailSender.SendEmail(
                     senderName: "Nadixa Store",
-                    senderEmail: "your-email@gmail.com",
+                    senderEmail: "vanamilad2@gmail.com",
                     toName: model.FullName,
-                    toEmail: user.Email!,
+                    toEmail: user.Email,
                     subject: $"Order Confirmation #{order.Id}",
                     textContent: emailBody
                 );
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Email failed: {ex.Message}");
+                //Console.WriteLine($"Email failed: {ex.Message}");
+                throw new Exception("EMAIL DEBUG: " + ex.ToString());
             }
 
             // Create OrderItems

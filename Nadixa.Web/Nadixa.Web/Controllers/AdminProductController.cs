@@ -7,6 +7,7 @@ using Nadixa.Core.DTOS;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces.Excel;
 using Nadixa.Infrastructure.Data;
+using Nadixa.Infrastructure.Services;
 
 namespace Nadixa.Web.Controllers
 {
@@ -15,10 +16,14 @@ namespace Nadixa.Web.Controllers
     {
         private readonly NadixaDbContext _context;
         private readonly IExcelService _excelService;
-        public AdminProductController(NadixaDbContext context, IExcelService excelService)
+        private readonly StockNotificationService _stockNotificationService;
+
+        public AdminProductController(NadixaDbContext context, IExcelService excelService, StockNotificationService stockNotificationService)
         {
             _context = context;
             _excelService = excelService;
+            _stockNotificationService = stockNotificationService; // 👈 ضيفي دي
+
         }
 
         public async Task<IActionResult> ExportToExcel(CancellationToken ct = default)
@@ -77,6 +82,7 @@ namespace Nadixa.Web.Controllers
             int newCategories = 0;
             int newSubCategories = 0;
             var errors = new List<string>();
+            var productsToNotify = new List<int>();
 
             using var stream = new MemoryStream();
             await file.CopyToAsync(stream);
@@ -166,6 +172,8 @@ namespace Nadixa.Web.Controllers
                             continue; // مفيش تغيير، سيبيه من غير ما نزود العداد أو نعمل Update
                         }
 
+                        int oldStock = product.StockQuantity;
+
                         product.Name = name;
                         product.Description = description;
                         product.Price = price;
@@ -174,7 +182,10 @@ namespace Nadixa.Web.Controllers
                         product.ProductCategoryId = category.Id;
                         product.ProductSubCategoryId = subCategory.Id;
                         product.UpdatedAt = DateTime.Now;
-
+                        if (oldStock <= 0 && stockQuantity > 0)   // 👈 3) ضيفي الشرط ده بعد التعديل
+                        {
+                            productsToNotify.Add(product.Id);
+                        }
                         updated++;
                     }
                     else
@@ -204,6 +215,11 @@ namespace Nadixa.Web.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            if (productsToNotify.Any())   // 👈 4) ضيفي السطرين دول بعد الـ SaveChangesAsync مباشرة
+            {
+                await _stockNotificationService.NotifySubscribersForMultipleAsync(productsToNotify);
+            }
 
             TempData["Success"] = $"Import completed: {created} created, {updated} updated, {failed} failed.";
 

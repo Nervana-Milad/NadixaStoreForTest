@@ -2,6 +2,22 @@
     ViewData["Title"] = "Order Successful";
 }
 
+
+<style>
+    .email-confirmation-note {
+        font-size: 0.9rem;
+        color: #718096;
+        background-color: #f8f9fb;
+        border-radius: 8px;
+        padding: 10px 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin: 12px 0 20px;
+    }
+</style>
+
+
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-12">
@@ -24,7 +40,11 @@
                     Your order has been placed successfully.<br/>
                     We're getting it ready 🚀
                 </p>
-
+                <!-- 👇 تأكيد إرسال الإيميل -->
+                <p class="email-confirmation-note">
+                    <i class="zmdi zmdi-email"></i>
+                    A confirmation email with your order details has been sent to your inbox.
+                </p>
                 <!-- تفاصيل الطلب -->
                 <div class="order-info-box">
                     <div class="order-info-row">

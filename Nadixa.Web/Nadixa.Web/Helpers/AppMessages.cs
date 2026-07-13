@@ -44,6 +44,9 @@
         public const string OrderPlacedSuccessfully = "Order Placed Successfully.";        // done
         public const string CancelOrder = "Order Canceled Successfully.";        // done
 
+        public const string ContactFieldsRequired = "Please fill all fields.";
+        public const string ContactMessageSent = "Your message has been sent successfully!";
+        public const string ContactMessageFailed = "Failed to send message. Please try again!";
 
 
 

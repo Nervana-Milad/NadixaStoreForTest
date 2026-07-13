@@ -183,12 +183,12 @@
 		</div>
 	</div>
 </div>
+
 <!-- Best Sellers Section -->
 @if (ViewBag.BestSellers != null && ((List<Nadixa.Core.Entities.Product>)ViewBag.BestSellers).Any())
 {
 	<section class="bg0 p-t-60 p-b-60">
 		<div class="container">
-
 			<div class="category-banner d-flex justify-content-between align-items-center m-b-20 p-tb-12 p-lr-25 text-white shadow-sm"
 				 style="background: linear-gradient(135deg, #6C7AED 0%, #6C7AED 100%); border-radius: 6px;">
 				<div class="d-flex align-items-center">
@@ -206,65 +206,34 @@
 					<i class="bi bi-chevron-right m-l-5 align-self-center fs-12"></i>
 				</a>
 			</div>
-
 			<div class="swiper best-sellers-swiper position-relative p-lr-15">
 				<div class="swiper-wrapper">
 					@foreach (var product in (List<Nadixa.Core.Entities.Product>)ViewBag.BestSellers)
 					{
-						<!-- ✅ نفس بالظبط كارت Product Overview -->
 						<div class="swiper-slide pb-4 h-auto">
-							<div class="block2 block2-shadow h-100 d-flex flex-column justify-content-between">
-								<div>
-									<div class="block2-pic hov-img0">
-										<img src="@product.MainImageUrlPath" alt="@product.Name" class="img-fluid product-carousel-img">
+							@{
+								var notifyIds = ViewBag.NotifyRequestedProductIds as HashSet<int> ?? new HashSet<int>();
+								var cartItemsDict = ViewBag.CartItems as Dictionary<int, int> ?? new Dictionary<int, int>();
 
-										<a class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1 pointer"
-										   data-id="@product.Id">
-											Quick View
-										</a>
-									</div>
-
-									<div class="block2-txt flex-w flex-t p-t-14">
-										<div class="block2-txt-child1 flex-col-l px-3">
-											<a asp-controller="Product" asp-action="Detail" asp-route-id="@product.Id"
-											   class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-												@product.Name
-											</a>
-											<span class="stext-105 cl3">
-												$@product.Price
-											</span>
-										</div>
-
-										<div class="block2-txt-child2 flex-r p-3">
-											<button class="js-addwish-detail fs-20 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2"
-													data-product-id="@product.Id" data-product-name="@product.Name">
-												<i class="zmdi zmdi-favorite-outline"></i>
-											</button>
-										</div>
-									</div>
-
-									<div class="px-3 pt-2">
-										<p class="card-text" style="font-size: 13px; color: #666;">
-											@(product.Description != null && product.Description.Length > 50 ? product.Description.Substring(0, 50) + "..." : product.Description)
-										</p>
-									</div>
-								</div>
-
-								<div class="px-3 pt-2 d-flex justify-content-end">
-									<span class="badge badge-secondary mb-4">@product.ProductCategory?.Name</span>
-								</div>
-							</div>
+								var cardVm = new Nadixa.Web.Models.ViewModels.ProductCardViewModel
+								{
+									Product = product,
+									CartQuantity = cartItemsDict.ContainsKey(product.Id) ? cartItemsDict[product.Id] : 0,
+									NotifyRequested = notifyIds.Contains(product.Id)
+								};
+							}
+							@await Html.PartialAsync("_ProductCard", cardVm)
 						</div>
 					}
 				</div>
-
 				<div class="swiper-button-next custom-swiper-btn"></div>
 				<div class="swiper-button-prev custom-swiper-btn"></div>
 			</div>
-
 		</div>
 	</section>
 }
+
+
 <!-- Product Section -->
 <section class="bg0 p-t-23 p-b-140">
 	<div class="container">
@@ -315,79 +284,22 @@
 						@foreach (var product in categoryGroup)
 						{
 							<div class="swiper-slide pb-4 h-auto">
-								<div class="block2 block2-shadow h-100 d-flex flex-column justify-content-between">
-									<div>
-										<div class="block2-pic hov-img0">
-											<img src="@product.MainImageUrlPath" alt="@product.Name" class="img-fluid product-carousel-img">
+								@{
+									var notifyIds = ViewBag.NotifyRequestedProductIds as HashSet<int> ?? new HashSet<int>();
+									var cartItemsDict = ViewBag.CartItems as Dictionary<int, int> ?? new Dictionary<int, int>();
 
-											<a class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1 pointer"
-											   data-id="@product.Id">
-												Quick View
-											</a>
-										</div>
-
-										<div class="block2-txt flex-w flex-t p-t-14">
-											<div class="block2-txt-child1 flex-col-l px-3">
-												<a asp-controller="Product" asp-action="Detail" asp-route-id="@product.Id" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-													@product.Name
-												</a>
-
-												<span class="stext-105 cl3">
-													$@product.Price
-												</span>
-											</div>
-
-											<div class="block2-txt-child2 flex-r p-3">
-												<button class="js-addwish-detail fs-20 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2"
-														data-product-id="@product.Id" data-product-name="@product.Name">
-													<i class="zmdi zmdi-favorite-outline"></i>
-												</button>
-											</div>
-										</div>
-
-										<div class="px-3 pt-2">
-											<p class="card-text" style="font-size: 13px; color: #666;">
-												@(@product.Description != null && product.Description.Length > 50 ? product.Description.Substring(0, 50) + "..." : product.Description)
-											</p>
-										</div>
-									</div>
-
-									<div class="px-3 pt-2 d-flex justify-content-end">
-										<span class="badge badge-secondary mb-4">@product.ProductCategory?.Name</span>
-									</div>
-									@* // add to cart buton *@
-									<div class="px-3 pb-3 mt-auto">
-										<div class="cart-controls"
-											 data-product-id="@product.Id">
-											@if (cartItems.ContainsKey(product.Id))
-											{
-												var qty = cartItems[product.Id];
-												<div class="cart-counter">
-													<button class="cart-minus"
-															data-product-id="@product.Id">
-														@(qty == 1 ? "🗑" : "-")
-													</button>
-													<span class="cart-qty">
-														@qty in cart
-													</span>
-													<button class="cart-plus"
-															data-product-id="@product.Id">
-														+
-													</button>
-												</div>
-											}
-											else
-											{
-												<button class="btn-addcart-card js-addcart-detail hov-btn3"
-														data-product-id="@product.Id">
-													Add to Cart
-												</button>
-											}
-										</div>
-									</div>
-								</div>
+									var cardVm = new Nadixa.Web.Models.ViewModels.ProductCardViewModel
+									{
+										Product = product,
+										CartQuantity = cartItemsDict.ContainsKey(product.Id) ? cartItemsDict[product.Id] : 0,
+										NotifyRequested = notifyIds.Contains(product.Id)
+									};
+								}
+								@await Html.PartialAsync("_ProductCard", cardVm)
+								
 							</div>
 						}
+					
 					</div>
 
 					<!-- أسهم الحركة لكل سلايدر على حدة -->

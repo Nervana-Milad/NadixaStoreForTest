@@ -30,9 +30,7 @@ namespace Nadixa.Web.Controllers
         public async Task<IActionResult> Index(int? categoryId)
         {
             var user = await _userManager.GetUserAsync(User);
-
             var productQuery = _context.Products.Include(p => p.ProductCategory).AsQueryable();
-
 
             if (categoryId.HasValue)
             {
@@ -40,38 +38,44 @@ namespace Nadixa.Web.Controllers
             }
 
             var products = await productQuery.ToListAsync();
-
-
             ViewBag.Categories = await _context.ProductCategories.ToListAsync();
 
             Dictionary<int, int> cartItems = new();
-
             if (user != null)
             {
                 cartItems = await _context.Carts
                     .Where(c => c.UserId == user.Id)
                     .SelectMany(c => c.Items)
-                    .ToDictionaryAsync(
-                        i => i.ProductId,
-                        i => i.Quantity);
+                    .ToDictionaryAsync(i => i.ProductId, i => i.Quantity);
             }
-
             ViewBag.CartItems = cartItems;
 
-            var bestSellers = _context.OrderItems
+            var notifyRequestedProductIds = new HashSet<int>();
+            if (user != null)
+            {
+                notifyRequestedProductIds = (await _context.StockNotificationRequests
+                    .Where(r => r.UserId == user.Id && !r.IsNotified)
+                    .Select(r => r.ProductId)
+                    .ToListAsync())
+                    .ToHashSet();
+            }
+            ViewBag.NotifyRequestedProductIds = notifyRequestedProductIds;
+
+            var bestSellers = await _context.OrderItems
                  .Where(oi => oi.Order.Status != OrderStatus.Cancelled)
+                 .Include(oi => oi.Product)
+                    .ThenInclude(p => p.ProductCategory)
                  .GroupBy(oi => oi.ProductId)
                  .OrderByDescending(g => g.Sum(oi => oi.Quantity))
                  .Take(8)
                  .Select(g => g.First().Product)
-                 .ToList();
+                 .ToListAsync();
 
-            ViewBag.Categories = _context.ProductCategories.ToList();
-            ViewBag.BestSellers = bestSellers; // ? ?????? ??? View
-
+            ViewBag.BestSellers = bestSellers;
 
             return View(products);
         }
+        
 
         [HttpGet]
         public async Task<IActionResult> GlobalSearch(string term)

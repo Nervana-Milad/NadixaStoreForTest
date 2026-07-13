@@ -1,8 +1,9 @@
 ﻿using MimeKit;
 using MailKit;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Configuration;
 
-namespace Nadixa.Web.Services
+namespace Nadixa.Infrastructure.Services
 {
     public class EmailSender
     {
@@ -22,6 +23,8 @@ namespace Nadixa.Web.Services
 
         public bool SendEmail(string senderName, string senderEmail, string toName, string toEmail, string subject, string textContent) 
         {
+            Console.WriteLine($"DEBUG: Attempting to send email to {toEmail}"); // 👈 ضيفي السطر ده
+
             try
             {
                 var message = new MimeMessage();
@@ -44,15 +47,20 @@ namespace Nadixa.Web.Services
                     client.Disconnect(true);
 
                 }
+                Console.WriteLine("DEBUG: Email sent successfully"); // 👈 وده كمان
+
                 return true;
                 
             }
             catch(Exception ex)
             {
-                Console.WriteLine("Email Sender Failure \n" + ex.ToString());
-                return false;
+                throw new Exception("EMAIL REAL ERROR: " + ex.ToString());
+
+                //Console.WriteLine("Email Sender Failure \n" + ex.ToString());
+
+                //return false;
             }
-            
+
         }
     }
 }

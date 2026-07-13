@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Nadixa.Core.Entities;
 using Nadixa.Web.Services;
+using Nadixa.Infrastructure.Services;
+
+
 namespace Nadixa.Web.Services
 {
     public class OrderEmailService

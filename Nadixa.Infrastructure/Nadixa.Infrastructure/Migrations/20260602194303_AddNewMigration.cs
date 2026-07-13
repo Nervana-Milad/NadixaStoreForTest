@@ -10,17 +10,9 @@ namespace Nadixa.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "Description",
-                table: "ProductSubCategories",
-                type: "nvarchar(max)",
-                nullable: true);
+            
 
-            migrationBuilder.AddColumn<string>(
-                name: "ImageUrl",
-                table: "ProductSubCategories",
-                type: "nvarchar(max)",
-                nullable: true);
+            
         }
 
         /// <inheritdoc />
