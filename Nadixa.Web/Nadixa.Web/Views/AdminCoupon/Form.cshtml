@@ -1,0 +1,94 @@
+﻿@using Nadixa.Core.Entities
+@model Nadixa.Web.Models.ViewModels.CouponFormViewModel
+@{
+    ViewData["Title"] = Model.Id == 0 ? "كوبون جديد" : "تعديل الكوبون";
+}
+
+<div class="container order-section">
+
+    <div class="order-card">
+
+        <h2 class="order-title mb-4">@ViewData["Title"]</h2>
+
+        <form asp-action="@(Model.Id == 0 ? "Create" : "Edit")" method="post">
+
+            <input type="hidden" asp-for="Id" />
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">الكود</label>
+                    <input asp-for="Code" class="form-control" style="text-transform:uppercase" placeholder="WELCOME10" />
+                    <span asp-validation-for="Code" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">نوع الخصم</label>
+                    <select asp-for="DiscountType" class="form-control">
+                        <option value="@CouponDiscountType.Percentage">نسبة %</option>
+                        <option value="@CouponDiscountType.FixedAmount">مبلغ ثابت</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">القيمة</label>
+                    <input asp-for="Value" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="Value" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">أقل قيمة أوردر (اختياري)</label>
+                    <input asp-for="MinOrderAmount" type="number" step="0.01" class="form-control" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">أقصى خصم بالجنيه (لو نسبة %)</label>
+                    <input asp-for="MaxDiscountAmount" type="number" step="0.01" class="form-control" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">أقصى عدد استخدام إجمالي</label>
+                    <input asp-for="MaxTotalUsage" type="number" class="form-control" placeholder="بلا حد" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">أقصى استخدام لكل يوزر</label>
+                    <input asp-for="MaxUsagePerUser" type="number" class="form-control" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">تاريخ البداية</label>
+                    <input asp-for="StartDate" type="datetime-local" class="form-control" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">تاريخ النهاية</label>
+                    <input asp-for="EndDate" type="datetime-local" class="form-control" />
+                </div>
+
+                <div class="col-md-3 mb-3 d-flex align-items-end">
+                    <div class="form-check">
+                        <input asp-for="FirstOrderOnly" class="form-check-input" />
+                        <label class="form-check-label">أول أوردر فقط</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3 d-flex align-items-end">
+                    <div class="form-check">
+                        <input asp-for="IsActive" class="form-check-input" />
+                        <label class="form-check-label">مفعّل</label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-dark">حفظ</button>
+                <a asp-action="Index" class="btn btn-outline-dark">إلغاء</a>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

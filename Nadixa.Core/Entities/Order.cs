@@ -41,5 +41,10 @@ namespace Nadixa.Core.Entities
 
         public ICollection<OrderStatusHistory> StatusHistory { get; set; }
     = new List<OrderStatusHistory>();
+        //==============================================================
+             public decimal SubTotal { get; set; }          // إجمالي المنتجات قبل أي خصم
+        public decimal DiscountAmount { get; set; }     // إجمالي كل الخصومات (عروض + كوبون + باندل + نقاط)
+        public decimal ShippingFee { get; set; }        // رسوم الشحن الفعلية بعد أي خصم شحن
+        public string? CouponCode { get; set; }         // الكود اللي اتستخدم لو فيه
     }
 }

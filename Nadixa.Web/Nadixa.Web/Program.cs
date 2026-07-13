@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
 using Nadixa.Core.Interfaces.Excel;
+using Nadixa.Core.Services;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Infrastructure.Repositories;
 using Nadixa.Infrastructure.Services;
@@ -21,6 +22,7 @@ namespace Nadixa.Web
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddTransient<EmailSender>();
+            builder.Services.AddSession();
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
@@ -71,8 +73,22 @@ namespace Nadixa.Web
             builder.Services.AddScoped<IExcelHelperService, ExcelHelperService>();
             builder.Services.AddScoped<EmailSender>();
             builder.Services.AddScoped<OrderEmailService>();
+<<<<<<< Updated upstream
             builder.Services.AddScoped<StockNotificationService>();
 
+=======
+
+
+
+            builder.Services.AddScoped<IPromotionService, PromotionService>();
+            builder.Services.AddScoped<IShippingRuleService, ShippingRuleService>();
+            builder.Services.AddScoped<ICouponService, CouponService>();
+            builder.Services.AddScoped<ILoyaltyService, LoyaltyService>();
+            builder.Services.AddScoped<IBundleDealService, BundleDealService>();
+            builder.Services.AddScoped<Nadixa.Core.Services.IUserOrderHistoryChecker,
+                                        Nadixa.Core.Services.UserOrderHistoryChecker>();
+            builder.Services.AddScoped<IPricingEngine, PricingEngine>();
+>>>>>>> Stashed changes
             var app = builder.Build();
 
 
@@ -159,6 +175,7 @@ namespace Nadixa.Web
 
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
 

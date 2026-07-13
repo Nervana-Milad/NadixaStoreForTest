@@ -27,5 +27,21 @@ namespace Nadixa.Web.Models.ViewModels
        public decimal SubTotal { get; set; }
         public decimal ShippingFee { get; set; }
         public decimal GrandTotal { get; set; }
+
+        //=======================================
+        public string? CouponCode { get; set; }              // اللي العميل كتبه/اتخزن من السلة
+        public string? CouponError { get; set; }               // لو الكود مرفوض
+
+        public decimal ProductsDiscount { get; set; }          // خصم العروض على المنتجات
+        public decimal BundleDiscount { get; set; }             // خصم الباندل
+        public decimal CouponDiscount { get; set; }              // خصم الكوبون
+        public decimal ShippingDiscount { get; set; }             // خصم الشحن (لو فيه)
+        public decimal TotalDiscount =>
+            ProductsDiscount + BundleDiscount + CouponDiscount;    // الإجمالي بدون خصم الشحن
+
+        public int LoyaltyPointsToEarn { get; set; }
+
+        public List<Nadixa.Core.DTOs.AppliedPromotionInfo> AppliedPromotions { get; set; }
+            = new List<Nadixa.Core.DTOs.AppliedPromotionInfo>();
     }
 }
