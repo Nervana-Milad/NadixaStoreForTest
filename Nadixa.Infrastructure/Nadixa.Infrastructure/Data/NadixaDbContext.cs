@@ -38,10 +38,8 @@ namespace Nadixa.Infrastructure.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<OrderStatusHistory> OrderStatusHistories { get; set; }
-<<<<<<< Updated upstream
         public DbSet<StockNotificationRequest> StockNotificationRequests { get; set; }
 
-=======
         //Promotions
         public DbSet<Promotion> Promotions { get; set; }
         public DbSet<ShippingRule> ShippingRules { get; set; }
@@ -51,7 +49,7 @@ namespace Nadixa.Infrastructure.Data
         public DbSet<LoyaltyTransaction> LoyaltyTransactions { get; set; }
         public DbSet<BundleDeal> BundleDeals { get; set; }
         public DbSet<BundleDealProduct> BundleDealProducts { get; set; }
->>>>>>> Stashed changes
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -94,3 +92,4 @@ namespace Nadixa.Infrastructure.Data
 
     }
 }
+

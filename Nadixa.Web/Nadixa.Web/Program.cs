@@ -73,10 +73,8 @@ namespace Nadixa.Web
             builder.Services.AddScoped<IExcelHelperService, ExcelHelperService>();
             builder.Services.AddScoped<EmailSender>();
             builder.Services.AddScoped<OrderEmailService>();
-<<<<<<< Updated upstream
             builder.Services.AddScoped<StockNotificationService>();
 
-=======
 
 
 
@@ -88,7 +86,6 @@ namespace Nadixa.Web
             builder.Services.AddScoped<Nadixa.Core.Services.IUserOrderHistoryChecker,
                                         Nadixa.Core.Services.UserOrderHistoryChecker>();
             builder.Services.AddScoped<IPricingEngine, PricingEngine>();
->>>>>>> Stashed changes
             var app = builder.Build();
 
 
