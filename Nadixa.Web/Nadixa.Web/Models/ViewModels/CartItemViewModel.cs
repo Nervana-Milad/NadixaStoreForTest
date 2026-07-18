@@ -10,7 +10,9 @@
         public decimal Price { get; set; }
         public int Quantity { get; set; } // How many of this product in the cart
         public int StockQuantity { get; set; } // How many of this product in the stock
-
+        public string? PromoBadgeText { get; set; }
+        public string? PromoBadgeColorHex { get; set; }
+        public decimal? DiscountedUnitPrice { get; set; }
 
         // Optional: total price for this item
         public decimal TotalPrice => Price * Quantity;

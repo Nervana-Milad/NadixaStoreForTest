@@ -127,20 +127,69 @@
         <div class="col-lg-5">
             <div class="premium-card" style="position: sticky; top: 120px;">
                 <h2 class="section-title">Order Summary</h2>
-                
+
+                @if (!string.IsNullOrEmpty(Model.CouponCode) && string.IsNullOrEmpty(Model.CouponError) && Model.CouponDiscount > 0)
+                {
+                    <div style="background-color:#eafaf1; border:1px solid #2ecc71; border-radius:8px; padding:10px 14px; margin-bottom:15px; font-size:0.85rem; color:#1e8449;">
+                        ✓ Coupon "<strong>@Model.CouponCode</strong>" applied
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.CouponError))
+                {
+                    <div style="background-color:#fdecea; border:1px solid #e74c3c; border-radius:8px; padding:10px 14px; margin-bottom:15px; font-size:0.85rem; color:#c0392b;">
+                        @Model.CouponError
+                    </div>
+                }
+
+                @if (Model.AppliedPromotions.Any())
+                {
+                    <div class="mb-2">
+                        @foreach (var promo in Model.AppliedPromotions)
+                        {
+                            <div class="order-summary-item" style="font-size:0.85rem; color:#666;">
+                                <span>@(promo.BadgeText ?? promo.Name)</span>
+                                <span style="color:#2ecc71; font-weight:600;">- @promo.DiscountAmount.ToString("N2") EGP</span>
+                            </div>
+                        }
+                    </div>
+                }
+
                 <div class="order-summary-item">
                     <span>Items Subtotal</span>
-                    <span style="font-weight: 600; color: #111;">@Model.SubTotal EGP</span>
+                    <span style="font-weight: 600; color: #111;">@Model.SubTotal.ToString("N2") EGP</span>
                 </div>
+
+                @if (Model.TotalDiscount > 0)
+                {
+                    <div class="order-summary-item">
+                        <span>You Saved</span>
+                        <span style="font-weight: 600; color: #2ecc71;">- @Model.TotalDiscount.ToString("N2") EGP</span>
+                    </div>
+                }
+
                 <div class="order-summary-item">
                     <span>Shipping Fee</span>
-                    <span style="font-weight: 600; color: #111;">50 EGP</span>
+                    @if (Model.ShippingFee == 0)
+                    {
+                        <span style="font-weight: 600; color: #2ecc71;">Free 🎉</span>
+                    }
+                    else
+                    {
+                        <span style="font-weight: 600; color: #111;">@Model.ShippingFee.ToString("N2") EGP</span>
+                    }
                 </div>
                 
                 <div class="order-total">
                     <span>Total</span>
-                    <span>@Model.GrandTotal EGP</span>
+                    <span>@Model.GrandTotal.ToString("N2") EGP</span>
                 </div>
+
+                @if (Model.LoyaltyPointsToEarn > 0)
+                {
+                    <div style="font-size:0.85rem; color:#666; margin-top:10px;">
+                        ⭐ You'll earn <strong>@Model.LoyaltyPointsToEarn points</strong> after this order
+                    </div>
+                }
 
                 <div style="background-color: #f9f9fb; border-radius: 10px; padding: 15px; margin-top: 25px; border: 1px solid #e5e5ea;">
                     <div style="font-weight: 600; font-size: 0.9rem; color: #333; margin-bottom: 5px;">Payment Method</div>
@@ -158,6 +207,17 @@
     </div>
 </div>
 
+<style>
+    /* شكل بصري بس للحقول اللي بتستخدم بيانات العميل المحفوظة - القيمة بتفضل بتتبعت مع الفورم */
+    #addressFields.locked input,
+    #addressFields.locked select,
+    #addressFields.locked textarea {
+        background-color: #f3f3f5 !important;
+        pointer-events: none;
+        color: #888;
+    }
+</style>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
@@ -168,38 +228,39 @@
                 $("#Address").val() !== "" &&
                 $("#City").val() !== "";
 
+            // بدل disabled: بنستخدم readonly عشان القيمة تفضل بتتبعت مع الفورم وقت Submit
             if (hasAddress) {
-                $("#addressFields input, #addressFields select, #addressFields textarea")
-                    .prop("disabled", true);
+                $("#addressFields").addClass("locked");
+                $("#addressFields input, #addressFields textarea").prop("readonly", true);
+                // الـ <select> مش بيدعم readonly، فبنمنع التفاعل بصريًا بس (CSS) مع سيبان القيمة زي ما هي
             }
 
             $("#newAddressCheck").change(function () {
 
                 if ($(this).is(":checked")) {
-
+                    $("#addressFields").removeClass("locked");
                     $("#addressFields input, #addressFields select, #addressFields textarea")
-                        .prop("disabled", false);
-
-                } else {
-
-                    $("#addressFields input, #addressFields select, #addressFields textarea")
-                        .prop("disabled", true);
-                }
-            });
-
-        });
-    </script>
-    <script>
-        document.getElementById("newAddressCheck")
-            .addEventListener("change", function () {
-
-                if (this.checked) {
+                        .prop("readonly", false);
 
                     document.getElementById("FullName").value = "";
                     document.getElementById("PhoneNumber").value = "";
                     document.getElementById("City").value = "";
                     document.getElementById("Address").value = "";
+                } else {
+                    $("#addressFields").addClass("locked");
+                    $("#addressFields input, #addressFields textarea").prop("readonly", true);
                 }
             });
+
+            // منع الضغط المزدوج على "Place Order" - ده اللي كان بيسبب DbUpdateConcurrencyException
+            $("form[asp-action='Checkout'], form").on("submit", function () {
+                var $btn = $(this).find(".btn-pay");
+                if ($btn.prop("disabled")) {
+                    return false; // امنعي أي محاولة إرسال تانية
+                }
+                $btn.prop("disabled", true).text("Placing your order...");
+            });
+
+        });
     </script>
 }

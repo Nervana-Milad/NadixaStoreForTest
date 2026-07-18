@@ -1,9 +1,9 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Nadixa.Core.DTOs;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
 using Nadixa.Infrastructure.Data;
@@ -22,24 +22,35 @@ namespace Nadixa.Web.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly EmailSender _emailSender;
         private readonly IRazorViewRenderer _viewRenderer;
+        private readonly IPricingEngine _pricingEngine;
+        private readonly ICouponService _couponService;
+        private readonly ILoyaltyService _loyaltyService;
 
-        // لنفترض أن مصاريف الشحن ثابتة 50 جنيه
-        private const decimal SHIPPING_FEE = 50m;
+        // الأساس بس - بعد كده الـ PricingEngine بيقرر لو هيتخصم أو يتلغى تمامًا
+        private const decimal BASE_SHIPPING_FEE = 50m;
 
         public OrderController(
             NadixaDbContext context,
             UserManager<AppUser> userManager,
-            IUnitOfWork unitOfWork , EmailSender emailSender , IRazorViewRenderer viewRenderer)
+            IUnitOfWork unitOfWork,
+            EmailSender emailSender,
+            IRazorViewRenderer viewRenderer,
+            IPricingEngine pricingEngine,
+            ICouponService couponService,
+            ILoyaltyService loyaltyService)
         {
             _context = context;
             _userManager = userManager;
             _unitOfWork = unitOfWork;
             _emailSender = emailSender;
             _viewRenderer = viewRenderer;
+            _pricingEngine = pricingEngine;
+            _couponService = couponService;
+            _loyaltyService = loyaltyService;
         }
 
         // ==============================================
-        // 1. GET: Checkout Page (تم التعديل هنا)
+        // 1. GET: Checkout / Payment Summary Page
         // ==============================================
         [HttpGet]
         [Authorize]
@@ -47,20 +58,18 @@ namespace Nadixa.Web.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            // جلب السلة الخاصة بالمستخدم
             var cart = await _context.Carts
                 .Include(c => c.Items)
                 .ThenInclude(i => i.Product)
                 .FirstOrDefaultAsync(c => c.UserId == user.Id);
 
-            // لو السلة فاضية نرجعه لصفحة السلة
             if (cart == null || !cart.Items.Any())
             {
                 return RedirectToAction("Index", "Cart");
             }
 
-            // حساب الأسعار
-            decimal subTotal = cart.Items.Sum(x => x.Product.Price * x.Quantity);
+            var couponCode = CouponSessionHelper.Get(HttpContext);
+            var pricing = await CalculatePricingAsync(user.Id, cart, couponCode);
 
             var model = new CheckoutVM
             {
@@ -69,12 +78,11 @@ namespace Nadixa.Web.Controllers
                 Address = user.Address,
                 City = user.City,
 
-                SubTotal = subTotal,
-                ShippingFee = SHIPPING_FEE,
-                GrandTotal = subTotal + SHIPPING_FEE
+                CouponCode = couponCode
             };
 
-            // نبعت الموديل المحمل بالأسعار للصفحة
+            ApplyPricingToVm(model, pricing);
+
             return View(model);
         }
 
@@ -82,13 +90,12 @@ namespace Nadixa.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Checkout(CheckoutVM model)
         {
-            Console.WriteLine("🔴 CHECKOUT ACTION HIT");
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return RedirectToAction("Login", "Auth");
             }
-            // جلب السلة
+
             var cart = await _context.Carts
                 .Include(c => c.Items)
                 .ThenInclude(i => i.Product)
@@ -99,16 +106,14 @@ namespace Nadixa.Web.Controllers
                 return RedirectToAction("Index", "Cart");
             }
 
-            // Recalculate totals
-            decimal subTotal = cart.Items.Sum(x => x.Product.Price * x.Quantity);
+            // الكود بيتاخد من الـ Session (اللي طُبق في صفحة السلة) مش من الفورم،
+            // عشان مايتغيرش من غير ما الـ PricingEngine يتحقق منه
+            var couponCode = CouponSessionHelper.Get(HttpContext);
+            var pricing = await CalculatePricingAsync(user.Id, cart, couponCode);
 
-            // [مهم جداً]: لو العميل نسي يكتب حقل في الفورم، لازم نحسب السعر تاني قبل ما نرجعه للصفحة
             if (!ModelState.IsValid)
             {
-                model.SubTotal = cart.Items.Sum(x => x.Product.Price * x.Quantity);
-                model.ShippingFee = SHIPPING_FEE;
-                model.GrandTotal = model.SubTotal + SHIPPING_FEE;
-                
+                ApplyPricingToVm(model, pricing);
                 return View(model);
             }
 
@@ -122,26 +127,20 @@ namespace Nadixa.Web.Controllers
                 }
             }
 
-            // If stock validation failed
             if (!ModelState.IsValid)
             {
-                model.SubTotal = subTotal;
-                model.ShippingFee = SHIPPING_FEE;
-                model.GrandTotal = subTotal + SHIPPING_FEE;
-
+                ApplyPricingToVm(model, pricing);
                 return View(model);
             }
 
             // Save address to user profile
-            //user.FullName = $"{user.FirstName} {user.LastName}";
             user.PhoneNumber = model.PhoneNumber;
             user.Address = model.Address;
             user.City = model.City;
 
             await _userManager.UpdateAsync(user);
 
-
-            // Create Order
+            // Create Order (مع حفظ تفاصيل الخصم كـ Snapshot - راجعي ORDER_ENTITY_CHANGES.txt)
             var order = new Order
             {
                 UserId = user.Id,
@@ -152,12 +151,19 @@ namespace Nadixa.Web.Controllers
                 Notes = model.Notes,
                 CreatedAt = DateTime.Now,
                 Status = OrderStatus.Pending,
-                // تم تعديل السعر ليصبح شامل مصاريف الشحن
-                TotalPrice = subTotal + SHIPPING_FEE
+
+                SubTotal = pricing.SubTotal,
+                DiscountAmount = pricing.ProductsDiscountTotal + pricing.BundleDiscountTotal
+                                 + pricing.CouponDiscount + pricing.LoyaltyDiscount,
+                ShippingFee = pricing.ShippingFee,
+                CouponCode = pricing.CouponDiscount > 0 ? couponCode : null,
+
+                TotalPrice = pricing.GrandTotal
             };
 
             await _unitOfWork.Repository<Order>().AddAsync(order);
             await _unitOfWork.CompleteAsync();
+
             // ── Send order confirmation email ─────────────────────────────
             try
             {
@@ -170,9 +176,11 @@ namespace Nadixa.Web.Controllers
                     PhoneNumber = model.PhoneNumber,
                     Notes = model.Notes,
                     OrderDate = DateTime.Now,
-                    SubTotal = subTotal,
-                    ShippingFee = SHIPPING_FEE,
+                    SubTotal = pricing.SubTotal,
+                    ShippingFee = pricing.ShippingFee,
                     GrandTotal = order.TotalPrice,
+                    TotalDiscount = pricing.ProductsDiscountTotal + pricing.BundleDiscountTotal + pricing.CouponDiscount,
+                    CouponCode = order.CouponCode,
                     Items = cart.Items.Select(i => new OrderConfirmationItem
                     {
                         ProductName = i.Product.Name,
@@ -184,26 +192,23 @@ namespace Nadixa.Web.Controllers
                 var emailBody = await _viewRenderer.RenderAsync(
                     "Emails/OrderConfirmation", emailModel);
 
-                
                 _emailSender.SendEmail(
                     senderName: "Nadixa Store",
-                    senderEmail: "vanamilad2@gmail.com",
+                    senderEmail: "your-email@gmail.com",
                     toName: model.FullName,
-                    toEmail: user.Email,
+                    toEmail: user.Email!,
                     subject: $"Order Confirmation #{order.Id}",
                     textContent: emailBody
                 );
             }
             catch (Exception ex)
             {
-                //Console.WriteLine($"Email failed: {ex.Message}");
-                throw new Exception("EMAIL DEBUG: " + ex.ToString());
+                Console.WriteLine($"Email failed: {ex.Message}");
             }
 
             // Create OrderItems
             foreach (var item in cart.Items)
             {
-                
                 await _unitOfWork.Repository<OrderItem>().AddAsync(new OrderItem
                 {
                     OrderId = order.Id,
@@ -217,12 +222,34 @@ namespace Nadixa.Web.Controllers
 
             await _unitOfWork.CompleteAsync();
 
-            // Clear Cart
+            // تسجيل استخدام الكوبون فعليًا (بعد ما الأوردر اتأكد)
+            if (pricing.CouponDiscount > 0 && !string.IsNullOrWhiteSpace(couponCode))
+            {
+                var (isValid, _, _, coupon) = await _couponService.ValidateAndCalculateAsync(
+                    couponCode, user.Id, pricing.SubTotal, false);
+
+                if (isValid && coupon != null)
+                {
+                    await _couponService.RegisterUsageAsync(coupon.Id, user.Id, order.Id, pricing.CouponDiscount);
+                }
+            }
+
+            // خصم نقاط الولاء المستبدلة (لو العميل استبدل نقاط)
+            if (pricing.LoyaltyDiscount > 0)
+            {
+                var pointsUsed = (int)Math.Round(pricing.LoyaltyDiscount / 0.10m); // لازم تتطابق مع EgpValuePerPointRedeemed
+                await _loyaltyService.RedeemPointsAsync(user.Id, pointsUsed, order.Id);
+            }
+
+            // إضافة نقاط ولاء جديدة عن الأوردر ده
+            await _loyaltyService.AddPointsForOrderAsync(user.Id, order.Id, order.TotalPrice);
+
+            // Clear Cart + الكوبون من الـ Session
             _context.CartItems.RemoveRange(cart.Items);
             await _context.SaveChangesAsync();
+            CouponSessionHelper.Remove(HttpContext);
 
             TempData["Success"] = AppMessages.OrderPlacedSuccessfully;
-            // تمرير الـ id الخاص بالطلب الجديد للـ Success Page
             return RedirectToAction("Success", new { id = order.Id });
         }
 
@@ -252,9 +279,6 @@ namespace Nadixa.Web.Controllers
 
             if (order == null) return NotFound();
 
-            decimal shippingFee = 50;
-            decimal subtotal = order.TotalPrice - shippingFee;
-
             var orderDetailsViewModel = new OrderDetailsViewModel
             {
                 OrderId = order.Id,
@@ -263,8 +287,8 @@ namespace Nadixa.Web.Controllers
                 Phone = order.PhoneNumber,
                 CreatedAt = order.CreatedAt,
                 Status = order.Status,
-                ShippingFee = shippingFee,
-                SubTotal = subtotal,
+                ShippingFee = order.ShippingFee,
+                SubTotal = order.SubTotal,
                 GrandTotal = order.TotalPrice,
                 Items = order.OrderItems.Select(item => new OrderItemViewModel
                 {
@@ -278,13 +302,14 @@ namespace Nadixa.Web.Controllers
 
             return View(orderDetailsViewModel);
         }
+
         [Authorize]
         public async Task<IActionResult> CancelOrder(int id)
         {
             var user = await _userManager.GetUserAsync(User);
 
             var order = await _context.Orders.Include(o => o.OrderItems)
-        .ThenInclude(oi => oi.Product)
+                .ThenInclude(oi => oi.Product)
                 .FirstOrDefaultAsync(o => o.Id == id && o.UserId == user.Id);
 
             if (order == null)
@@ -292,7 +317,6 @@ namespace Nadixa.Web.Controllers
                 return NotFound();
             }
 
-            // منع الإلغاء بعد الشحن
             if (order.Status == OrderStatus.Shipped ||
                 order.Status == OrderStatus.Delivered)
             {
@@ -300,8 +324,6 @@ namespace Nadixa.Web.Controllers
                 return RedirectToAction("Details", new { id });
             }
 
-
-            // رجّع الكمية للـ stock
             foreach (var item in order.OrderItems)
             {
                 item.Product.StockQuantity += item.Quantity;
@@ -313,6 +335,44 @@ namespace Nadixa.Web.Controllers
 
             TempData["Success"] = AppMessages.CancelOrder;
             return RedirectToAction("Details", new { id });
+        }
+
+        // ==============================================
+        // Helpers
+        // ==============================================
+        private async Task<CartPricingResult> CalculatePricingAsync(string userId, Cart cart, string? couponCode)
+        {
+            var request = new CartPricingRequest
+            {
+                UserId = userId,
+                CouponCode = couponCode,
+                BaseShippingFee = BASE_SHIPPING_FEE,
+                Items = cart.Items.Where(i => i.Product != null).Select(i => new CartLineItem
+                {
+                    ProductId = i.ProductId,
+                    ProductCategoryId = i.Product.ProductCategoryId,
+                    ProductSubCategoryId = i.Product.ProductSubCategoryId,
+                    UnitPrice = i.Product.Price,
+                    Quantity = i.Quantity
+                }).ToList()
+            };
+
+            return await _pricingEngine.CalculateAsync(request);
+        }
+
+        private static void ApplyPricingToVm(CheckoutVM model, CartPricingResult pricing)
+        {
+            model.SubTotal = pricing.SubTotal;
+            model.ShippingFee = pricing.ShippingFee;
+            model.GrandTotal = pricing.GrandTotal;
+
+            model.ProductsDiscount = pricing.ProductsDiscountTotal;
+            model.BundleDiscount = pricing.BundleDiscountTotal;
+            model.CouponDiscount = pricing.CouponDiscount;
+            model.ShippingDiscount = pricing.ShippingDiscount;
+            model.CouponError = pricing.CouponError;
+            model.LoyaltyPointsToEarn = pricing.LoyaltyPointsToEarn;
+            model.AppliedPromotions = pricing.AppliedPromotions;
         }
     }
 }
