@@ -4,6 +4,12 @@
 	ViewData["Title"] = Model.Product.Name;
 }
 
+@inject Nadixa.Core.Interfaces.IPermissionService PermissionService
+
+@{
+	bool canEditProduct = await PermissionService.UserHasPermissionAsync(User, "EditProductStatus");
+}
+
 <style>
 	.color-circle {
 		width: 28px;
@@ -65,10 +71,9 @@
 <section class="sec-product-detail bg0 p-t-25 p-b-60">
 	<div class="container">
 		
-		@if (User.IsInRole("Admin"))
+		@if (User.IsInRole("Admin") || canEditProduct)
 		{
 			<div class="d-flex justify-content-end align-items-center gap-3 mb-4">
-
 				<!-- Edit Button -->
 				<a asp-controller="Product"
 				   asp-action="Edit"
@@ -78,13 +83,15 @@
 					Edit Product
 				</a>
 
-				<!-- Delete Button -->
-				<button type="button"
-						class="btn btn-danger hov-btn3 px-4 py-2 rounded-pill shadow-sm delete-product-btn"
-						data-product-name="@Model.Product.Name">
-					Delete Product
-				</button>
-
+				@if (User.IsInRole("Admin"))
+				{
+					<!-- Delete Button - Admin بس -->
+					<button type="button"
+							class="btn btn-danger hov-btn3 px-4 py-2 rounded-pill shadow-sm delete-product-btn"
+							data-product-name="@Model.Product.Name">
+						Delete Product
+					</button>
+				}
 			</div>
 		}
 		<div class="row">

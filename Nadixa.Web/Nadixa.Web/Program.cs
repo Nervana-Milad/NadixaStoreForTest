@@ -86,35 +86,11 @@ namespace Nadixa.Web
             builder.Services.AddScoped<Nadixa.Core.Services.IUserOrderHistoryChecker,
                                         Nadixa.Core.Services.UserOrderHistoryChecker>();
             builder.Services.AddScoped<IPricingEngine, PricingEngine>();
+
+            builder.Services.AddScoped<IPermissionService, PermissionService>();
+
             var app = builder.Build();
 
-
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var _userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
-            //    var _roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-
-            //    string adminEmail = "admin@gmail.com";
-            //    string adminPassword = "admin";
-
-            //    var existingAdminRole = await _roleManager.FindByNameAsync("Admin");
-
-            //    if (existingAdminRole == null)
-            //    {
-            //        await _roleManager.CreateAsync(new IdentityRole("Admin"));
-            //    }
-
-            //    var existingAdminUser = await _userManager.FindByEmailAsync(adminEmail);
-
-            //    if (existingAdminUser == null)
-            //    {
-            //        var adminUser = new AppUser { UserName = adminEmail, Email = adminEmail, FirstName = "Admin", LastName = "User" };
-
-            //        await _userManager.CreateAsync(adminUser, adminPassword);
-            //        await _userManager.AddToRoleAsync(adminUser, "Admin");
-            //    }
-            //}
             using (var scope = app.Services.CreateScope())
             {
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
@@ -160,6 +136,30 @@ namespace Nadixa.Web
                     if (!addToRoleResult.Succeeded)
                         throw new Exception("Failed to assign Admin role to user");
                 }
+
+                // 4. Seed default permissions   ?? «·Ã“¡ «·ÃœÌœ
+                var context = scope.ServiceProvider.GetRequiredService<NadixaDbContext>();
+
+                var defaultPermissions = new (string Code, string Name, string Description)[]
+                {
+                    ("EditProductStatus", "Edit Product Status/Stock", "Allows editing only the stock quantity of products"),
+                    ("EditOrderStatus", "Edit Order Status", "Allows updating the status of orders only")
+                };
+
+                foreach (var (code, name, desc) in defaultPermissions)
+                {
+                    bool exists = await context.Permissions.AnyAsync(p => p.Code == code);
+                    if (!exists)
+                    {
+                        context.Permissions.Add(new Permission
+                        {
+                            Code = code,
+                            Name = name,
+                            Description = desc
+                        });
+                    }
+                }
+                await context.SaveChangesAsync();
             }
 
             // Configure the HTTP request pipeline.

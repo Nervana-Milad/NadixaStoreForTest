@@ -44,11 +44,15 @@
         public const string OrderPlacedSuccessfully = "Order Placed Successfully.";        // done
         public const string CancelOrder = "Order Canceled Successfully.";        // done
 
-        public const string ContactFieldsRequired = "Please fill all fields.";
-        public const string ContactMessageSent = "Your message has been sent successfully!";
-        public const string ContactMessageFailed = "Failed to send message. Please try again!";
+        public const string ContactFieldsRequired = "Please fill all fields.";          // done
+        public const string ContactMessageSent = "Your message has been sent successfully!";          // done
+        public const string ContactMessageFailed = "Failed to send message. Please try again!";          // done
 
+        public const string CodeAndNameRequired = "Code and Name are required.";       // done
+        public const string PermissionCodeExists = "Permission with this code already exists.";       // done
+        public const string PermissionCreated = "Permission created successfully.";       // done
 
+        public const string PermissionDeleted = "Permission deleted successfully.";       // done
 
 
     }

@@ -1,8 +1,15 @@
 ﻿@model Nadixa.Web.Models.ViewModels.ProductEditViewModel
+@inject Nadixa.Core.Interfaces.IPermissionService PermissionService
+
+
 
 @{
     ViewData["Title"] = "Edit Product";
+
+    bool canEditFull = User.IsInRole("Admin") || await PermissionService.UserHasPermissionAsync(User, "EditProducts");
+    string disabledAttr = canEditFull ? "" : "disabled";
 }
+
 
 <style>
     .page-wrapper {
@@ -53,6 +60,7 @@
     }
 </style>
 
+
 <div class="page-wrapper">
 
     <!-- Header -->
@@ -65,6 +73,14 @@
             Back to Products
         </a>
     </div>
+
+    @if (!canEditFull)
+    {
+        <div class="alert alert-info mb-4">
+            <i class="bi bi-info-circle"></i>
+            You only have permission to update the <strong>Stock Quantity</strong> for this product.
+        </div>
+    }
 
     <div class="product-card">
 
@@ -83,7 +99,7 @@
                     <div class="mb-3">
                         <label asp-for="Name" class="form-label"></label>
                         <input asp-for="Name"
-                               class="form-control form-control-lg" />
+                               class="form-control form-control-lg" disabled="@(!canEditFull)" />
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
 
@@ -91,7 +107,8 @@
                         <label asp-for="ProductCategoryId" class="form-label">Category Name</label>
                         <select asp-for="ProductCategoryId"
                                 asp-items="Model.Categories"
-                                class="form-select form-select-lg rounded-3 shadow-sm form-control">
+                                class="form-select form-select-lg rounded-3 shadow-sm form-control"
+                                disabled="@(!canEditFull)">
                             <option value="">Select Category</option>
                         </select>
                         <span asp-validation-for="ProductCategoryId" class="text-danger"></span>
@@ -101,7 +118,8 @@
                         <label asp-for="ProductSubCategoryId" class="form-label">Sub Category</label>
                         <select asp-for="ProductSubCategoryId"
                                 asp-items="Model.SubCategories"
-                                class="form-select form-select-lg form-control">
+                                class="form-select form-select-lg form-control"
+                                disabled="@(!canEditFull)">
                             <option value="">Select Sub Category</option>
                         </select>
                         <span asp-validation-for="ProductSubCategoryId" class="text-danger"></span>
@@ -111,18 +129,19 @@
                         <div class="col-md-6 mb-3">
                             <label asp-for="Price" class="form-label"></label>
                             <input asp-for="Price"
-                                   class="form-control form-control-lg" />
+                                   class="form-control form-control-lg" disabled="@(!canEditFull)" />
                             <span asp-validation-for="Price" class="text-danger"></span>
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label asp-for="OldPrice" class="form-label"></label>
                             <input asp-for="OldPrice"
-                                   class="form-control form-control-lg" />
+                                   class="form-control form-control-lg" disabled="@(!canEditFull)" />
                             <span asp-validation-for="OldPrice" class="text-danger"></span>
                         </div>
                     </div>
 
+                    @* 👇 الحقل الوحيد اللي فاضل شغال دايمًا *@
                     <div class="mb-3">
                         <label asp-for="StockQuantity" class="form-label"></label>
                         <input asp-for="StockQuantity"
@@ -134,7 +153,7 @@
                         <label asp-for="Description" class="form-label"></label>
                         <textarea asp-for="Description"
                                   rows="4"
-                                  class="form-control form-control-lg"></textarea>
+                                  class="form-control form-control-lg" disabled="@(!canEditFull)"></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
 
@@ -143,47 +162,70 @@
                 <!-- RIGHT SIDE -->
                 <div class="col-lg-5 text-center">
 
-                    <div class="mb-3">
-                        <label asp-for="MainImageUrl" class="form-label">
-                            Upload New Image
-                        </label>
+                    @if (canEditFull)
+                    {
+                        <div class="mb-3">
+                            <label asp-for="MainImageUrl" class="form-label">
+                                Upload New Image
+                            </label>
 
-                        <input asp-for="MainImageUrl"
-                               type="file"
-                               accept="image/*"
-                               class="form-control form-control-lg"
-                               onchange="previewImage(event)" />
-                    </div>
+                            <input asp-for="MainImageUrl"
+                                   type="file"
+                                   accept="image/*"
+                                   class="form-control form-control-lg"
+                                   onchange="previewImage(event)" />
+                        </div>
+                    }
+
                     <img id="imagePreview"
                          class="image-preview"
                          src="@(string.IsNullOrEmpty(Model.ExistingMainImageUrl)
                                                         ? "https://via.placeholder.com/400x400?text=No+Image"
                                                         : Model.ExistingMainImageUrl)" />
-                         <div class="mt-4">
-                             <label>Existing Images</label>
-                             <div id="existingGallery" class="d-flex flex-wrap gap-2">
-                            @foreach(var image in Model.ExistingImages)
-                            {
-                                <div class="position-relative" style="width:100px">
-                                    <img src="@image.ImageUrl" style="width100%; height:100px;object-fit:cover;border-radius:6px;"/>
-                                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
-                                    onclick="deleteExistingImage(@image.Id, this)">❌</button>
-                                </div>
-                            }
+
+                    @if (canEditFull)
+                    {
+                        <div class="mt-4">
+                            <label>Existing Images</label>
+                            <div id="existingGallery" class="d-flex flex-wrap gap-2">
+                                @foreach (var image in Model.ExistingImages)
+                                {
+                                    <div class="position-relative" style="width:100px">
+                                        <img src="@image.ImageUrl" style="width100%; height:100px;object-fit:cover;border-radius:6px;" />
+                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                                                onclick="deleteExistingImage(@image.Id, this)">❌</button>
+                                    </div>
+                                }
+                            </div>
+                            <input type="hidden" id="DeletedImages" name="DeletedImages" value="@Model.DeletedImages" />
                         </div>
-                        <input type="hidden" id="DeletedImages" name="DeletedImages" value="@Model.DeletedImages"/>
-                         </div>
-                    <!-- Add New Gallery Images -->
-                    <div class="mt-4">
-                        <label>New Gallery Images</label>
-                        <div id="newGalleryInputs">
-                            <div class="mb-2">
-                                <input type="file" name="NewGalleryImages" accept="image/*" onchange="previewNewGalleryImage(event, this)" />
-                                <img class="d-none" style="width:100px; height:100px; object-fit:cover; margin-top:5px; border-radius:6px;" />
+
+                        <!-- Add New Gallery Images -->
+                        <div class="mt-4">
+                            <label>New Gallery Images</label>
+                            <div id="newGalleryInputs">
+                                <div class="mb-2">
+                                    <input type="file" name="NewGalleryImages" accept="image/*" onchange="previewNewGalleryImage(event, this)" />
+                                    <img class="d-none" style="width:100px; height:100px; object-fit:cover; margin-top:5px; border-radius:6px;" />
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary mt-2" onclick="addMoreGalleryImage()">+ Add more image</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mt-4">
+                            <label>Existing Images</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var image in Model.ExistingImages)
+                                {
+                                    <div style="width:100px">
+                                        <img src="@image.ImageUrl" style="width:100%; height:100px;object-fit:cover;border-radius:6px;" />
+                                    </div>
+                                }
                             </div>
                         </div>
-                        <button type="button" class="btn btn-outline-primary mt-2" onclick="addMoreGalleryImage()">+ Add more image</button>
-                    </div>
+                    }
                 </div>
             </div>
 
@@ -195,7 +237,7 @@
 
                 <button type="submit"
                         class="btn px-5 hov-btn3 rounded-pill shadow" style="background-color:#6c7ae0; color:white">
-                    <i class="bi bi-check-circle me-2"></i> Update Product
+                    <i class="bi bi-check-circle me-2"></i> Update @(canEditFull ? "Product" : "Stock")
                 </button>
             </div>
 
@@ -213,25 +255,20 @@
             reader.readAsDataURL(event.target.files[0]);
         }
 
-             // Delete Existing Image
         function deleteExistingImage(id, btn) {
-            // Add to DeletedImages hidden input
             const deletedInput = document.getElementById('DeletedImages');
             let ids = deletedInput.value ? deletedInput.value.split(',') : [];
             ids.push(id);
             deletedInput.value = ids.join(',');
-
-            // Remove image from view
             btn.parentElement.remove();
         }
 
-            // Preview new gallery image
         function previewNewGalleryImage(event, input) {
             const file = input.files[0];
             const preview = input.nextElementSibling;
-            if(file){
+            if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e){
+                reader.onload = function (e) {
                     preview.src = e.target.result;
                     preview.classList.remove('d-none');
                 }
@@ -239,7 +276,6 @@
             }
         }
 
-            // Add new gallery input
         function addMoreGalleryImage() {
             const container = document.getElementById('newGalleryInputs');
             const div = document.createElement('div');
@@ -253,3 +289,4 @@
         }
     </script>
 }
+

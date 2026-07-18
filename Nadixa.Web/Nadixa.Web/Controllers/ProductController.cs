@@ -5,12 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
+using Nadixa.Core.Interfaces;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Infrastructure.Services;
+using Nadixa.Web.Filters;
 using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 
 
@@ -23,14 +24,16 @@ namespace Nadixa.Web.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly string[] _allowedExtension = { ".jpg", ".jpeg", ".png", ".jfif" };
         private readonly StockNotificationService _stockNotificationService;
+        private readonly IPermissionService _permissionService;
 
 
-        public ProductController(NadixaDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<AppUser> userManager, StockNotificationService stockNotificationService)
+        public ProductController(NadixaDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<AppUser> userManager, StockNotificationService stockNotificationService, IPermissionService permissionService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
             _stockNotificationService = stockNotificationService;
+            _permissionService = permissionService;
         }
 
         public async Task<IActionResult> Index(int? categoryId, int? subCategoryId, string? search, int page = 1)
@@ -295,7 +298,7 @@ namespace Nadixa.Web.Controllers
 
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [RequirePermission("EditProductStatus")]
         public async Task<IActionResult> Edit(int id)
         {
             var productFromDb = await _context.Products
@@ -344,9 +347,38 @@ namespace Nadixa.Web.Controllers
 
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [RequirePermission("EditProductStatus")]
         public async Task<IActionResult> Edit(ProductEditViewModel editViewModel)
         {
+
+            var productFromDb = await _context.Products
+        .Include(p => p.Images)
+        .FirstOrDefaultAsync(p => p.Id == editViewModel.Id);
+
+            if (productFromDb == null)
+                return NotFound();
+
+            bool canEditFull = User.IsInRole("Admin")
+                || await _permissionService.UserHasPermissionAsync(User, "EditProducts");
+
+            if (!canEditFull)
+            {
+                // 👇 غيّرنا الاسم من oldStock لـ previousStock
+                int previousStock = productFromDb.StockQuantity;
+                productFromDb.StockQuantity = editViewModel.StockQuantity;
+                productFromDb.UpdatedAt = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                if (previousStock <= 0 && productFromDb.StockQuantity > 0)
+                {
+                    await _stockNotificationService.NotifySubscribersAsync(productFromDb.Id);
+                }
+
+                TempData["Success"] = "Stock quantity updated successfully.";
+                return RedirectToAction("Detail", new { id = productFromDb.Id });
+            }
+
             if (!ModelState.IsValid)
             {
                 editViewModel.Categories = _context.ProductCategories.Select(cat => new SelectListItem
@@ -360,16 +392,18 @@ namespace Nadixa.Web.Controllers
                     Value = subProd.Id.ToString(),
                     Text = subProd.Name
                 }).ToList();
-
                 return View(editViewModel);
             }
 
-            var productFromDb = await _context.Products
-                .Include(p => p.Images)
-                .FirstOrDefaultAsync(p => p.Id == editViewModel.Id);
 
-            if (productFromDb == null)
-                return NotFound();
+            
+
+            //var productFromDb = await _context.Products
+            //    .Include(p => p.Images)
+            //    .FirstOrDefaultAsync(p => p.Id == editViewModel.Id);
+
+            //if (productFromDb == null)
+            //    return NotFound();
 
             // Main Image
             if (editViewModel.MainImageUrl != null)

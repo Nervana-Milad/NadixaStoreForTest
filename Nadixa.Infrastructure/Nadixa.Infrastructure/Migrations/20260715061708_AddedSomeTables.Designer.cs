@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nadixa.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Nadixa.Infrastructure.Data;
 namespace Nadixa.Infrastructure.Migrations
 {
     [DbContext(typeof(NadixaDbContext))]
-    partial class NadixaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260715061708_AddedSomeTables")]
+    partial class AddedSomeTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -238,31 +241,6 @@ namespace Nadixa.Infrastructure.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("Nadixa.Core.Entities.AppUserPermission", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("PermissionId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PermissionId");
-
-                    b.HasIndex("UserId", "PermissionId")
-                        .IsUnique();
-
-                    b.ToTable("AppUserPermissions");
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Blog", b =>
@@ -796,33 +774,6 @@ namespace Nadixa.Infrastructure.Migrations
                     b.ToTable("OrderStatusHistories");
                 });
 
-            modelBuilder.Entity("Nadixa.Core.Entities.Permission", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Permissions");
-                });
-
             modelBuilder.Entity("Nadixa.Core.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -1304,25 +1255,6 @@ namespace Nadixa.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Nadixa.Core.Entities.AppUserPermission", b =>
-                {
-                    b.HasOne("Nadixa.Core.Entities.Permission", "Permission")
-                        .WithMany("UserPermissions")
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Nadixa.Core.Entities.AppUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Permission");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Nadixa.Core.Entities.Blog", b =>
                 {
                     b.HasOne("Nadixa.Core.Entities.AppUser", "AppUser")
@@ -1630,11 +1562,6 @@ namespace Nadixa.Infrastructure.Migrations
                     b.Navigation("OrderItems");
 
                     b.Navigation("StatusHistory");
-                });
-
-            modelBuilder.Entity("Nadixa.Core.Entities.Permission", b =>
-                {
-                    b.Navigation("UserPermissions");
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Product", b =>

@@ -1,0 +1,35 @@
+﻿@* Views/AdminUser/ManagePermissions.cshtml *@
+@model Nadixa.Web.Models.ViewModels.AssignPermissionsViewModel
+
+@{
+    ViewData["Title"] = "Manage Permissions - " + Model.UserName;
+}
+
+<div class="container p-t-80">
+    <h2 class="mb-4">Permissions for @Model.UserName</h2>
+
+    <form asp-action="ManagePermissions" method="post">
+        <input type="hidden" name="userId" value="@Model.UserId" />
+
+        @foreach (var perm in Model.Permissions)
+        {
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox"
+                       name="selectedPermissionIds" value="@perm.Id"
+                       id="perm_@perm.Id"
+                       checked="@perm.IsChecked" />
+                <label class="form-check-label" for="perm_@perm.Id">
+                    <strong>@perm.Name</strong> <code class="text-muted">(@perm.Code)</code>
+                </label>
+            </div>
+        }
+
+        @if (!Model.Permissions.Any())
+        {
+            <p class="text-muted">No permissions exist yet. Create some first.</p>
+        }
+
+        <button type="submit" class="btn btn-primary mt-3">Save Permissions</button>
+        <a asp-action="Index" class="btn btn-secondary mt-3">Back</a>
+    </form>
+</div>
