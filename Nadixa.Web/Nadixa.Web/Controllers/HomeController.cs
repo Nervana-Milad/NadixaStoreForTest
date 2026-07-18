@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Nadixa.Core.DTOS;
 using Nadixa.Core.Entities;
+using Nadixa.Core.Interfaces;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Web.Models;
 using Nadixa.Web.Models.ViewModels;
@@ -18,13 +20,16 @@ namespace Nadixa.Web.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly NadixaDbContext _context;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IPromotionService _promotionService;
 
-        public HomeController(ILogger<HomeController> logger, NadixaDbContext context, UserManager<AppUser> userManager)
+        public HomeController(ILogger<HomeController> logger, NadixaDbContext context, UserManager<AppUser> userManager, IPromotionService promotionService)
 
         {
             _logger = logger;
             _context = context;
             _userManager = userManager;
+            _promotionService = promotionService;
+
 
         }
         public async Task<IActionResult> Index(int? categoryId)
@@ -73,7 +78,45 @@ namespace Nadixa.Web.Controllers
 
             ViewBag.BestSellers = bestSellers;
 
+            // ===== Promotions: ?????? ?????? + ???? ??? ??? ???? =====
+            var activePromotions = await _promotionService.GetActivePromotionsAsync();
+            ViewBag.ActivePromotions = activePromotions;
+
+            var productsForPromoCheck = products
+                .Concat(bestSellers)
+                .GroupBy(p => p.Id)
+                .Select(g => g.First());
+
+            var productPromotions = new Dictionary<int, ProductPromoInfo>();
+
+            foreach (var product in productsForPromoCheck)
+            {
+                var promo = activePromotions
+                    .Where(p =>
+                        !p.IsFirstPurchaseOnly &&
+                        (p.Scope == PromotionScope.AllProducts ||
+                         (p.Scope == PromotionScope.Category && p.ProductCategoryId == product.ProductCategoryId) ||
+                         (p.Scope == PromotionScope.SubCategory && p.ProductSubCategoryId == product.ProductSubCategoryId) ||
+                         (p.Scope == PromotionScope.SpecificProduct && p.ProductId == product.Id)))
+                    .OrderByDescending(p => p.Priority)
+                    .FirstOrDefault();
+
+                if (promo == null) continue;
+
+                productPromotions[product.Id] = new ProductPromoInfo
+                {
+                    BadgeText = promo.BadgeText,
+                    BadgeColorHex = promo.BadgeColorHex,
+                    DiscountedPrice = promo.Type == PromotionType.BuyXGetYFree
+                        ? null
+                        : _promotionService.CalculateDiscountedPrice(product.Price, promo)
+                };
+            }
+
+            ViewBag.ProductPromotions = productPromotions;
+
             return View(products);
+
         }
         
 
