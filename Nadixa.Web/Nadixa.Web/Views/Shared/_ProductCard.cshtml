@@ -1,11 +1,23 @@
 ﻿@model Nadixa.Web.Models.ViewModels.ProductCardViewModel
-
+@using Nadixa.Core.DTOS
 @{
     var product = Model.Product;
     var qty = Model.CartQuantity;
+
+    var promoDict = ViewBag.ProductPromotions as Dictionary<int, Nadixa.Core.DTOS.ProductPromoInfo>
+                    ?? new Dictionary<int, Nadixa.Core.DTOS.ProductPromoInfo>();
+    promoDict.TryGetValue(product.Id, out var promo);
 }
 
-<div class="block2 block2-shadow h-100 d-flex flex-column justify-content-between">
+<div class="block2 block2-shadow h-100 d-flex flex-column justify-content-between" style="position:relative;">
+
+    @if (promo != null && !string.IsNullOrEmpty(promo.BadgeText))
+    {
+        <span style="position:absolute; top:10px; left:10px; z-index:5; background-color:@(promo.BadgeColorHex ?? "#FF3B30"); color:#fff; font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px;">
+            @promo.BadgeText
+        </span>
+    }
+
     <div class="block2-pic hov-img0">
         <img src="@product.MainImageUrlPath" alt="@product.Name" class="img-fluid"
              style="height:270px; object-fit:cover;">
@@ -22,9 +34,16 @@
                 @product.Name
             </a>
 
-            @* السعر + السعر القديم لو موجود *@
+            @* السعر: أولوية لعرض الـ Promotion لو موجود، وإلا السعر القديم العادي *@
             <div class="d-flex align-items-center flex-wrap">
-                @if (product.OldPrice > 0 && product.OldPrice > product.Price)
+                @if (promo?.DiscountedPrice != null && promo.DiscountedPrice < product.Price)
+                {
+                    <span class="stext-105" style="color:#e74c3c; font-weight:700;">$@promo.DiscountedPrice.Value.ToString("N2")</span>
+                    <span class="stext-105 ml-2" style="text-decoration: line-through; color:#999; font-size: 0.85em;">
+                        $@product.Price
+                    </span>
+                }
+                else if (product.OldPrice > 0 && product.OldPrice > product.Price)
                 {
                     <span class="stext-105 cl3 mr-2">$@product.Price</span>
                     <span class="stext-105" style="text-decoration: line-through; color:#999; font-size: 0.85em;">
