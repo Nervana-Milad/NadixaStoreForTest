@@ -207,7 +207,13 @@
 								<tr class="table_row @(isOutOfStock ? "row-out-of-stock" : "")"
 									data-stock-issue="@rowHasIssue.ToString().ToLower()">
 									<td class="column-1">
-										<div class="how-itemcart1">
+										<div class="how-itemcart1" style="position:relative;">
+											@if (!string.IsNullOrEmpty(item.PromoBadgeText))
+											{
+												<span style="position:absolute; top:-6px; left:-6px; z-index:5; background-color:@(item.PromoBadgeColorHex ?? "#FF3B30"); color:#fff; font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px;">
+													@item.PromoBadgeText
+												</span>
+											}
 											<img src="@item.MainImageUrl" alt="IMG">
 										</div>
 									</td>
@@ -227,7 +233,19 @@
 											</div>
 										}
 									</td>
-									<td class="column-3">L.E. @item.Price</td>
+									<td class="column-3">
+										@if (item.DiscountedUnitPrice != null && item.DiscountedUnitPrice < item.Price)
+										{
+											<div>
+												<span style="color:#e74c3c; font-weight:700;">L.E. @item.DiscountedUnitPrice.Value.ToString("N2")</span>
+												<div style="text-decoration:line-through; color:#999; font-size:12px;">L.E. @item.Price.ToString("N2")</div>
+											</div>
+										}
+										else
+										{
+											@:L.E. @item.Price
+										}
+									</td>
 									<td class="column-4">
 
 										<div class="wrap-num-product flex-w m-r-20 m-tb-10 my-3">
@@ -322,6 +340,55 @@
 							var totalDiscount = Model.Pricing.ProductsDiscountTotal
 							+ Model.Pricing.BundleDiscountTotal
 							+ Model.Pricing.CouponDiscount;
+			<div class="col-sm-10 col-lg-7 col-xl-5 m-lr-auto m-b-50">
+				<div class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm">
+					<h4 class="mtext-109 cl2 p-b-30">
+						Order Summary
+					</h4>
+
+					<div class="flex-w flex-t bor12 p-b-13">
+						<div class="size-208">
+							<span class="stext-110 cl2">
+								Products Subtotal:
+							</span>
+						</div>
+
+						<div class="size-209">
+							<span class="mtext-110 cl2">
+								L.E. @Model.Pricing.SubTotal.ToString("N2")
+							</span>
+						</div>
+					</div>
+
+					@{
+						var totalDiscount = Model.Pricing.ProductsDiscountTotal
+										  + Model.Pricing.BundleDiscountTotal
+										  + Model.Pricing.CouponDiscount;
+					}
+					@if (totalDiscount > 0)
+					{
+						<div class="flex-w flex-t bor12 p-b-13">
+							<div class="size-208">
+								<span class="stext-110 cl2">
+									You Saved:
+								</span>
+							</div>
+
+							<div class="size-209">
+								<span class="mtext-110" style="color:#2ecc71;">
+									- L.E. @totalDiscount.ToString("N2")
+								</span>
+							</div>
+						</div>
+
+						@if (Model.Pricing.AppliedPromotions.Any())
+						{
+							<div class="p-b-13" style="font-size:13px; color:#888;">
+								@foreach (var promo in Model.Pricing.AppliedPromotions)
+								{
+									<div>@(promo.BadgeText ?? promo.Name): - L.E. @promo.DiscountAmount.ToString("N2")</div>
+								}
+							</div>
 						}
 						@if (totalDiscount > 0)
 						{
@@ -351,7 +418,6 @@
 							</span>
 						</div>
 					</div>
-
 					<div class="summary-total-row">
 						<span>Total</span>
 						<span class="summary-total-value">L.E. @Model.Pricing.GrandTotal.ToString("N2")</span>

@@ -13,6 +13,8 @@
         public decimal ShippingFee { get; set; }
         public decimal GrandTotal { get; set; }
         public List<OrderConfirmationItem> Items { get; set; } = new();
+        public decimal TotalDiscount { get; set; }
+        public string? CouponCode { get; set; }
     }
 
     public class OrderConfirmationItem
