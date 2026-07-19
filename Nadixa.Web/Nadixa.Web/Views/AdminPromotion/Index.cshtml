@@ -10,7 +10,11 @@
 
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="order-title">Promotions</h2>
-            <a asp-action="Create" class="btn btn-dark">+ New Promotion</a>
+
+            <div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 px-3" style="background-color:#6c7ae0; color:white">
+                <i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-plus text-white"></i>
+                <a class="text-white" asp-action="Create"> New Promotion</a>
+            </div>
         </div>
 
         @if (TempData["Success"] != null)

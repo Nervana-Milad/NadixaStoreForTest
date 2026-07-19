@@ -66,5 +66,6 @@ namespace Nadixa.Web.Controllers
 
             return RedirectToAction("Index");
         }
+    
     }
 }

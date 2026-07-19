@@ -1,35 +1,220 @@
-﻿@* Views/AdminUser/ManagePermissions.cshtml *@
+﻿
 @model Nadixa.Web.Models.ViewModels.AssignPermissionsViewModel
 
 @{
     ViewData["Title"] = "Manage Permissions - " + Model.UserName;
+    int selectedCount = Model.Permissions.Count(p => p.IsChecked);
 }
 
-<div class="container p-t-80">
-    <h2 class="mb-4">Permissions for @Model.UserName</h2>
+<style>
+    .permissions-page-wrapper {
+        padding-top: 90px;
+        max-width: 800px;
+        margin: auto;
+    }
 
-    <form asp-action="ManagePermissions" method="post">
-        <input type="hidden" name="userId" value="@Model.UserId" />
+    .permissions-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 6px 25px rgba(0,0,0,.08);
+        padding: 36px 40px;
+    }
 
-        @foreach (var perm in Model.Permissions)
-        {
-            <div class="form-check mb-2">
-                <input class="form-check-input" type="checkbox"
-                       name="selectedPermissionIds" value="@perm.Id"
-                       id="perm_@perm.Id"
-                       checked="@perm.IsChecked" />
-                <label class="form-check-label" for="perm_@perm.Id">
-                    <strong>@perm.Name</strong> <code class="text-muted">(@perm.Code)</code>
-                </label>
+    .permissions-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .permissions-title {
+        font-weight: 700;
+        margin: 0 0 4px;
+    }
+
+    .permissions-subtitle {
+        color: #718096;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .selected-badge {
+        background: #eef0fd;
+        color: #4c51bf;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        white-space: nowrap;
+    }
+
+    .permission-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 18px;
+        border: 1px solid #edf2f7;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        transition: .2s;
+    }
+
+        .permission-row:hover {
+            border-color: #cbd2f7;
+            background: #fafaff;
+        }
+
+    .permission-info strong {
+        display: block;
+        font-size: 15px;
+        color: #2d3748;
+    }
+
+    .permission-code {
+        font-size: 12px;
+        color: #a0aec0;
+        background: #f8f9fb;
+        padding: 2px 8px;
+        border-radius: 6px;
+    }
+
+    /* Toggle switch */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 46px;
+        height: 26px;
+        flex-shrink: 0;
+    }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    .slider-toggle {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #e2e8f0;
+        border-radius: 999px;
+        transition: .25s;
+    }
+
+        .slider-toggle:before {
+            content: "";
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .25s;
+        }
+
+    .switch input:checked + .slider-toggle {
+        background-color: #6c7ae0;
+    }
+
+        .switch input:checked + .slider-toggle:before {
+            transform: translateX(20px);
+        }
+
+    .empty-state {
+        text-align: center;
+        color: #a0aec0;
+        padding: 40px 0;
+    }
+
+    .actions-bar {
+        display: flex;
+        align-items: center;
+        justify-content: end;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 20px;
+        border-top: 1px solid #edf2f7;
+    }
+</style>
+
+<div class="permissions-page-wrapper">
+
+    <div class="permissions-card">
+
+        <div class="permissions-header">
+            <div>
+                <h2 class="permissions-title">Permissions</h2>
+                <p class="permissions-subtitle">Managing access for <strong>@Model.UserName</strong></p>
             </div>
-        }
+            <span class="selected-badge" id="selectedBadge">
+                @selectedCount of @Model.Permissions.Count selected
+            </span>
+        </div>
 
-        @if (!Model.Permissions.Any())
-        {
-            <p class="text-muted">No permissions exist yet. Create some first.</p>
-        }
+        <form asp-action="ManagePermissions" method="post">
+            <input type="hidden" name="userId" value="@Model.UserId" />
 
-        <button type="submit" class="btn btn-primary mt-3">Save Permissions</button>
-        <a asp-action="Index" class="btn btn-secondary mt-3">Back</a>
-    </form>
+            @if (Model.Permissions.Any())
+            {
+                @foreach (var perm in Model.Permissions)
+                {
+                    <div class="permission-row">
+                        <div class="permission-info">
+                            <strong>@perm.Name</strong>
+                            <span class="permission-code">@perm.Code</span>
+                        </div>
+
+                        <label class="switch">
+                            <input type="checkbox"
+                                   name="selectedPermissionIds"
+                                   value="@perm.Id"
+                                   class="permission-toggle"
+                                   checked="@perm.IsChecked" />
+                            <span class="slider-toggle"></span>
+                        </label>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="zmdi zmdi-lock-outline" style="font-size:32px;"></i>
+                    <p class="mt-2 mb-0">No permissions exist yet. Create some first.</p>
+                </div>
+            }
+
+            <div class="actions-bar">
+                <button type="submit"
+                        class="btn px-4 hov-btn3 rounded-pill shadow" style="background-color:#6c7ae0; color:white;">
+                    <i class="bi bi-check-circle me-2"></i> Save Permissions
+                </button>
+
+                <a asp-action="Index"
+                   class="btn rounded-pill flex-c-m stext-106 cl6 bor4 pointer hov-btn3 trans-04">
+                    Back
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.permission-toggle').forEach(cb => {
+            cb.addEventListener('change', updateSelectedCount);
+        });
+
+        function updateSelectedCount() {
+            const total = document.querySelectorAll('.permission-toggle').length;
+            const checked = document.querySelectorAll('.permission-toggle:checked').length;
+            document.getElementById('selectedBadge').textContent = `${checked} of ${total} selected`;
+        }
+    </script>
+}

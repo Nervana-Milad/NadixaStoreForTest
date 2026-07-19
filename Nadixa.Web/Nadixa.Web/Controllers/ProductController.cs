@@ -288,6 +288,14 @@ namespace Nadixa.Web.Controllers
             ViewBag.TotalReviews = reviews.Count();
             ViewBag.CurrentUserId = user?.Id;
 
+            var oneMonthAgo = DateTime.Now.AddMonths(-1);
+
+            ViewBag.SoldCount = await _context.OrderItems
+                .Where(oi => oi.ProductId == id
+                    && oi.Order.Status != OrderStatus.Cancelled
+                    && oi.Order.CreatedAt >= oneMonthAgo)
+                .SumAsync(oi => oi.Quantity);
+
             var vm = new ProductDetailViewModel
             {
                 Product = product,
@@ -298,7 +306,7 @@ namespace Nadixa.Web.Controllers
 
 
         [HttpGet]
-        [RequirePermission("EditProductStatus")]
+        [RequirePermission("EditProductQuantity")]
         public async Task<IActionResult> Edit(int id)
         {
             var productFromDb = await _context.Products
@@ -347,7 +355,7 @@ namespace Nadixa.Web.Controllers
 
 
         [HttpPost]
-        [RequirePermission("EditProductStatus")]
+        [RequirePermission("EditProductQuantity")]
         public async Task<IActionResult> Edit(ProductEditViewModel editViewModel)
         {
 
@@ -674,6 +682,14 @@ namespace Nadixa.Web.Controllers
 
             if (product == null) return NotFound();
 
+            var oneMonthAgo = DateTime.Now.AddMonths(-1);
+
+            var soldLastMonth = await _context.OrderItems
+                .Where(oi => oi.ProductId == id
+                    && oi.Order.Status != OrderStatus.Cancelled
+                    && oi.Order.CreatedAt >= oneMonthAgo)
+                .SumAsync(oi => oi.Quantity);
+
             var model = new ProductQuickViewViewModel
             {
                 Id = product.Id,
@@ -682,7 +698,8 @@ namespace Nadixa.Web.Controllers
                 Description = product.Description,
                 MainImageUrl = product.MainImageUrlPath,
                 StockQuantity = product.StockQuantity,
-                Images = product.Images.ToList()
+                Images = product.Images.ToList(),
+                SoldLastMonth = soldLastMonth
             };
 
 

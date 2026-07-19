@@ -54,6 +54,10 @@
 
         public const string PermissionDeleted = "Permission deleted successfully.";       // done
 
+        public const string CouponCreated = "Coupon Created Successfully";       //done
+        public const string CouponUpdated = "Coupon Updated Successfully";         //done
+        public const string CouponDeleted = "Coupon Deleted Successfully";       //done
+
 
     }
 }

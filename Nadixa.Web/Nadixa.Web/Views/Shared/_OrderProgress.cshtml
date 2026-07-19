@@ -1,11 +1,117 @@
 ﻿@model Nadixa.Core.Entities.OrderStatus
 @using Nadixa.Core.Entities
 
+
+
+<style>
+    .cancelled-order-banner {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background-color: #fef2f2;
+        color: #b91c1c;
+        padding: 16px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .tracker-flex-container {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: flex-start !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        position: relative !important;
+    }
+
+    .tracker-node {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        width: 80px !important;
+        flex-shrink: 0 !important;
+        z-index: 2 !important;
+        background: transparent !important;
+    }
+
+    .tracker-circle {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+        background-color: #ffffff !important;
+        border: 2px dashed #cbd5e1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: #64748b !important;
+        transition: all 0.3s ease !important;
+        margin-bottom: 12px !important;
+        z-index: 2 !important;
+    }
+
+    .tracker-node.completed .tracker-circle {
+        background-color: #1b61ff !important;
+        border: 2px solid #1b61ff !important;
+        color: #ffffff !important;
+    }
+
+    .tracker-node.active .tracker-circle {
+        background-color: #1b61ff !important;
+        border: 2px solid #1b61ff !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 0 6px rgba(27, 97, 255, 0.12) !important;
+    }
+
+    .tracker-circle i {
+        font-size: 12px !important;
+    }
+
+    .tracker-label {
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        color: #64748b !important;
+        white-space: nowrap !important;
+        text-align: center !important;
+    }
+
+    .tracker-node.active .tracker-label {
+        color: #1b61ff !important;
+        font-weight: 700 !important;
+    }
+
+    .tracker-segment {
+        flex: 1 1 auto !important;
+        min-width: 10px !important;
+        height: 2px !important;
+        background-color: #e2e8f0 !important;
+        margin-top: 20px !important;
+        margin-left: -20px !important;
+        margin-right: -20px !important;
+        transition: background-color 0.4s ease !important;
+    }
+
+        .tracker-segment.active {
+            background-color: #1b61ff !important;
+        }
+</style>
+
 <div class="order-card mb-4">
     <h5 class="fw-bold mb-4 text-dark" style="font-size:16px;">
         Order Progress
     </h5>
-    @{
+
+    @if (Model == OrderStatus.Cancelled)
+    {
+        <div class="cancelled-order-banner">
+            <i class="fa-solid fa-circle-xmark"></i>
+            <span>This order has been cancelled.</span>
+        </div>
+    }
+    else
+    {
         var steps = new[]
         {
             (Value: OrderStatus.Pending, Display: "Pending"),
@@ -16,7 +122,7 @@
             (Value: OrderStatus.Delivered, Display: "Delivered")
         };
         var currentIndex = Array.FindIndex(steps, s => s.Value == Model);
-    }
+    
     <div class="tracker-flex-container">
         @for (int i = 0; i < steps.Length; i++)
         {
@@ -49,99 +155,6 @@
             }
         }
     </div>
+    }
+    
 </div>
-
-<style>
-    /* الحاوية المرنة الرئيسية لشريط التتبع */
-    .tracker-flex-container {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: flex-start !important;
-        justify-content: space-between !important;
-        width: 100% !important;
-        position: relative !important;
-    }
-
-    /* العقدة التي تحتوي على الدائرة والكلمة أسفلها */
-    .tracker-node {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        width: 80px !important;
-        flex-shrink: 0 !important; /* يمنع الدوائر من الانضغاط على الشاشات الصغيرة */
-        z-index: 2 !important; /* لكي تظهر الدوائر فوق الخطوط الخلفية */
-        background: transparent !important;
-    }
-
-    /* شكل الدائرة */
-    .tracker-circle {
-        width: 40px !important;
-        height: 40px !important;
-        border-radius: 50% !important;
-        background-color: #ffffff !important;
-        border: 2px dashed #cbd5e1 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-size: 13px !important;
-        font-weight: 600 !important;
-        color: #64748b !important;
-        transition: all 0.3s ease !important;
-        margin-bottom: 12px !important;
-        z-index: 2 !important;
-    }
-
-    /* حالة الاكتمال للدوائر */
-    .tracker-node.completed .tracker-circle {
-        background-color: #1b61ff !important;
-        border: 2px solid #1b61ff !important;
-        color: #ffffff !important;
-    }
-
-    /* حالة النشاط الحالي للدوائر */
-    .tracker-node.active .tracker-circle {
-        background-color: #1b61ff !important;
-        border: 2px solid #1b61ff !important;
-        color: #ffffff !important;
-        box-shadow: 0 0 0 6px rgba(27, 97, 255, 0.12) !important;
-    }
-
-    .tracker-circle i {
-        font-size: 12px !important;
-    }
-
-    /* الكلمة أسفل الدائرة */
-    .tracker-label {
-        font-size: 11px !important;
-        font-weight: 600 !important;
-        color: #64748b !important;
-        white-space: nowrap !important;
-        text-align: center !important;
-    }
-
-    .tracker-node.active .tracker-label {
-        color: #1b61ff !important;
-        font-weight: 700 !important;
-    }
-
-    /* قطع الخطوط الذكية الفاصلة بين الدوائر */
-    .tracker-segment {
-        flex: 1 1 auto !important; /* الخط يتمدد وينكمش تلقائياً ليملأ الفراغ بالبكسل بدقة */
-        min-width: 10px !important; /* الحد الأدنى لطول الخط على الشاشات الصغيرة جداً */
-        height: 2px !important;
-        background-color: #e2e8f0 !important; /* الخط الرمادي التلقائي */
-        margin-top: 20px !important; /* توسيط الخط تماماً مع منتصف الدوائر (40px / 2) */
-        
-        /* سحب أطراف الخطوط للخلف لتتلاقى وتختفي خلف الدوائر تماماً */
-        margin-left: -20px !important; 
-        margin-right: -20px !important;
-        
-        z-index: 1 !important; /* لجعل الخط يمر خلف الدوائر */
-        transition: background-color 0.4s ease !important;
-    }
-
-    /* لون القطعة النشطة باللون الأزرق */
-    .tracker-segment.active {
-        background-color: #1b61ff !important;
-    }
-</style>

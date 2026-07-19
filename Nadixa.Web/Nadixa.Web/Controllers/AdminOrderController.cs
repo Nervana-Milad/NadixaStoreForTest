@@ -7,9 +7,11 @@ using Nadixa.Infrastructure.Data;
 using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 using Nadixa.Web.Services;
+using Nadixa.Web.Filters;   // 👈 ضيفي دي
+
 namespace Nadixa.Web.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [RequirePermission("EditOrderStatus")]
     public class AdminOrderController : Controller
     {
         private readonly NadixaDbContext _context;

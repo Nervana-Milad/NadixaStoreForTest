@@ -66,7 +66,7 @@
 
 						<!--  -->
 						<div class="p-t-33">
-							<div class="flex-w flex-r-m p-b-10">
+							@* <div class="flex-w flex-r-m p-b-10">
 								<div class="size-203 flex-c-m respon6">
 									Size
 								</div>
@@ -83,9 +83,9 @@
 										<div class="dropDownSelect2"></div>
 									</div>
 								</div>
-							</div>
+							</div> *@
 
-							<div class="flex-w flex-r-m p-b-10">
+							@* <div class="flex-w flex-r-m p-b-10">
 								<div class="size-203 flex-c-m respon6">
 									Color
 								</div>
@@ -102,21 +102,11 @@
 										<div class="dropDownSelect2"></div>
 									</div>
 								</div>
-							</div>
+							</div> *@
 
 							<div class="flex-w flex-r-m p-b-10">
 								<div class="size-204 flex-w flex-m respon6-next">
-								@* 	<div class="wrap-num-product flex-w m-r-20 m-tb-10 my-3">
-									<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
-										<i class="fs-16 zmdi zmdi-minus"></i>
-									</div>
-
-										<input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product" value="1" max="@Model.StockQuantity">
-
-									<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
-										<i class="fs-16 zmdi zmdi-plus"></i>
-									</div>
-								</div> *@
+								
 									<div class="wrap-num-product flex-w m-r-20 m-tb-10 my-3">
 
 										<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m @(Model.StockQuantity <= 0 ? "disabled-btn" : "")">
@@ -153,11 +143,7 @@
 													style="cursor:not-allowed; opacity:.7;">
 												Out Of Stock
 											</button>
-										}
-
-									
-									
-
+										}	
 								</div>
 								
 
@@ -165,6 +151,9 @@
 								<h6>
 								Quantity Stock: @Model.StockQuantity item(s)
 								</h6>
+							<p class="text-muted" style="font-size: 14px;">
+								<i class="zmdi zmdi-shopping-cart"></i> @Model.SoldLastMonth sold in the last month
+							</p>
 						</div>
 
 						<!--  -->
@@ -172,9 +161,7 @@
 							
 
 							<div class="flex-m bor9 p-r-10 m-r-11">
-								@* <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100" data-tooltip="Add to Wishlist">
-								<i class="zmdi zmdi-favorite"></i>
-							</a> *@
+								
 								<button class="js-addwish-detail fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2"
 										data-product-id="@Model.Id" data-product-name="@Model.Name">
 									<i class="zmdi zmdi-favorite-outline"></i>

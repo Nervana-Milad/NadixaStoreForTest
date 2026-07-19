@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
+using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 using System.Threading.Tasks;
 
@@ -42,7 +43,7 @@ namespace Nadixa.Web.Controllers
 
             await _couponService.CreateAsync(coupon);
 
-            TempData["Success"] = "تم إنشاء الكوبون بنجاح";
+            TempData["Success"] = AppMessages.CouponCreated;
             return RedirectToAction(nameof(Index));
         }
 
@@ -70,7 +71,7 @@ namespace Nadixa.Web.Controllers
 
             await _couponService.UpdateAsync(coupon);
 
-            TempData["Success"] = "تم تعديل الكوبون بنجاح";
+            TempData["Success"] = AppMessages.CouponUpdated;
             return RedirectToAction(nameof(Index));
         }
 
@@ -79,7 +80,7 @@ namespace Nadixa.Web.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             await _couponService.DeleteAsync(id);
-            TempData["Success"] = "تم حذف الكوبون";
+            TempData["Success"] = AppMessages.CouponDeleted;
             return RedirectToAction(nameof(Index));
         }
 

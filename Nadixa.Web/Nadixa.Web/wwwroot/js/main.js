@@ -402,6 +402,23 @@ $(document).on("click", ".delete-subcategory-btn", function () {
     });
 });
 
+// delete permission
+$(document).on("click", ".delete-permission-btn", function () {
+    var permissionId = $(this).data("permission-id");
+    var permissionName = $(this).data("permission-name");
+
+    Notify.confirm({
+        title: "Delete " + permissionName,
+        message: "Are you sure you want to delete this permission? Any Sub-Admin currently using it will lose this access.",
+        onConfirm: function () {
+            var form = $("#deletePermissionForm");
+            form.find("input[name='id']").remove();
+            form.append('<input type="hidden" name="id" value="' + permissionId + '">');
+            form.submit();
+        }
+    });
+});
+
 
 // Cancel Order modal
 $(document).on("click", ".cancel-order-btn", function () {
@@ -414,6 +431,24 @@ $(document).on("click", ".cancel-order-btn", function () {
         }
     });
 });
+
+// delete coupon
+$(document).on("click", ".delete-coupon-btn", function () {
+    var couponId = $(this).data("coupon-id");
+    var couponName = $(this).data("coupon-name");
+
+    Notify.confirm({
+        title: "Delete " + couponName,
+        message: "Are you sure you want to delete this coupon?",
+        onConfirm: function () {
+            var form = $("#deleteCouponForm");
+            form.find("input[name='id']").remove();
+            form.append('<input type="hidden" name="id" value="' + couponId + '">');
+            form.submit();
+        }
+    });
+});
+
 
 // Remove Item from cart
 $(document).on("click", ".remove-item-btn", function () {

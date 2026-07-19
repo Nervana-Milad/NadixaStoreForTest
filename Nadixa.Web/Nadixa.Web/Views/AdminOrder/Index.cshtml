@@ -12,274 +12,6 @@
     var cancelledCount = Model.Count(o => o.Status.ToString().Equals("Cancelled", StringComparison.OrdinalIgnoreCase));
 }
 
-<!-- ربط مكتبة الأيقونات الفاخرة FontAwesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-<div class="container admin-orders-section">
-
-    <!-- العنوان الرئيسي للوحة التحكم -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <div>
-            <h2 class="fw-bold text-dark mb-1" style="font-size: 26px;">Orders Management</h2>
-            <p class="text-muted mb-0 small">Monitor, track status updates, and manage customer transactions efficiently.</p>
-        </div>
-        <span class="badge badge-total-orders">
-            <i class="fa-solid fa-boxes-stacked me-2"></i> Total: @totalOrders Orders
-        </span>
-    </div>
-
-    <!-- كروت الإحصائيات العلوية (Dashboard KPI Cards) -->
-    <div class="row g-3 mb-4">
-        <!-- قيد الانتظار -->
-        <div class="col-md-2-4 col-sm-6">
-            <div class="kpi-card kpi-pending">
-                <div class="kpi-icon-wrapper">
-                    <i class="fa-regular fa-clock"></i>
-                </div>
-                <div class="kpi-content">
-                    <span class="kpi-title">Pending</span>
-                    <h3 class="kpi-value">@pendingCount</h3>
-                </div>
-            </div>
-        </div>
-        <!-- جاري المعالجة -->
-        <div class="col-md-2-4 col-sm-6">
-            <div class="kpi-card kpi-processing">
-                <div class="kpi-icon-wrapper">
-                    <i class="fa-solid fa-spinner fa-spin-slow"></i>
-                </div>
-                <div class="kpi-content">
-                    <span class="kpi-title">Processing</span>
-                    <h3 class="kpi-value">@processingCount</h3>
-                </div>
-            </div>
-        </div>
-        <!-- تم الشحن -->
-        <div class="col-md-2-4 col-sm-6">
-            <div class="kpi-card kpi-shipped">
-                <div class="kpi-icon-wrapper">
-                    <i class="fa-solid fa-truck-fast"></i>
-                </div>
-                <div class="kpi-content">
-                    <span class="kpi-title">Shipped</span>
-                    <h3 class="kpi-value">@shippedCount</h3>
-                </div>
-            </div>
-        </div>
-        <!-- تم التوصيل -->
-        <div class="col-md-2-4 col-sm-6">
-            <div class="kpi-card kpi-delivered">
-                <div class="kpi-icon-wrapper">
-                    <i class="fa-regular fa-circle-check"></i>
-                </div>
-                <div class="kpi-content">
-                    <span class="kpi-title">Delivered</span>
-                    <h3 class="kpi-value">@deliveredCount</h3>
-                </div>
-            </div>
-        </div>
-        <!-- ملغى -->
-        <div class="col-md-2-4 col-sm-6">
-            <div class="kpi-card kpi-cancelled">
-                <div class="kpi-icon-wrapper">
-                    <i class="fa-regular fa-circle-xmark"></i>
-                </div>
-                <div class="kpi-content">
-                    <span class="kpi-title">Cancelled</span>
-                    <h3 class="kpi-value">@cancelledCount</h3>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- أدوات البحث والفلترة السريعة الفورية (Search & Filters) -->
-    <div class="order-card mb-4 py-3 px-4">
-        <div class="row g-3 align-items-center">
-            <!-- صندوق البحث الذكي -->
-            <div class="col-md-6 col-lg-4">
-                <div class="search-box-container">
-                    <i class="fa fa-search search-box-icon"></i>
-                    <input type="text" id="adminOrderSearch" class="form-control search-input" placeholder="Search by Order ID or Customer Name..." onkeyup="instantAdminFilter()">
-                </div>
-            </div>
-            <!-- فلتر الحالة السريع -->
-            <div class="col-md-4 col-lg-3">
-                <select id="adminStatusFilter" class="form-select filter-select" onchange="instantAdminFilter()">
-                    <option value="">All Statuses</option>
-                    <option value="pending">Pending</option>
-                    <option value="processing">Processing</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="cancelled">Cancelled</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <!-- جدول إدارة الطلبات -->
-    <div class="order-card p-0 overflow-hidden">
-        @if (Model.Any())
-        {
-            <div class="table-responsive">
-                <table class="table admin-table mb-0" id="adminOrdersTable">
-                    <thead>
-                        <tr>
-                            <th class="ps-4">Order ID</th>
-                            <th>Customer Name</th>
-                            <th>Date</th>
-                            <th>Current Status</th>
-                            <th>Direct Status Update</th>
-                            <th>Grand Total</th>
-                            <th class="pe-4 text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var order in Model)
-                        {
-                            // تحويل الـ Enum لنص مباشرة دون استخدام ?
-                            var statusStr = order.Status.ToString();
-                            var statusLower = statusStr.ToLower();
-                            var badgeClass = statusLower switch
-                            {
-                                "pending" => "status-pending",
-                                "confirmed" => "status-processing",
-                                "processing" => "status-processing",
-                                "shipped" => "status-shipped",
-                                "on the way" => "status-shipped",
-                                "delivered" => "status-delivered",
-                                "cancelled" => "status-cancelled",
-                                _ => ""
-                            };
-
-                            <tr class="order-table-row" data-id="#@order.Id" data-customer="@order.CustomerName.ToLower()" data-status="@statusLower">
-                                <!-- رقم الطلب -->
-                                <td class="ps-4">
-                                    <span class="order-id-tag">#@order.Id</span>
-                                    end
-                                    <!-- اسم العميل -->
-                                <td>
-                                    <div class="fw-semibold text-dark">@order.CustomerName</div>
-                                </td>
-                                <!-- التاريخ -->
-                                <td>
-                                    <div class="text-muted small">@order.CreatedAt.ToString("dd MMM yyyy")</div>
-                                </td>
-                                <!-- شارة الحالة الحالية -->
-                                <td>
-                                    <span class="status-badge @badgeClass">
-                                        @statusStr
-                                    </span>
-                                </td>
-                                <!-- تحديث الحالة المباشر -->
-                                <td>
-                                    @if (statusLower != "delivered" && statusLower != "cancelled")
-                                    {
-                                        <form asp-controller="AdminOrder" asp-action="UpdateStatus" method="post" class="d-inline-block">
-                                            <input type="hidden" name="orderId" value="@order.Id" />
-                                    <select name="status"
-                                                    class="form-select inline-status-select select-@statusLower"
-                                                    onchange="this.form.submit()">
-
-                                                @foreach (var status in order.AvailableStatuses)
-                                                {
-                                                    if (status == order.Status)
-                                                    {
-                                                        <option value="@status" selected>
-                                                            @status
-                                                        </option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="@status">
-                                                            @status
-                                                        </option>
-                                                    }
-                                                }
-
-                                </select>
-                                        </form>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted small"><i class="fa-solid fa-lock me-1"></i> Lifecycle Ended</span>
-                                    }
-                                </td>
-                                <!-- الإجمالي -->
-                                <td>
-                                    <strong class="text-dark">L.E. @order.GrandTotal.ToString("N0")</strong>
-                                </td>
-                                <!-- الأزرار والإجراءات -->
-                                <td class="pe-4 text-end">
-                                    <a asp-controller="AdminOrder"
-                                       asp-action="Details"
-                                       asp-route-id="@order.Id"
-                                       class="btn btn-view-details">
-                                        <i class="fa-regular fa-eye me-1"></i> Details
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-
-            <div id="noResultsFound" class="empty-orders py-5 d-none">
-                <i class="fa-solid fa-magnifying-glass mb-3" style="font-size: 32px; color: #94a3b8;"></i>
-                <h5>No matching orders found</h5>
-                <p class="text-muted small">Try adjusting your search criteria or status filters.</p>
-            </div>
-        }
-        else
-        {
-            <div class="empty-orders py-5">
-                <i class="fa-solid fa-box-open mb-3" style="font-size: 40px; color: #94a3b8;"></i>
-                <h5>No Orders Found</h5>
-                <p class="text-muted small">There are currently no customer orders in the system.</p>
-            </div>
-        }
-    </div>
-
-</div>
-
-<!-- نظام الفلترة والبحث الفوري الفعال -->
-<script>
-    function instantAdminFilter() {
-        const searchInput = document.getElementById('adminOrderSearch').value.toLowerCase().trim();
-        const statusFilter = document.getElementById('adminStatusFilter').value.toLowerCase().trim();
-        const rows = document.querySelectorAll('.order-table-row');
-        let matchedCount = 0;
-
-        rows.forEach(row => {
-            const orderId = row.getAttribute('data-id').toLowerCase();
-            const customerName = row.getAttribute('data-customer').toLowerCase();
-            const status = row.getAttribute('data-status').toLowerCase();
-
-            const matchesSearch = orderId.includes(searchInput) || customerName.includes(searchInput);
-            const matchesStatus = statusFilter === "" || status === statusFilter;
-
-            if (matchesSearch && matchesStatus) {
-                row.classList.remove('d-none');
-                matchedCount++;
-            } else {
-                row.classList.add('d-none');
-            }
-        });
-
-        const noResults = document.getElementById('noResultsFound');
-        const table = document.getElementById('adminOrdersTable');
-        if (noResults) {
-            if (matchedCount === 0 && rows.length > 0) {
-                noResults.classList.remove('d-none');
-                if (table) table.querySelector('thead').style.display = 'none';
-            } else {
-                noResults.classList.add('d-none');
-                if (table) table.querySelector('thead').style.display = 'table-header-group';
-            }
-        }
-    }
-</script>
-
-<!-- التنسيقات الفاخرة للوحة التحكم الإدارية -->
 <style>
     body {
         background-color: #f8fafc;
@@ -589,3 +321,270 @@
             margin-top: 12px;
         }
 </style>
+<!-- ربط مكتبة الأيقونات الفاخرة FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<div class="container admin-orders-section">
+
+    <!-- العنوان الرئيسي للوحة التحكم -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 p-t-30">
+        <div>
+            <h2 class="fw-bold text-dark mb-1" style="font-size: 26px;">Orders Management</h2>
+            <p class="text-muted mb-0 small">Monitor, track status updates, and manage customer transactions efficiently.</p>
+        </div>
+        <span class="badge badge-total-orders">
+            <i class="fa-solid fa-boxes-stacked me-2"></i> Total: @totalOrders Orders
+        </span>
+    </div>
+
+    <!-- كروت الإحصائيات العلوية (Dashboard KPI Cards) -->
+    <div class="row g-3 mb-4">
+        <!-- قيد الانتظار -->
+        <div class="col-md-2-4 col-sm-6">
+            <div class="kpi-card kpi-pending">
+                <div class="kpi-icon-wrapper">
+                    <i class="fa-regular fa-clock"></i>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-title">Pending</span>
+                    <h3 class="kpi-value">@pendingCount</h3>
+                </div>
+            </div>
+        </div>
+        <!-- جاري المعالجة -->
+        <div class="col-md-2-4 col-sm-6">
+            <div class="kpi-card kpi-processing">
+                <div class="kpi-icon-wrapper">
+                    <i class="fa-solid fa-spinner fa-spin-slow"></i>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-title">Processing</span>
+                    <h3 class="kpi-value">@processingCount</h3>
+                </div>
+            </div>
+        </div>
+        <!-- تم الشحن -->
+        <div class="col-md-2-4 col-sm-6">
+            <div class="kpi-card kpi-shipped">
+                <div class="kpi-icon-wrapper">
+                    <i class="fa-solid fa-truck-fast"></i>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-title">Shipped</span>
+                    <h3 class="kpi-value">@shippedCount</h3>
+                </div>
+            </div>
+        </div>
+        <!-- تم التوصيل -->
+        <div class="col-md-2-4 col-sm-6">
+            <div class="kpi-card kpi-delivered">
+                <div class="kpi-icon-wrapper">
+                    <i class="fa-regular fa-circle-check"></i>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-title">Delivered</span>
+                    <h3 class="kpi-value">@deliveredCount</h3>
+                </div>
+            </div>
+        </div>
+        <!-- ملغى -->
+        <div class="col-md-2-4 col-sm-6">
+            <div class="kpi-card kpi-cancelled">
+                <div class="kpi-icon-wrapper">
+                    <i class="fa-regular fa-circle-xmark"></i>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-title">Cancelled</span>
+                    <h3 class="kpi-value">@cancelledCount</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- أدوات البحث والفلترة السريعة الفورية (Search & Filters) -->
+    <div class="order-card mb-4 py-3 px-4">
+        <div class="row g-3 align-items-center">
+            <!-- صندوق البحث الذكي -->
+            <div class="col-md-6 col-lg-4">
+                <div class="search-box-container">
+                    <i class="fa fa-search search-box-icon"></i>
+                    <input type="text" id="adminOrderSearch" class="form-control search-input" placeholder="Search by Order ID or Customer Name..." onkeyup="instantAdminFilter()">
+                </div>
+            </div>
+            <!-- فلتر الحالة السريع -->
+            <div class="col-md-4 col-lg-3">
+                <select id="adminStatusFilter" class="form-select filter-select" onchange="instantAdminFilter()">
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول إدارة الطلبات -->
+    <div class="order-card p-0 overflow-hidden">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table admin-table mb-0" id="adminOrdersTable">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Order ID</th>
+                            <th>Customer Name</th>
+                            <th>Date</th>
+                            <th>Current Status</th>
+                            <th>Direct Status Update</th>
+                            <th>Grand Total</th>
+                            <th class="pe-4 text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model)
+                        {
+                            // تحويل الـ Enum لنص مباشرة دون استخدام ?
+                            var statusStr = order.Status.ToString();
+                            var statusLower = statusStr.ToLower();
+                            var badgeClass = statusLower switch
+                            {
+                                "pending" => "status-pending",
+                                "confirmed" => "status-confirmed",
+                                "processing" => "status-processing",
+                                "shipped" => "status-shipped",
+                                "on the way" => "status-shipped",
+                                "delivered" => "status-delivered",
+                                "cancelled" => "status-cancelled",
+                                _ => ""
+                            };
+
+                            <tr class="order-table-row" data-id="#@order.Id" data-customer="@order.CustomerName.ToLower()" data-status="@statusLower">
+                                <!-- رقم الطلب -->
+                                <td class="ps-4">
+                                    <span class="order-id-tag">#@order.Id</span>
+                                    end
+                                    <!-- اسم العميل -->
+                                <td>
+                                    <div class="fw-semibold text-dark">@order.CustomerName</div>
+                                </td>
+                                <!-- التاريخ -->
+                                <td>
+                                    <div class="text-muted small">@order.CreatedAt.ToString("dd MMM yyyy")</div>
+                                </td>
+                                <!-- شارة الحالة الحالية -->
+                                <td>
+                                    <span class="status-badge @badgeClass">
+                                        @statusStr
+                                    </span>
+                                </td>
+                                <!-- تحديث الحالة المباشر -->
+                                <td>
+                                    @if (statusLower != "delivered" && statusLower != "cancelled")
+                                    {
+                                        <form asp-controller="AdminOrder" asp-action="UpdateStatus" method="post" class="d-inline-block">
+                                            <input type="hidden" name="orderId" value="@order.Id" />
+                                    <select name="status"
+                                                    class="form-select inline-status-select select-@statusLower"
+                                                    onchange="this.form.submit()">
+
+                                                @foreach (var status in order.AvailableStatuses)
+                                                {
+                                                    if (status == order.Status)
+                                                    {
+                                                        <option value="@status" selected>
+                                                            @status
+                                                        </option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@status">
+                                                            @status
+                                                        </option>
+                                                    }
+                                                }
+
+                                </select>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small"><i class="fa-solid fa-lock me-1"></i> Lifecycle Ended</span>
+                                    }
+                                </td>
+                                <!-- الإجمالي -->
+                                <td>
+                                    <strong class="text-dark">L.E. @order.GrandTotal.ToString("N0")</strong>
+                                </td>
+                                <!-- الأزرار والإجراءات -->
+                                <td class="pe-4 text-end">
+                                    <a asp-controller="AdminOrder"
+                                       asp-action="Details"
+                                       asp-route-id="@order.Id"
+                                       class="btn btn-view-details">
+                                        <i class="fa-regular fa-eye me-1"></i> Details
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="noResultsFound" class="empty-orders py-5 d-none">
+                <i class="fa-solid fa-magnifying-glass mb-3" style="font-size: 32px; color: #94a3b8;"></i>
+                <h5>No matching orders found</h5>
+                <p class="text-muted small">Try adjusting your search criteria or status filters.</p>
+            </div>
+        }
+        else
+        {
+            <div class="empty-orders py-5">
+                <i class="fa-solid fa-box-open mb-3" style="font-size: 40px; color: #94a3b8;"></i>
+                <h5>No Orders Found</h5>
+                <p class="text-muted small">There are currently no customer orders in the system.</p>
+            </div>
+        }
+    </div>
+
+</div>
+
+<!-- نظام الفلترة والبحث الفوري الفعال -->
+<script>
+    function instantAdminFilter() {
+        const searchInput = document.getElementById('adminOrderSearch').value.toLowerCase().trim();
+        const statusFilter = document.getElementById('adminStatusFilter').value.toLowerCase().trim();
+        const rows = document.querySelectorAll('.order-table-row');
+        let matchedCount = 0;
+
+        rows.forEach(row => {
+            const orderId = row.getAttribute('data-id').toLowerCase();
+            const customerName = row.getAttribute('data-customer').toLowerCase();
+            const status = row.getAttribute('data-status').toLowerCase();
+
+            const matchesSearch = orderId.includes(searchInput) || customerName.includes(searchInput);
+            const matchesStatus = statusFilter === "" || status === statusFilter;
+
+            if (matchesSearch && matchesStatus) {
+                row.classList.remove('d-none');
+                matchedCount++;
+            } else {
+                row.classList.add('d-none');
+            }
+        });
+
+        const noResults = document.getElementById('noResultsFound');
+        const table = document.getElementById('adminOrdersTable');
+        if (noResults) {
+            if (matchedCount === 0 && rows.length > 0) {
+                noResults.classList.remove('d-none');
+                if (table) table.querySelector('thead').style.display = 'none';
+            } else {
+                noResults.classList.add('d-none');
+                if (table) table.querySelector('thead').style.display = 'table-header-group';
+            }
+        }
+    }
+</script>

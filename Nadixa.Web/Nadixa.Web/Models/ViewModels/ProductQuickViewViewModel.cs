@@ -16,6 +16,7 @@ namespace Nadixa.Web.Models.ViewModels
         public string? MainImageUrl { get; set; }
 
         public List<ProductImage> Images { get; set; } = new();
+        public int SoldLastMonth { get; set; }
 
     }
 }

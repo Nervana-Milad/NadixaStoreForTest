@@ -196,8 +196,7 @@ namespace Nadixa.Web.Controllers
             }
             catch (Exception ex)
             {
-                //Console.WriteLine($"Email failed: {ex.Message}");
-                throw new Exception("EMAIL DEBUG: " + ex.ToString());
+                Console.WriteLine($"Email failed: {ex.Message}");
             }
 
             // Create OrderItems

@@ -27,20 +27,24 @@
                             @user.CurrentRole
                         </span>
                     </td>
-                    <td class="d-flex align-items-center">
+                    <td class="d-flex justify-content-between">
                         <form asp-action="ChangeRole" method="post" class="d-flex align-items-center mr-2">
                             <input type="hidden" name="userId" value="@user.Id" />
                             <select name="newRole" class="form-control form-control-sm mr-2" style="width:auto;">
                                 <option value="User" selected="@(user.CurrentRole == "User")">User</option>
                                 <option value="SubAdmin" selected="@(user.CurrentRole == "SubAdmin")">Sub-Admin</option>
                             </select>
-                            <button type="submit" class="btn btn-sm btn-primary">Update Role</button>
+                            <button type="submit"
+                                    class="btn px-3 hov-btn3 rounded-pill shadow" style="background-color:#6c7ae0; color:white">
+                                 Update Role
+                            </button>
                         </form>
 
                         @if (user.CurrentRole == "SubAdmin")
                         {
-                            <a asp-action="ManagePermissions" asp-route-userId="@user.Id" class="btn btn-sm btn-outline-dark">
-                                Permissions
+                            <a asp-action="ManagePermissions"  asp-route-userId="@user.Id"
+                               class="btn rounded-pill flex-c-m stext-106 cl6 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4">
+                                Permissions <i class="bi bi-arrow-up-right ml-1"></i>
                             </a>
                         }
                     </td>
