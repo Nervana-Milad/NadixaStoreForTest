@@ -50,6 +50,10 @@ namespace Nadixa.Infrastructure.Data
         public DbSet<BundleDeal> BundleDeals { get; set; }
         public DbSet<BundleDealProduct> BundleDealProducts { get; set; }
 
+        // Permissions
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<AppUserPermission> AppUserPermissions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -72,10 +76,10 @@ namespace Nadixa.Infrastructure.Data
             );
 
             builder.Entity<Product>()
-        .HasOne(p => p.ProductCategory)
-        .WithMany(c => c.Products)
-        .HasForeignKey(p => p.ProductCategoryId)
-        .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(p => p.ProductCategory)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.ProductCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Product>()
                 .HasOne(p => p.ProductSubCategory)
@@ -88,6 +92,10 @@ namespace Nadixa.Infrastructure.Data
             builder.Entity<Product>().HasQueryFilter(p => !p.IsDeleted);
             builder.Entity<ProductCategory>().HasQueryFilter(c => !c.IsDeleted);
             builder.Entity<WishlistItem>().HasIndex(w => new { w.WishlistId, w.ProductId }).IsUnique();
+
+            builder.Entity<AppUserPermission>()
+            .HasIndex(up => new { up.UserId, up.PermissionId })
+            .IsUnique();
         }
 
     }

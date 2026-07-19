@@ -1,0 +1,51 @@
+﻿@model List<Nadixa.Web.Models.ViewModels.UserListItemViewModel>
+
+@{
+    ViewData["Title"] = "Manage Users";
+}
+
+<div class="container p-t-80">
+    <h2 class="mb-4">Manage Users</h2>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.FullName</td>
+                    <td>@user.Email</td>
+                    <td>
+                        <span class="badge @(user.CurrentRole == "SubAdmin" ? "badge-warning" : "badge-secondary")">
+                            @user.CurrentRole
+                        </span>
+                    </td>
+                    <td class="d-flex align-items-center">
+                        <form asp-action="ChangeRole" method="post" class="d-flex align-items-center mr-2">
+                            <input type="hidden" name="userId" value="@user.Id" />
+                            <select name="newRole" class="form-control form-control-sm mr-2" style="width:auto;">
+                                <option value="User" selected="@(user.CurrentRole == "User")">User</option>
+                                <option value="SubAdmin" selected="@(user.CurrentRole == "SubAdmin")">Sub-Admin</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary">Update Role</button>
+                        </form>
+
+                        @if (user.CurrentRole == "SubAdmin")
+                        {
+                            <a asp-action="ManagePermissions" asp-route-userId="@user.Id" class="btn btn-sm btn-outline-dark">
+                                Permissions
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
