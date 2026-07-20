@@ -136,30 +136,6 @@ namespace Nadixa.Web
                     if (!addToRoleResult.Succeeded)
                         throw new Exception("Failed to assign Admin role to user");
                 }
-
-                // 4. Seed default permissions   ?? «·Ã“¡ «·ÃœÌœ
-                var context = scope.ServiceProvider.GetRequiredService<NadixaDbContext>();
-
-                var defaultPermissions = new (string Code, string Name, string Description)[]
-                {
-                    ("EditProductStatus", "Edit Product Status/Stock", "Allows editing only the stock quantity of products"),
-                    ("EditOrderStatus", "Edit Order Status", "Allows updating the status of orders only")
-                };
-
-                foreach (var (code, name, desc) in defaultPermissions)
-                {
-                    bool exists = await context.Permissions.AnyAsync(p => p.Code == code);
-                    if (!exists)
-                    {
-                        context.Permissions.Add(new Permission
-                        {
-                            Code = code,
-                            Name = name,
-                            Description = desc
-                        });
-                    }
-                }
-                await context.SaveChangesAsync();
             }
 
             // Configure the HTTP request pipeline.
