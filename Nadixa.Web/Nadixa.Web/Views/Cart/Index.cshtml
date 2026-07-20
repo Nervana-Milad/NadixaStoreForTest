@@ -20,10 +20,10 @@
 		margin: 0 !important;
 	}
 
-	.table-shopping-cart .how-itemcart1 img {
-		max-height: 70px;
-		width: auto;
-	}
+		.table-shopping-cart .how-itemcart1 img {
+			max-height: 70px;
+			width: auto;
+		}
 
 	.cart-summary-card {
 		background: #fff;
@@ -184,7 +184,7 @@
 <form class="bg0 p-t-75 p-b-85" asp-controller="Cart" asp-action="UpdateCart" method="post">
 	<div class="container">
 		<div class="row gx-5">
-			<div class="col-lg-8 col-xl-8 m-b-50">
+			<div class="col-lg-7 col-xl-7 m-b-50">
 				<div class="m-l-25 m-lr-0-xl">
 					<div class="wrap-table-shopping-cart">
 						<table class="table-shopping-cart">
@@ -282,8 +282,8 @@
 						</table>
 					</div>
 
-					<div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-40 p-lr-15-sm">
-						<div class="flex-w flex-m m-r-10 m-tb-5">
+					<div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-20 p-lr-15-sm">
+						<div class="flex-w flex-m m-r-20 m-tb-5">
 							<input class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5"
 								   type="text"
 								   name="couponCode"
@@ -325,7 +325,7 @@
 				</div>
 			</div>
 
-			<div class="col-sm-10 col-lg-4 col-xl-4 m-b-50">
+			<div class="col-sm-10 col-lg-5 col-xl-5 m-b-50">
 				<div class="cart-summary-card">
 
 					<h4 class="summary-title">Cart Totals</h4>
@@ -340,62 +340,10 @@
 							var totalDiscount = Model.Pricing.ProductsDiscountTotal
 							+ Model.Pricing.BundleDiscountTotal
 							+ Model.Pricing.CouponDiscount;
-			<div class="col-sm-10 col-lg-7 col-xl-5 m-lr-auto m-b-50">
-				<div class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm">
-					<h4 class="mtext-109 cl2 p-b-30">
-						Order Summary
-					</h4>
-
-					<div class="flex-w flex-t bor12 p-b-13">
-						<div class="size-208">
-							<span class="stext-110 cl2">
-								Products Subtotal:
-							</span>
-						</div>
-
-						<div class="size-209">
-							<span class="mtext-110 cl2">
-								L.E. @Model.Pricing.SubTotal.ToString("N2")
-							</span>
-						</div>
-					</div>
-
-					@{
-						var totalDiscount = Model.Pricing.ProductsDiscountTotal
-										  + Model.Pricing.BundleDiscountTotal
-										  + Model.Pricing.CouponDiscount;
-					}
-					@if (totalDiscount > 0)
-					{
-						<div class="flex-w flex-t bor12 p-b-13">
-							<div class="size-208">
-								<span class="stext-110 cl2">
-									You Saved:
-								</span>
-							</div>
-
-							<div class="size-209">
-								<span class="mtext-110" style="color:#2ecc71;">
-									- L.E. @totalDiscount.ToString("N2")
-								</span>
-							</div>
-						</div>
-
-						@if (Model.Pricing.AppliedPromotions.Any())
-						{
-							<div class="p-b-13" style="font-size:13px; color:#888;">
-								@foreach (var promo in Model.Pricing.AppliedPromotions)
-								{
-									<div>@(promo.BadgeText ?? promo.Name): - L.E. @promo.DiscountAmount.ToString("N2")</div>
-								}
-							</div>
 						}
 						@if (totalDiscount > 0)
 						{
-							<div class="summary-row">
-								<span>Discount</span>
-								<span class="summary-value summary-discount">- L.E. @totalDiscount.ToString("N2")</span>
-							</div>
+							
 
 							@if (Model.Pricing.AppliedPromotions.Any())
 							{
@@ -404,11 +352,17 @@
 									{
 										<div class="promotion-row">
 											<span>@(promo.BadgeText ?? promo.Name)</span>
+
 											<span>- L.E. @promo.DiscountAmount.ToString("N2")</span>
 										</div>
 									}
 								</div>
 							}
+
+							<div class="summary-row">
+								<span>Discount</span>
+								<span class="summary-value summary-discount">- L.E. @totalDiscount.ToString("N2")</span>
+							</div>
 						}
 
 						<div class="summary-row">
@@ -418,6 +372,7 @@
 							</span>
 						</div>
 					</div>
+
 					<div class="summary-total-row">
 						<span>Total</span>
 						<span class="summary-total-value">L.E. @Model.Pricing.GrandTotal.ToString("N2")</span>
@@ -437,3 +392,4 @@
 		</div>
 	</div>
 </form>
+
