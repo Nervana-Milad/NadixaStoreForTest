@@ -58,6 +58,10 @@
         public const string CouponUpdated = "Coupon Updated Successfully";         //done
         public const string CouponDeleted = "Coupon Deleted Successfully";       //done
 
+        public const string PromotionCreated = "Promotion Created Successfully";       //done
+        public const string PromotionUpdated = "Promotion Updated Successfully";         //done
+        public const string PromotionDeleted = "Promotion Deleted Successfully";       //done
+
 
     }
 }

@@ -6,6 +6,7 @@ using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
 using Nadixa.Web.Models.ViewModels;
 using System.Threading.Tasks;
+using Nadixa.Web.Helpers;
 
 namespace Nadixa.Web.Controllers
 {
@@ -49,7 +50,7 @@ namespace Nadixa.Web.Controllers
             var promotion = MapToEntity(vm, new Promotion());
             await _promotionService.CreateAsync(promotion);
 
-            TempData["Success"] = "تم إنشاء العرض بنجاح";
+            TempData["Success"] = AppMessages.PromotionCreated;
             return RedirectToAction(nameof(Index));
         }
 
@@ -80,7 +81,7 @@ namespace Nadixa.Web.Controllers
             MapToEntity(vm, promotion);
             await _promotionService.UpdateAsync(promotion);
 
-            TempData["Success"] = "تم تعديل العرض بنجاح";
+            TempData["Success"] = AppMessages.PromotionUpdated;
             return RedirectToAction(nameof(Index));
         }
 
@@ -89,7 +90,7 @@ namespace Nadixa.Web.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             await _promotionService.DeleteAsync(id);
-            TempData["Success"] = "تم حذف العرض";
+            TempData["Success"] = AppMessages.PromotionDeleted;
             return RedirectToAction(nameof(Index));
         }
 

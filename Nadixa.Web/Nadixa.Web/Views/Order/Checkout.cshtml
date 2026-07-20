@@ -4,6 +4,24 @@
     ViewData["Title"] = "Checkout";
 }
 
+<style>
+    .discount-details {
+        background: #f0fdf4;
+        border-radius: 10px;
+        padding: 8px 14px;
+        margin: 4px 0 12px;
+    }
+
+    .promotion-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #16a34a;
+        padding: 2px 0;
+    }
+
+</style>
+
 <div class="container checkout-page-wrapper">
     <div class="row g-4">
         
@@ -128,6 +146,13 @@
             <div class="premium-card" style="position: sticky; top: 120px;">
                 <h2 class="section-title">Order Summary</h2>
 
+
+                <div class="order-summary-item">
+                    <span><b>Items Subtotal</b></span>
+                    <span style="font-weight: 600; color: #111;">@Model.SubTotal.ToString("N2") EGP</span>
+                </div>
+
+
                 @if (!string.IsNullOrEmpty(Model.CouponCode) && string.IsNullOrEmpty(Model.CouponError) && Model.CouponDiscount > 0)
                 {
                     <div style="background-color:#eafaf1; border:1px solid #2ecc71; border-radius:8px; padding:10px 14px; margin-bottom:15px; font-size:0.85rem; color:#1e8449;">
@@ -143,21 +168,17 @@
 
                 @if (Model.AppliedPromotions.Any())
                 {
-                    <div class="mb-2">
+                    <div class="discount-details">
                         @foreach (var promo in Model.AppliedPromotions)
                         {
-                            <div class="order-summary-item" style="font-size:0.85rem; color:#666;">
+                            <div class="promotion-row">
                                 <span>@(promo.BadgeText ?? promo.Name)</span>
-                                <span style="color:#2ecc71; font-weight:600;">- @promo.DiscountAmount.ToString("N2") EGP</span>
+                                <span>- L.E. @promo.DiscountAmount.ToString("N2")</span>
                             </div>
                         }
                     </div>
                 }
-
-                <div class="order-summary-item">
-                    <span>Items Subtotal</span>
-                    <span style="font-weight: 600; color: #111;">@Model.SubTotal.ToString("N2") EGP</span>
-                </div>
+                
 
                 @if (Model.TotalDiscount > 0)
                 {
