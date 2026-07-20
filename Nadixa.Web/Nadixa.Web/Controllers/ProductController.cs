@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Nadixa.Core.DTOS;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
+using Nadixa.Core.Services;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Infrastructure.Services;
 using Nadixa.Web.Filters;
@@ -25,15 +27,17 @@ namespace Nadixa.Web.Controllers
         private readonly string[] _allowedExtension = { ".jpg", ".jpeg", ".png", ".jfif" };
         private readonly StockNotificationService _stockNotificationService;
         private readonly IPermissionService _permissionService;
+        private readonly IPromotionService _promotionService;
 
 
-        public ProductController(NadixaDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<AppUser> userManager, StockNotificationService stockNotificationService, IPermissionService permissionService)
+        public ProductController(NadixaDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<AppUser> userManager, StockNotificationService stockNotificationService, IPermissionService permissionService, IPromotionService promotionService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
             _stockNotificationService = stockNotificationService;
             _permissionService = permissionService;
+            _promotionService = promotionService;
         }
 
         public async Task<IActionResult> Index(int? categoryId, int? subCategoryId, string? search, int page = 1)
@@ -109,6 +113,40 @@ namespace Nadixa.Web.Controllers
             }
 
             ViewBag.NotifyRequestedProductIds = notifyRequestedProductIds;
+
+            // ===== Promotions: ?????? ?????? + ???? ??? ??? ???? =====
+            var activePromotions = await _promotionService.GetActivePromotionsAsync();
+            ViewBag.ActivePromotions = activePromotions;
+
+            var productsForPromoCheck = products;
+
+            var productPromotions = new Dictionary<int, ProductPromoInfo>();
+
+            foreach (var product in productsForPromoCheck)
+            {
+                var promo = activePromotions
+                    .Where(p =>
+                        !p.IsFirstPurchaseOnly &&
+                        (p.Scope == PromotionScope.AllProducts ||
+                         (p.Scope == PromotionScope.Category && p.ProductCategoryId == product.ProductCategoryId) ||
+                         (p.Scope == PromotionScope.SubCategory && p.ProductSubCategoryId == product.ProductSubCategoryId) ||
+                         (p.Scope == PromotionScope.SpecificProduct && p.ProductId == product.Id)))
+                    .OrderByDescending(p => p.Priority)
+                    .FirstOrDefault();
+
+                if (promo == null) continue;
+
+                productPromotions[product.Id] = new ProductPromoInfo
+                {
+                    BadgeText = promo.BadgeText,
+                    BadgeColorHex = promo.BadgeColorHex,
+                    DiscountedPrice = promo.Type == PromotionType.BuyXGetYFree
+                        ? null
+                        : _promotionService.CalculateDiscountedPrice(product.Price, promo)
+                };
+            }
+
+            ViewBag.ProductPromotions = productPromotions;
             return View(products);
         }
 

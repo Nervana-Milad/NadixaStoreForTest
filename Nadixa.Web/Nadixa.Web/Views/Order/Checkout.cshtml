@@ -25,7 +25,6 @@
 <div class="container checkout-page-wrapper">
     <div class="row g-4">
         
-        <!-- القسم الأول: فورم البيانات -->
         <div class="col-lg-7">
             <div class="premium-card">
                 <h2 class="section-title">Shipping Address</h2>
@@ -141,7 +140,6 @@
             </div>
         </div>
 
-        <!-- القسم الثاني: ملخص الطلب -->
         <div class="col-lg-5">
             <div class="premium-card" style="position: sticky; top: 120px;">
                 <h2 class="section-title">Order Summary</h2>
@@ -249,11 +247,9 @@
                 $("#Address").val() !== "" &&
                 $("#City").val() !== "";
 
-            // بدل disabled: بنستخدم readonly عشان القيمة تفضل بتتبعت مع الفورم وقت Submit
             if (hasAddress) {
                 $("#addressFields").addClass("locked");
                 $("#addressFields input, #addressFields textarea").prop("readonly", true);
-                // الـ <select> مش بيدعم readonly، فبنمنع التفاعل بصريًا بس (CSS) مع سيبان القيمة زي ما هي
             }
 
             $("#newAddressCheck").change(function () {
@@ -273,11 +269,10 @@
                 }
             });
 
-            // منع الضغط المزدوج على "Place Order" - ده اللي كان بيسبب DbUpdateConcurrencyException
             $("form[asp-action='Checkout'], form").on("submit", function () {
                 var $btn = $(this).find(".btn-pay");
                 if ($btn.prop("disabled")) {
-                    return false; // امنعي أي محاولة إرسال تانية
+                    return false; 
                 }
                 $btn.prop("disabled", true).text("Placing your order...");
             });
