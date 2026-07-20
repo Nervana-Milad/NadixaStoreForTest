@@ -820,7 +820,34 @@ namespace Nadixa.Web.Controllers
                     || p.Name.Contains(term))
                 .ToListAsync();
 
-            var result = products.Select(p => new
+            var activePromotions = await _promotionService.GetActivePromotionsAsync();
+
+            var productPromotions = new Dictionary<int, ProductPromoInfo>();
+
+            foreach (var product in products)
+            {
+                var promo = activePromotions
+                    .Where(p =>
+                        !p.IsFirstPurchaseOnly &&
+                        (p.Scope == PromotionScope.AllProducts ||
+                         (p.Scope == PromotionScope.Category && p.ProductCategoryId == product.ProductCategoryId) ||
+                         (p.Scope == PromotionScope.SubCategory && p.ProductSubCategoryId == product.ProductSubCategoryId) ||
+                         (p.Scope == PromotionScope.SpecificProduct && p.ProductId == product.Id)))
+                    .OrderByDescending(p => p.Priority)
+                    .FirstOrDefault();
+                if (promo == null) continue;
+
+                productPromotions[product.Id] = new ProductPromoInfo
+                {
+                    BadgeText = promo.BadgeText,
+                    BadgeColorHex = promo.BadgeColorHex,
+                    DiscountedPrice = promo.Type == PromotionType.BuyXGetYFree
+                ? null
+                : _promotionService.CalculateDiscountedPrice(product.Price, promo)
+                };
+            }
+
+                var result = products.Select(p => new
             {
                 id = p.Id,
                 name = p.Name,
@@ -835,9 +862,18 @@ namespace Nadixa.Web.Controllers
                 cartQuantity = cartItems.ContainsKey(p.Id)
                     ? cartItems[p.Id]
                     : 0,
-                notifyRequested = notifyRequestedIds.Contains(p.Id)
+                notifyRequested = notifyRequestedIds.Contains(p.Id),
+                badgeText = productPromotions.ContainsKey(p.Id)
+                    ? productPromotions[p.Id].BadgeText
+                    : null,
+                badgeColorHex = productPromotions.ContainsKey(p.Id)
+                    ? productPromotions[p.Id].BadgeColorHex
+                    : null,
+                discountedPrice = productPromotions.ContainsKey(p.Id)
+                    ? productPromotions[p.Id].DiscountedPrice
+                    : null
 
-            });
+                });
 
             return Json(result);
         }
