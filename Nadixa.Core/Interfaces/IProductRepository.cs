@@ -1,0 +1,18 @@
+﻿using Nadixa.Core.DTOS;
+using Nadixa.Core.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Nadixa.Core.Interfaces
+{
+    public interface IProductRepository
+    {
+        Task<List<Product>> GetAllAsync(int? categoryId);
+        Task<List<Product>> GetBestSellersAsync(int count);
+        Task<List<ProductSearchItem>> SearchAsync(string term, int take);
+
+    }
+}

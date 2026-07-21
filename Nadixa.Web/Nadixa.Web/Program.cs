@@ -89,6 +89,13 @@ namespace Nadixa.Web
 
             builder.Services.AddScoped<IPermissionService, PermissionService>();
 
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<ICartRepository, CartRepository>();
+            builder.Services.AddScoped<IStockNotificationRepository, StockNotificationRepository>();
+            builder.Services.AddScoped<IBlogRepository, BlogRepository>();
+            builder.Services.AddScoped<IHomeService, HomeService>();
+
             var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())
