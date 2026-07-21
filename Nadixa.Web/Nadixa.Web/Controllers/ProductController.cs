@@ -706,7 +706,7 @@ namespace Nadixa.Web.Controllers
             }
             catch (Exception ex)
             {
-                return "Error Uploading Images: " + ex.Message;
+                throw new InvalidOperationException("Error Uploading Images:", ex);
             }
             return "/images/products/" + fileName;
         }
@@ -854,9 +854,8 @@ namespace Nadixa.Web.Controllers
                 price = p.Price,
                 oldPrice = p.OldPrice,
                 stockQuantity = p.StockQuantity,
-                description = p.Description.Length > 50
-                    ? p.Description.Substring(0, 50) + "..."
-                    : p.Description,
+                description = string.IsNullOrEmpty(p.Description) ? ""
+                    :(p.Description.Length > 50 ? p.Description.Substring(0, 50) + "..." : p.Description),
                 mainImageUrlPath = p.MainImageUrlPath,
                 categoryName = p.ProductCategory.Name,
                 cartQuantity = cartItems.ContainsKey(p.Id)
