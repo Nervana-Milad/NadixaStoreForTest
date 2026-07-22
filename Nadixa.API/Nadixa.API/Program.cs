@@ -4,8 +4,10 @@ using Nadixa.Application.Helpers;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
 using Nadixa.Core.Interfaces.Excel;
+using Nadixa.Core.Services;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Infrastructure.Repositories;
+using Nadixa.Infrastructure.Services;
 using Nadixa.Infrastructure.Services.Excel;
 using System.Reflection;
 
@@ -19,17 +21,24 @@ namespace Nadixa.API
             var builder = WebApplication.CreateBuilder(args);
 
             // 1. Add Services
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+            });
 
             // إعدادات Swagger (الشاشة الزرقاء)
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // إعدادات الداتا بيز
-            //builder.Services.AddDbContext<NadixaDbContext>(options =>
-            //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+           
 
-
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<ICartRepository, CartRepository>();
+            builder.Services.AddScoped<IStockNotificationRepository, StockNotificationRepository>();
+            builder.Services.AddScoped<IBlogRepository, BlogRepository>();
+            builder.Services.AddScoped<IHomeService, HomeService>();
+            builder.Services.AddScoped<IPromotionService, PromotionService>(); // لو مش مسجل بالفعل
 
 
             builder.Services.AddDbContext<NadixaDbContext>(options =>
@@ -49,14 +58,9 @@ namespace Nadixa.API
             // تسجيل الـ Repository و UnitOfWork
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            //builder.Services.AddScoped<IExcelService, ExcelService>();
-            //builder.Services.AddScoped<IExcelHelperService, ExcelHelperService>();
-
 
             builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
-            //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-            //builder.Services.AddAutoMapper(typeof(Program));
+;
 
 
             var app = builder.Build();

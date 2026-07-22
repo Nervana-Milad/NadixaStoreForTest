@@ -14,6 +14,8 @@ namespace Nadixa.Application.DTOS
         public decimal Price { get; set; }
         public decimal? OldPrice { get; set; }
         public string PictureUrl { get; set; } = string.Empty; // الصورة الرئيسية
+        public List<string> GalleryImageUrls { get; set; } = new();
+
         public string Category { get; set; } = string.Empty;   // هنرجع اسم القسم مش رقمه
         public bool IsFeatured { get; set; }
     }

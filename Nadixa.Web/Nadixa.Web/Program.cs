@@ -145,6 +145,7 @@ namespace Nadixa.Web
                 }
             }
 
+
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {

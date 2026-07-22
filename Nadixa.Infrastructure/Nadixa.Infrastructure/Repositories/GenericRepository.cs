@@ -22,19 +22,30 @@ namespace Nadixa.Infrastructure.Repositories
             _dbSet = _context.Set<T>();
         }
 
-        public async Task<T?> GetByIdAsync(int id)
+        private IQueryable<T> ApplyIncludes(IQueryable<T> query, Expression<Func<T, object>>[] includes)
         {
-            return await _dbSet.FindAsync(id);
+            foreach (var include in includes)
+                query = query.Include(include);
+            return query;
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public async Task<T?> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes)
         {
-            return await _dbSet.AsNoTracking().ToListAsync();
+            var query = ApplyIncludes(_dbSet.AsQueryable(), includes);
+            return await query.FirstOrDefaultAsync(e => e.Id == id);
+
         }
 
-        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
+        public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes)
         {
-            return await _dbSet.Where(predicate).AsNoTracking().ToListAsync();
+            var query = ApplyIncludes(_dbSet.AsNoTracking(), includes);
+            return await query.ToListAsync();
+        }
+
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+        {
+            var query = ApplyIncludes(_dbSet.AsNoTracking(), includes);
+            return await query.Where(predicate).ToListAsync();
         }
 
         public async Task AddAsync(T entity)
@@ -49,7 +60,7 @@ namespace Nadixa.Infrastructure.Repositories
 
         public void Delete(T entity)
         {
-            entity.IsDeleted = true; // Soft Delete
+            entity.IsDeleted = true;
             _dbSet.Update(entity);
         }
     }

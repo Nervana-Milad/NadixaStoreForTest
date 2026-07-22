@@ -24,7 +24,7 @@ namespace Nadixa.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductToReturnDto>>> GetProducts()
         {
-            var products = await _unitOfWork.Repository<Product>().GetAllAsync();
+            var products = await _unitOfWork.Repository<Product>().GetAllAsync(p => p.ProductCategory, p => p.Images);
 
             // تحويل الداتا لـ DTO
             var data = _mapper.Map<IEnumerable<ProductToReturnDto>>(products);
@@ -36,10 +36,9 @@ namespace Nadixa.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductToReturnDto>> GetProduct(int id)
         {
-            var product = await _unitOfWork.Repository<Product>().GetByIdAsync(id);
+            var product = await _unitOfWork.Repository<Product>().GetByIdAsync(id, p => p.ProductCategory, p => p.Images);
 
             if (product == null) return NotFound();
-
             return Ok(_mapper.Map<ProductToReturnDto>(product));
         }
 

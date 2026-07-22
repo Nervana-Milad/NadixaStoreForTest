@@ -271,6 +271,13 @@ namespace Nadixa.Web.Controllers
             await _context.Products.AddAsync(product);
             await _context.SaveChangesAsync();
 
+
+            _context.ProductImages.Add(new ProductImage
+            {
+                ProductId = product.Id,
+                ImageUrl = imagePath,
+                IsMain = true
+            });
             // Gallery Images
             if (productViewModel.GalleryImages != null &&
                 productViewModel.GalleryImages.Any())
@@ -295,9 +302,8 @@ namespace Nadixa.Web.Controllers
                         IsMain = false
                     });
                 }
-
-                await _context.SaveChangesAsync();
             }
+            await _context.SaveChangesAsync();
 
             TempData["Success"] = AppMessages.ProductCreated;
             return RedirectToAction("Index");
@@ -337,7 +343,7 @@ namespace Nadixa.Web.Controllers
             var vm = new ProductDetailViewModel
             {
                 Product = product,
-                ImageUrls = product.Images.Select(i => i.ImageUrl).ToList()
+                ImageUrls = product.Images.Where(i => !i.IsMain).Select(i => i.ImageUrl).ToList()
             };
             return View(vm);
         }
@@ -367,7 +373,7 @@ namespace Nadixa.Web.Controllers
                 ProductSubCategoryId = productFromDb.ProductSubCategoryId,
                 ExistingMainImageUrl = productFromDb.MainImageUrlPath,
 
-                ExistingImages = productFromDb.Images.Select(img => new ProductImageViewModel
+                ExistingImages = productFromDb.Images.Where(img => !img.IsMain).Select(img => new ProductImageViewModel
                 {
                     Id = img.Id,
                     ImageUrl = img.ImageUrl
@@ -441,16 +447,6 @@ namespace Nadixa.Web.Controllers
                 return View(editViewModel);
             }
 
-
-            
-
-            //var productFromDb = await _context.Products
-            //    .Include(p => p.Images)
-            //    .FirstOrDefaultAsync(p => p.Id == editViewModel.Id);
-
-            //if (productFromDb == null)
-            //    return NotFound();
-
             // Main Image
             if (editViewModel.MainImageUrl != null)
             {
@@ -476,7 +472,22 @@ namespace Nadixa.Web.Controllers
                     }
                 }
 
-                productFromDb.MainImageUrlPath = await UploadFileToFolder(editViewModel.MainImageUrl);
+                // 👇 نلاقي الصف القديم اللي كان IsMain=true في ProductImages ونمسحه
+                var oldMainImageRecord = productFromDb.Images.FirstOrDefault(img => img.IsMain);
+                if (oldMainImageRecord != null)
+                    _context.ProductImages.Remove(oldMainImageRecord);
+
+                string newMainImagePath = await UploadFileToFolder(editViewModel.MainImageUrl);
+                productFromDb.MainImageUrlPath = newMainImagePath;   // نسخة الـ Mirror
+
+                productFromDb.Images.Add(new ProductImage
+                {
+                    ProductId = productFromDb.Id,
+                    ImageUrl = newMainImagePath,
+                    IsMain = true
+                });
+
+                //productFromDb.MainImageUrlPath = await UploadFileToFolder(editViewModel.MainImageUrl);
             }
 
             // Deleted Images
@@ -504,7 +515,8 @@ namespace Nadixa.Web.Controllers
                     productFromDb.Images.Add(new ProductImage
                     {
                         ImageUrl = uploadedPath,
-                        ProductId = productFromDb.Id
+                        ProductId = productFromDb.Id,
+                        IsMain = false
                     });
                 }
             }
@@ -736,7 +748,7 @@ namespace Nadixa.Web.Controllers
                 Description = product.Description,
                 MainImageUrl = product.MainImageUrlPath,
                 StockQuantity = product.StockQuantity,
-                Images = product.Images.ToList(),
+                Images = product.Images.Where(i => !i.IsMain).ToList(),
                 SoldLastMonth = soldLastMonth
             };
 
