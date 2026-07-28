@@ -76,7 +76,7 @@ namespace Nadixa.Web
             builder.Services.AddScoped<StockNotificationService>();
 
 
-
+            builder.Services.AddScoped<IProductService, ProductService>();
 
             builder.Services.AddScoped<IPromotionService, PromotionService>();
             builder.Services.AddScoped<IShippingRuleService, ShippingRuleService>();

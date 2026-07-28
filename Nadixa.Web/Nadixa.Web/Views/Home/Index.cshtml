@@ -1,5 +1,6 @@
-﻿@using Nadixa.Core.Entities
-@model IEnumerable<Nadixa.Core.Entities.Product>
+﻿@using Nadixa.Core.DTOS
+@using Nadixa.Core.Entities
+@model IEnumerable<Nadixa.Core.DTOS.ProductListItemDto>
 
 @{
     ViewData["Title"] = "Home Page";
@@ -255,7 +256,7 @@
 </div>
 
 <!-- Best Sellers Section -->
-@if (ViewBag.BestSellers != null && ((List<Nadixa.Core.Entities.Product>)ViewBag.BestSellers).Any())
+@if (ViewBag.BestSellers != null && ((List<ProductListItemDto>)ViewBag.BestSellers).Any())
 {
 	<section class="bg0 p-t-60 p-b-60">
 		<div class="container">
@@ -278,18 +279,15 @@
 			</div>
 			<div class="swiper best-sellers-swiper position-relative p-lr-15">
 				<div class="swiper-wrapper">
-					@foreach (var product in (List<Nadixa.Core.Entities.Product>)ViewBag.BestSellers)
+					@foreach (var product in (List<ProductListItemDto>)ViewBag.BestSellers)
 					{
 						<div class="swiper-slide pb-4 h-auto">
 							@{
-								var notifyIds = ViewBag.NotifyRequestedProductIds as HashSet<int> ?? new HashSet<int>();
-								var cartItemsDict = ViewBag.CartItems as Dictionary<int, int> ?? new Dictionary<int, int>();
-
 								var cardVm = new Nadixa.Web.Models.ViewModels.ProductCardViewModel
 								{
 									Product = product,
-									CartQuantity = cartItemsDict.ContainsKey(product.Id) ? cartItemsDict[product.Id] : 0,
-									NotifyRequested = notifyIds.Contains(product.Id)
+									CartQuantity = product.CartQuantity,
+									NotifyRequested = product.NotifyRequested
 								};
 							}
 							@await Html.PartialAsync("_ProductCard", cardVm)
@@ -314,7 +312,7 @@
 		</div>
 
 		@{
-			var groupedProducts = Model.GroupBy(p => p.ProductCategory?.Name ?? "Other");
+			var groupedProducts = Model.GroupBy(p => p.Category ?? "Other");
 		}
 
 		@foreach (var categoryGroup in groupedProducts)
@@ -347,22 +345,15 @@
 
 				<div class="swiper product-swiper position-relative p-lr-15">
 					<div class="swiper-wrapper">
-						@{
-							var cartItems = ViewBag.CartItems as Dictionary<int, int>
-											?? new Dictionary<int, int>();
-						}
 						@foreach (var product in categoryGroup)
 						{
 							<div class="swiper-slide pb-4 h-auto">
 								@{
-									var notifyIds = ViewBag.NotifyRequestedProductIds as HashSet<int> ?? new HashSet<int>();
-									var cartItemsDict = ViewBag.CartItems as Dictionary<int, int> ?? new Dictionary<int, int>();
-
 									var cardVm = new Nadixa.Web.Models.ViewModels.ProductCardViewModel
 									{
 										Product = product,
-										CartQuantity = cartItemsDict.ContainsKey(product.Id) ? cartItemsDict[product.Id] : 0,
-										NotifyRequested = notifyIds.Contains(product.Id)
+										CartQuantity = product.CartQuantity,     // 👈 بدل ViewBag lookup
+										NotifyRequested = product.NotifyRequested
 									};
 								}
 								@await Html.PartialAsync("_ProductCard", cardVm)

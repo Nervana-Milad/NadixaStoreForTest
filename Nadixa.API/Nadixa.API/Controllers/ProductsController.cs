@@ -22,7 +22,12 @@ namespace Nadixa.API.Controllers
 
         // GET: api/products                 done
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductToReturnDto>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductToReturnDto>>> GetProducts(
+            [FromQuery] int? categoryId,
+            [FromQuery] int? subCategoryId,
+            [FromQuery] string? search,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
         {
             var products = await _unitOfWork.Repository<Product>().GetAllAsync(p => p.ProductCategory, p => p.Images);
 

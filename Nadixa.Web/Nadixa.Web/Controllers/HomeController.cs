@@ -183,6 +183,8 @@ using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
 using Nadixa.Web.Models;
 using System.Diagnostics;
+using Nadixa.Core.DTOS;
+
 
 namespace Nadixa.Web.Controllers
 {
@@ -207,10 +209,9 @@ namespace Nadixa.Web.Controllers
             var data = await _homeService.GetIndexDataAsync(categoryId, user?.Id);
 
             ViewBag.Categories = data.Categories;
-            ViewBag.CartItems = data.CartItems;
-            ViewBag.NotifyRequestedProductIds = data.NotifyRequestedProductIds;
             ViewBag.BestSellers = data.BestSellers;
-            ViewBag.ProductPromotions = data.ProductPromotions;
+            ViewBag.ActivePromotions = data.ActivePromotions;   // ?? лоМо
+
 
             return View(data.Products);
         }

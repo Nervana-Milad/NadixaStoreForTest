@@ -28,9 +28,11 @@ namespace Nadixa.Web.Controllers
         private readonly StockNotificationService _stockNotificationService;
         private readonly IPermissionService _permissionService;
         private readonly IPromotionService _promotionService;
+        private readonly IProductService _productService;   // 👈 جديد
 
 
-        public ProductController(NadixaDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<AppUser> userManager, StockNotificationService stockNotificationService, IPermissionService permissionService, IPromotionService promotionService)
+
+        public ProductController(NadixaDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<AppUser> userManager, StockNotificationService stockNotificationService, IPermissionService permissionService, IPromotionService promotionService, IProductService productService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
@@ -38,131 +40,39 @@ namespace Nadixa.Web.Controllers
             _stockNotificationService = stockNotificationService;
             _permissionService = permissionService;
             _promotionService = promotionService;
+            _productService = productService;   // 👈 جديد
         }
+
 
         public async Task<IActionResult> Index(int? categoryId, int? subCategoryId, string? search, int page = 1)
         {
             var user = await _userManager.GetUserAsync(User);
-
-            IQueryable<Product> query = _context.Products.Include(p => p.ProductCategory);
-
-            if (categoryId.HasValue)
-            {
-                query = query.Where(p => p.ProductCategoryId == categoryId.Value);
-                var category = await _context.ProductCategories.FirstOrDefaultAsync(c => c.Id == categoryId);
-                ViewBag.CategoryName = category?.Name;
-                ViewBag.CurrentCategoryId = categoryId;
-
-
-                // هات الـ SubCategories بتاعت الـ Category دي
-                ViewBag.SubCategories = await _context.ProductSubCategories
-                    .Where(s => s.ProductCategoryId == categoryId)
-                    .ToListAsync();
-            }
-            ViewBag.Categories = await _context.ProductCategories.ToListAsync();
-            if (subCategoryId.HasValue)
-            {
-                query = query.Where(p => p.ProductSubCategoryId == subCategoryId.Value);
-                ViewBag.CurrentSubCategoryId = subCategoryId;
-            }
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                query = query.Where(p => p.Name.Contains(search) || p.Description.Contains(search));
-                ViewBag.Search = search;
-            }
-
-            // 1. حساب إجمالي المنتجات المفلترة فقط قبل التقسيم
-            int totalProducts = await query.CountAsync();
             int pageSize = 10;
 
-            // 2. تطبيق الترتيب والتقسيم (Pagination)
-            var products = await query
-                .OrderByDescending(p => p.Id)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            var result = await _productService.GetProductsAsync(
+                categoryId, subCategoryId, search, page, pageSize, user?.Id);
 
-            // 3. إرسال معلومات الصفحات للـ View
-            ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
+            ViewBag.CategoryName = categoryId.HasValue
+                ? result.Categories.FirstOrDefault(c => c.Id == categoryId.Value)?.Name
+                : null;
+            ViewBag.CurrentCategoryId = categoryId;
+            ViewBag.SubCategories = result.SubCategories;
+            ViewBag.Categories = result.Categories;
+            ViewBag.CurrentSubCategoryId = subCategoryId;
+            ViewBag.Search = search;
 
-            Dictionary<int, int> cartItems = new();
+            ViewBag.CurrentPage = result.Page;
+            ViewBag.TotalPages = result.TotalPages;
 
-            if (user != null)
-            {
-                cartItems = await _context.Carts
-                    .Include(c => c.Items)
-                    .Where(c => c.UserId == user.Id)
-                    .SelectMany(c => c.Items)
-                    .ToDictionaryAsync(
-                        i => i.ProductId,
-                        i => i.Quantity
-                    );
-            }
-
-            ViewBag.CartItems = cartItems;
-            var notifyRequestedProductIds = new HashSet<int>();
-
-            if (user != null)
-            {
-                notifyRequestedProductIds = (await _context.StockNotificationRequests
-                    .Where(r => r.UserId == user.Id && !r.IsNotified)
-                    .Select(r => r.ProductId)
-                    .ToListAsync())
-                    .ToHashSet();
-            }
-
-            ViewBag.NotifyRequestedProductIds = notifyRequestedProductIds;
-
-            // ===== Promotions: ?????? ?????? + ???? ??? ??? ???? =====
-            var activePromotions = await _promotionService.GetActivePromotionsAsync();
-            ViewBag.ActivePromotions = activePromotions;
-
-            var productsForPromoCheck = products;
-
-            var productPromotions = new Dictionary<int, ProductPromoInfo>();
-
-            foreach (var product in productsForPromoCheck)
-            {
-                var promo = activePromotions
-                    .Where(p =>
-                        !p.IsFirstPurchaseOnly &&
-                        (p.Scope == PromotionScope.AllProducts ||
-                         (p.Scope == PromotionScope.Category && p.ProductCategoryId == product.ProductCategoryId) ||
-                         (p.Scope == PromotionScope.SubCategory && p.ProductSubCategoryId == product.ProductSubCategoryId) ||
-                         (p.Scope == PromotionScope.SpecificProduct && p.ProductId == product.Id)))
-                    .OrderByDescending(p => p.Priority)
-                    .FirstOrDefault();
-
-                if (promo == null) continue;
-
-                productPromotions[product.Id] = new ProductPromoInfo
-                {
-                    BadgeText = promo.BadgeText,
-                    BadgeColorHex = promo.BadgeColorHex,
-                    DiscountedPrice = promo.Type == PromotionType.BuyXGetYFree
-                        ? null
-                        : _promotionService.CalculateDiscountedPrice(product.Price, promo)
-                };
-            }
-
-            ViewBag.ProductPromotions = productPromotions;
-            return View(products);
+            return View(result.Products);
         }
-
+        
         [HttpGet]
         public async Task<JsonResult> GetSubCategories(int categoryId)
         {
-            var subCategories = await _context.ProductSubCategories
-                .Where(s => s.ProductCategoryId == categoryId)
-                .Select(s => new
-                {
-                    id = s.Id,
-                    name = s.Name
-                })
-                .ToListAsync();
-
-            return Json(subCategories);
+            var subCategories = await _productService.GetSubCategoriesAsync(categoryId);
+            var result = subCategories.Select(s => new { id = s.Id, name = s.Name });
+            return Json(result);
         }
 
         [HttpGet]
@@ -314,38 +224,16 @@ namespace Nadixa.Web.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var product = _context.Products.Include(p => p.ProductCategory).Include(p => p.ProductSubCategory).Include(p => p.Colors).Include(p => p.Images).Include(p => p.Reviews).FirstOrDefault(p => p.Id == id);
+            var product = await _productService.GetProductDetailAsync(id, user?.Id);
 
             if (product == null)
             {
                 return NotFound();
             }
 
-            var reviews = product.Reviews.ToList();
-
-            ViewBag.AvgRating = reviews.Any() ? reviews.Average(r => r.Rating) : 0;
-            ViewBag.TotalReviews = reviews.Count();
             ViewBag.CurrentUserId = user?.Id;
 
-            var oneMonthAgo = DateTime.Now.AddMonths(-1);
-
-            ViewBag.SoldCount = await _context.OrderItems
-                .Where(oi => oi.ProductId == id
-                    && oi.Order.Status != OrderStatus.Cancelled
-                    && oi.Order.CreatedAt >= oneMonthAgo)
-                .SumAsync(oi => oi.Quantity);
-
-            var vm = new ProductDetailViewModel
-            {
-                Product = product,
-                ImageUrls = product.Images.Where(i => !i.IsMain).Select(i => i.ImageUrl).ToList()
-            };
-            return View(vm);
+            return View(product);
         }
 
 
@@ -726,34 +614,15 @@ namespace Nadixa.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> QuickView(int id)
         {
-            var product = await _context.Products
-                .Include(p => p.Images) // لو عندك table للصور
-                .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
 
-            if (product == null) return NotFound();
+            var user = await _userManager.GetUserAsync(User);
 
-            var oneMonthAgo = DateTime.Now.AddMonths(-1);
+            var product = await _productService.GetProductDetailAsync(id, user?.Id);
 
-            var soldLastMonth = await _context.OrderItems
-                .Where(oi => oi.ProductId == id
-                    && oi.Order.Status != OrderStatus.Cancelled
-                    && oi.Order.CreatedAt >= oneMonthAgo)
-                .SumAsync(oi => oi.Quantity);
+            if (product == null)
+                return NotFound();
 
-            var model = new ProductQuickViewViewModel
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Price = product.Price,
-                Description = product.Description,
-                MainImageUrl = product.MainImageUrlPath,
-                StockQuantity = product.StockQuantity,
-                Images = product.Images.Where(i => !i.IsMain).ToList(),
-                SoldLastMonth = soldLastMonth
-            };
-
-
-            return PartialView("_QuickViewModal", model);
+            return PartialView("_QuickViewModal", product);
         }
 
 

@@ -39,7 +39,7 @@ namespace Nadixa.API
             builder.Services.AddScoped<IBlogRepository, BlogRepository>();
             builder.Services.AddScoped<IHomeService, HomeService>();
             builder.Services.AddScoped<IPromotionService, PromotionService>(); // لو مش مسجل بالفعل
-
+            builder.Services.AddScoped<IProductService, ProductService>();
 
             builder.Services.AddDbContext<NadixaDbContext>(options =>
             {
