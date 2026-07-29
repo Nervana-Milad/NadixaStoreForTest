@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Nadixa.Application.DTOS;
 using Nadixa.Core.DTOS;
 using Nadixa.Core.Entities;
 using System;

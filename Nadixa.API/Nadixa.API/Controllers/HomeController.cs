@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Nadixa.Application.DTOS;
 using Nadixa.Core.DTOS;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;

@@ -1,23 +1,24 @@
-﻿using Nadixa.Core.DTOS;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Nadixa.Core.DTOS
 {
-    public class ProductCreateDto
+    public class ProductEditDataDto
     {
+        public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public decimal? OldPrice { get; set; }
         public int StockQuantity { get; set; }
-        public int CategoryId { get; set; }
+        public bool IsFeatured { get; set; }
+        public int ProductCategoryId { get; set; }
         public int ProductSubCategoryId { get; set; }
-        public FileUploadRequest? MainImage { get; set; }
-        public List<FileUploadRequest>? GalleryImages { get; set; }
+        public string? MainImageUrl { get; set; }
+        public List<GalleryImageDto> GalleryImages { get; set; } = new();
+
     }
 }

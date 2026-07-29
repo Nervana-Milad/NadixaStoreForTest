@@ -6,12 +6,9 @@ using System.Threading.Tasks;
 
 namespace Nadixa.Core.DTOS
 {
-    public class LowStockProductDto
+    public class GalleryImageDto
     {
         public int Id { get; set; }
-        public string Name { get; set; } = "";
-        public string? ImageUrl { get; set; }
-        public int StockQuantity { get; set; }
+        public string ImageUrl { get; set; } = string.Empty;
     }
-
 }

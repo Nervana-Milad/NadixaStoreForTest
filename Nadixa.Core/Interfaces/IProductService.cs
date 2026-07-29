@@ -1,5 +1,4 @@
-﻿using Nadixa.Application.DTOS;
-using Nadixa.Core.DTOS;
+﻿using Nadixa.Core.DTOS;
 using Nadixa.Core.Entities;
 using System;
 using System.Collections.Generic;
@@ -18,11 +17,20 @@ namespace Nadixa.Core.Interfaces
         Task<ProductDetailDto?> GetProductDetailAsync(int id, string? userId);
 
         Task<List<CategoryToReturnDto>> GetSubCategoriesAsync(int categoryId);
+        Task<List<CategoryToReturnDto>> GetCategoriesAsync();
         Task<List<ProductListItemDto>> MapToDtosAsync(List<Product> products, string? userId);
+        Task<int> CreateProductAsync(ProductCreateDto dto);
+        Task<bool> UpdateProductAsync(ProductEditDto dto);
+        Task<bool> DeleteProductAsync(int id);
 
-        //Task<int> CreateProductAsync(ProductCreateDto dto, IFormFile mainImage, List<IFormFile>? galleryImages);
-        //Task<bool> UpdateProductAsync(ProductEditDto dto);
-        //Task DeleteProductAsync(int id);
+        Task<ProductEditDataDto?> GetProductForEditAsync(int id); 
+
+        Task<bool> UpdateStockOnlyAsync(int id, int newStockQuantity);
+
+        Task<ReviewResult> AddReviewAsync(ReviewCreateDto dto, string userId, string userName);
+        Task<ReviewResult> DeleteReviewAsync(int reviewId, string userId, bool isAdmin);
+        Task<(bool Success, bool RequiresLogin, string Message)> RequestNotifyAsync(int productId, string? userId);
+        Task<List<ProductSearchResultItem>> SearchProductsAsync(string? term, string? userId);
 
     }
 }

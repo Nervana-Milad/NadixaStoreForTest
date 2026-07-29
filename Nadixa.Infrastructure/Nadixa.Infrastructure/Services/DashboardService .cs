@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Nadixa.Core.DTOS;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
 using Nadixa.Infrastructure.Data;
-using Nadixa.Application.DTOS;
 namespace Nadixa.Infrastructure.Services
 {
     public class DashboardService : Core.Interfaces.IDashboardService
