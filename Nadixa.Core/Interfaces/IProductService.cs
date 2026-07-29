@@ -1,4 +1,5 @@
-﻿using Nadixa.Core.DTOS;
+﻿using Nadixa.Application.DTOS;
+using Nadixa.Core.DTOS;
 using Nadixa.Core.Entities;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,9 @@ namespace Nadixa.Core.Interfaces
         Task<List<CategoryToReturnDto>> GetSubCategoriesAsync(int categoryId);
         Task<List<ProductListItemDto>> MapToDtosAsync(List<Product> products, string? userId);
 
-
+        //Task<int> CreateProductAsync(ProductCreateDto dto, IFormFile mainImage, List<IFormFile>? galleryImages);
+        //Task<bool> UpdateProductAsync(ProductEditDto dto);
+        //Task DeleteProductAsync(int id);
 
     }
 }

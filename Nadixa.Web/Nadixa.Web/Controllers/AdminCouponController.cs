@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
-using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 using System.Threading.Tasks;
+using Nadixa.Core.Common;
 
 namespace Nadixa.Web.Controllers
 {

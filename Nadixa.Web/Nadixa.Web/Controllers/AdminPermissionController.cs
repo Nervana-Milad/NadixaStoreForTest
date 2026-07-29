@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Infrastructure.Data;
-using Nadixa.Web.Helpers;
+using Nadixa.Core.Common;
 
 namespace Nadixa.Web.Controllers
 {

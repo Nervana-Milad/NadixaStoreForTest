@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Nadixa.Core.Common;
 using Nadixa.Core.DTOS;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;

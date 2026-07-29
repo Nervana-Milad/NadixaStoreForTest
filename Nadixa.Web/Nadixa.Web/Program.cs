@@ -95,7 +95,7 @@ namespace Nadixa.Web
             builder.Services.AddScoped<IStockNotificationRepository, StockNotificationRepository>();
             builder.Services.AddScoped<IBlogRepository, BlogRepository>();
             builder.Services.AddScoped<IHomeService, HomeService>();
-
+            builder.Services.AddScoped<IFileUploadService, FileUploadService>();
             var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())

@@ -1,4 +1,4 @@
-﻿namespace Nadixa.Web.Helpers
+﻿namespace Nadixa.Core.Common
 {
     public static class AppMessages
     {
@@ -62,6 +62,10 @@
         public const string PromotionUpdated = "Promotion Updated Successfully";         //done
         public const string PromotionDeleted = "Promotion Deleted Successfully";       //done
 
+        public const string InvalidFile = "Invalid file.";
+        public const string InvalidImageFormat = "Invalid image format. Allowed formats are .jpg, .jpeg, .png, .jfif";
+        public const string FileSizeExceeded = "File size exceeds 5MB limit.";
+        public const string ImageUploadError = "Error uploading image.";
 
     }
 }
