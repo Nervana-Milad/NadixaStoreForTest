@@ -4,7 +4,7 @@
 //using Microsoft.Extensions.Logging;
 //using Nadixa.Core.DTOS;
 //using Nadixa.Core.Entities;
-//using Nadixa.Core.Interfaces;
+// Replace
 //using Nadixa.Infrastructure.Data;
 //using Nadixa.Web.Models;
 //using Nadixa.Web.Models.ViewModels;
@@ -179,8 +179,8 @@
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Nadixa.Application.Interfaces;
 using Nadixa.Core.Entities;
-using Nadixa.Core.Interfaces;
 using Nadixa.Web.Models;
 using System.Diagnostics;
 

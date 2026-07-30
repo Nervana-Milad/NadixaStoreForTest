@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Nadixa.Application.Interfaces;
 using Nadixa.Core.Entities;
-using Nadixa.Core.Interfaces;
 using Nadixa.Infrastructure.Data;
 using System;
 using System.Threading.Tasks;
 
-namespace Nadixa.Core.Services
+namespace Nadixa.Infrastructure.Services
+
 {
     public class LoyaltyService : ILoyaltyService
     {

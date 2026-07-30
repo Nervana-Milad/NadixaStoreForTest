@@ -1,6 +1,5 @@
 ﻿using Nadixa.Core.Attributes;
 using Nadixa.Core.DTOS;
-using Nadixa.Core.Interfaces.Excel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +9,8 @@ using System.Threading.Tasks;
 using SpreadCheetah;
 using SpreadCheetah.Styling;
 using System.Drawing;
+using Nadixa.Application.Interfaces.Excel;
+using Nadixa.Application.DTOS;
 
 
 namespace Nadixa.Infrastructure.Services.Excel

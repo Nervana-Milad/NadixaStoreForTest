@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
-using Nadixa.Core.Interfaces;
 using Nadixa.Web.Models.ViewModels;
 using System.Threading.Tasks;
 using Nadixa.Web.Helpers;
+using Nadixa.Application.Interfaces;
 
 namespace Nadixa.Web.Controllers
 {

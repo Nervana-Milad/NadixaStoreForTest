@@ -4,7 +4,7 @@
 	ViewData["Title"] = Model.Product.Name;
 }
 
-@inject Nadixa.Core.Interfaces.IPermissionService PermissionService
+@inject Nadixa.Application.Interfaces.IPermissionService PermissionService
 
 @{
 	bool canEditProduct = await PermissionService.UserHasPermissionAsync(User, "EditProductQuantity");

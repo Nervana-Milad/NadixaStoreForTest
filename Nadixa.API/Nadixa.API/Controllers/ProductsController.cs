@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Nadixa.Application.DTOS;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
-
 namespace Nadixa.API.Controllers
 {
     [ApiController]

@@ -1,11 +1,12 @@
 ﻿using Nadixa.Core.DTOS;
-using Nadixa.Core.Interfaces.Excel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SpreadCheetah;
+using Nadixa.Application.Interfaces.Excel;
+using Nadixa.Application.DTOS;
 
 namespace Nadixa.Infrastructure.Services.Excel
 {

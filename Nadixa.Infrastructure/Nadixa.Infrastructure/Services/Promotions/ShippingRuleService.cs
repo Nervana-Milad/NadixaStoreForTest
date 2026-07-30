@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
-using Nadixa.Core.Interfaces;
-using Nadixa.Infrastructure.Data;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Nadixa.Application.Interfaces;
+using Nadixa.Infrastructure.Data;
 
-namespace Nadixa.Core.Services
+namespace Nadixa.Infrastructure.Services
+
 {
     public class ShippingRuleService : IShippingRuleService
     {

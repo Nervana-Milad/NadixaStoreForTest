@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Nadixa.Application.DTOS;
+using Nadixa.Application.Interfaces;
 using Nadixa.Core.DTOS;
 using Nadixa.Core.Entities;
-using Nadixa.Core.Interfaces;
-using Nadixa.Core.Services;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Infrastructure.Services;
 using Nadixa.Web.Filters;
@@ -150,6 +150,9 @@ namespace Nadixa.Web.Controllers
             return View(products);
         }
 
+
+
+
         [HttpGet]
         public async Task<JsonResult> GetSubCategories(int categoryId)
         {
@@ -164,6 +167,9 @@ namespace Nadixa.Web.Controllers
 
             return Json(subCategories);
         }
+
+
+
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
@@ -195,6 +201,10 @@ namespace Nadixa.Web.Controllers
                     Text = s.Name
                 }).ToListAsync();
         }
+
+
+
+
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
@@ -309,6 +319,10 @@ namespace Nadixa.Web.Controllers
             return RedirectToAction("Index");
         }
 
+
+
+
+
         [HttpGet]
         public async Task<IActionResult> Detail(int id)
         {
@@ -347,6 +361,9 @@ namespace Nadixa.Web.Controllers
             };
             return View(vm);
         }
+
+
+
 
 
         [HttpGet]
@@ -396,6 +413,9 @@ namespace Nadixa.Web.Controllers
 
             return View(editViewModel);
         }
+
+
+
 
 
         [HttpPost]
@@ -548,6 +568,9 @@ namespace Nadixa.Web.Controllers
         }
 
 
+
+
+
         [HttpPost]
         public async Task<IActionResult> NotifyMeWhenAvailable(int productId)
         {
@@ -593,6 +616,10 @@ namespace Nadixa.Web.Controllers
             return Json(new { success = true, message = "We'll email you as soon as it's back in stock!" });
         }
         
+
+
+
+
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -624,6 +651,9 @@ namespace Nadixa.Web.Controllers
             TempData["Success"] = AppMessages.ProductDeleted;
             return RedirectToAction("Index", "Product");
         }
+
+
+
 
         [HttpPost]
         [Authorize]
@@ -722,6 +752,9 @@ namespace Nadixa.Web.Controllers
             }
             return "/images/products/" + fileName;
         }
+
+
+
 
         [HttpGet]
         public async Task<IActionResult> QuickView(int id)

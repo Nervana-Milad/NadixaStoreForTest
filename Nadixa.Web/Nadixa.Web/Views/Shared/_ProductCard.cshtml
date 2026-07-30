@@ -4,8 +4,8 @@
     var product = Model.Product;
     var qty = Model.CartQuantity;
 
-    var promoDict = ViewBag.ProductPromotions as Dictionary<int, Nadixa.Core.DTOS.ProductPromoInfo>
-                    ?? new Dictionary<int, Nadixa.Core.DTOS.ProductPromoInfo>();
+    var promoDict = ViewBag.ProductPromotions as Dictionary<int, Nadixa.Application.DTOS.ProductPromoInfo>
+                    ?? new Dictionary<int, Nadixa.Application.DTOS.ProductPromoInfo>();
     promoDict.TryGetValue(product.Id, out var promo);
 }
 

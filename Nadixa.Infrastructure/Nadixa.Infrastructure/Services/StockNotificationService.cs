@@ -1,13 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Nadixa.Core.Interfaces;
+using Nadixa.Application.DTOS;
+using Nadixa.Application.Interfaces;
 using Nadixa.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Nadixa.Web.Services;
-using Nadixa.Core.DTOS;
 
 namespace Nadixa.Infrastructure.Services
 {

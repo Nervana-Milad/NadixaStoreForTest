@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Nadixa.Core.Interfaces;
+using Nadixa.Application.Interfaces;
 
 namespace Nadixa.Web.Services
 {

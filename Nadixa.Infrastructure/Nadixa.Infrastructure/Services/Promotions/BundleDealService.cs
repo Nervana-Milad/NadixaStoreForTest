@@ -1,16 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Nadixa.Core.DTOs;
+using Nadixa.Application.DTOs;
+using Nadixa.Application.Interfaces;
 using Nadixa.Core.Entities;
-using Nadixa.Core.Interfaces;
 using Nadixa.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Nadixa.Core.Services
+namespace Nadixa.Infrastructure.Services
 {
-    public class BundleDealService : IBundleDealService
+    public class BundleDealService :IBundleDealService
     {
         private readonly NadixaDbContext _context;
 

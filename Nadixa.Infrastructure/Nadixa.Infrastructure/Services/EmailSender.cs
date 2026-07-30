@@ -21,7 +21,7 @@ namespace Nadixa.Infrastructure.Services
             smtpPassword = configration.GetValue<string>("SmtpSettings:SmtpPassword", "");
         }
 
-        public bool SendEmail(string senderName, string senderEmail, string toName, string toEmail, string subject, string textContent) 
+        public bool SendEmail(string senderName, string senderEmail, string toName, string toEmail, string subject, string textContent)
         {
             Console.WriteLine($"DEBUG: Attempting to send email to {toEmail}"); // 👈 ضيفي السطر ده
 
@@ -50,9 +50,9 @@ namespace Nadixa.Infrastructure.Services
                 Console.WriteLine("DEBUG: Email sent successfully"); // 👈 وده كمان
 
                 return true;
-                
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception("EMAIL REAL ERROR: " + ex.ToString());
 
@@ -64,3 +64,4 @@ namespace Nadixa.Infrastructure.Services
         }
     }
 }
+

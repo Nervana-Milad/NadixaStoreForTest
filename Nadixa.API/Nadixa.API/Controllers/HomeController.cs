@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Nadixa.Application.DTOS;
+using Nadixa.Application.Interfaces;
 using Nadixa.Core.DTOS;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
@@ -58,7 +59,7 @@ namespace Nadixa.API.Controllers
                 .GroupBy(p => p.Id)
                 .Select(g => g.First());
 
-            var productPromotions = new Dictionary<int, Nadixa.Core.DTOS.ProductPromoInfo>();
+            var productPromotions = new Dictionary<int, ProductPromoInfo>();
 
             foreach (var product in productsForPromoCheck)
             {
@@ -74,7 +75,7 @@ namespace Nadixa.API.Controllers
 
                 if (promo == null) continue;
 
-                productPromotions[product.Id] = new Nadixa.Core.DTOS.ProductPromoInfo
+                productPromotions[product.Id] = new ProductPromoInfo
                 {
                     BadgeText = promo.BadgeText,
                     BadgeColorHex = promo.BadgeColorHex,

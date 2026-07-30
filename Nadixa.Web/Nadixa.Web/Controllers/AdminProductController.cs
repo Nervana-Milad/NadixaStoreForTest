@@ -3,9 +3,10 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Nadixa.Application.DTOS;
+using Nadixa.Application.Interfaces.Excel;
 using Nadixa.Core.DTOS;
 using Nadixa.Core.Entities;
-using Nadixa.Core.Interfaces.Excel;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Infrastructure.Services;
 

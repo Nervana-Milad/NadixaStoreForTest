@@ -59,5 +59,58 @@ namespace Nadixa.Infrastructure.Repositories
                 })
                 .ToListAsync();
         }
+
+
+        public async Task<Product?> GetByIdWithDetailsAsync(int id)
+        {
+            return await _context.Products
+                .Include(p => p.ProductCategory)
+                .Include(p => p.ProductSubCategory)
+                .Include(p => p.Images)
+                .Include(p => p.Reviews)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+
+
+        public async Task<(List<Product> Items, int TotalCount)> GetPagedAsync(
+                            int? categoryId,
+                            int? subCategoryId,
+                            string? search,
+                            int page,
+                            int pageSize)
+        {
+            var query = _context.Products
+                .Include(p => p.ProductCategory)
+                .AsQueryable();
+
+            if (categoryId.HasValue)
+            {
+                query = query.Where(p =>
+                    p.ProductCategoryId == categoryId.Value);
+            }
+
+            if (subCategoryId.HasValue)
+            {
+                query = query.Where(p =>
+                    p.ProductSubCategoryId == subCategoryId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(p =>
+                    p.Name.Contains(search) ||
+                    p.Description.Contains(search));
+            }
+
+            var total = await query.CountAsync();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, total);
+        }
     }
 }

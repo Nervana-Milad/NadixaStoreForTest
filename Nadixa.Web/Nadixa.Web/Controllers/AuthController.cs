@@ -1,30 +1,28 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Nadixa.Core.Entities;
+using Nadixa.Application.DTOS;
+using Nadixa.Application.Interfaces;
+using Nadixa.Core.DTOS.Auth;
 using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
-using Nadixa.Web.Services;
-using Nadixa.Infrastructure.Services;
 
 namespace Nadixa.Web.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly UserManager<AppUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly SignInManager<AppUser> _signInManager;
-        private readonly EmailSender _emailSender;
+        private readonly IAuthService _authService;
 
-        public AuthController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<AppUser> signInManager , EmailSender emailSender)
+        public AuthController(
+            IAuthService authService)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _signInManager = signInManager;
-            _emailSender = emailSender;
-
+            _authService = authService;
         }
+
+
+        // =========================================
+        // REGISTER
+        // =========================================
 
         [HttpGet]
         public IActionResult Register()
@@ -32,54 +30,51 @@ namespace Nadixa.Web.Controllers
             return View();
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> Register(
+            RegisterViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var dto = new RegisterDto
             {
-                var user = new AppUser
-                {
-                    UserName = model.Email,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Email = model.Email,
-                    Address = model.Address,
-                    City = model.City
-                };
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                Email = model.Email,
+                Password = model.Password,
+                Address = model.Address,
+                City = model.City
+            };
 
-                var result = await _userManager.CreateAsync(user, model.Password);
+            var result =
+                await _authService.RegisterAsync(dto);
 
-                //If User created successfully
-                if (result.Succeeded)
-                {
-                    //If the role exist in DB
-                    if (!await _roleManager.RoleExistsAsync("User"))
-                    {
-                        await _roleManager.CreateAsync(new IdentityRole("User"));
-                    }
-                    await _userManager.AddToRoleAsync(user, "User");
-                    await _signInManager.SignInAsync(user, true);
-
-                    TempData["Success"] = AppMessages.RegisterSuccess;
-                    return RedirectToAction("Login", "Auth");
-                }
+            if (!result.Succeeded)
+            {
                 foreach (var error in result.Errors)
                 {
-                    if (error.Code == "DuplicateUserName")
-                    {
-                        ModelState.AddModelError("", "This email is already registered.");
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("", error.Description);
-                    }
+                    ModelState.AddModelError(
+                        "",
+                        error);
                 }
 
+                return View(model);
             }
 
-            return View(model);
+            TempData["Success"] =
+                AppMessages.RegisterSuccess;
+
+            return RedirectToAction(
+                "Login",
+                "Auth");
         }
 
+
+        // =========================================
+        // LOGIN
+        // =========================================
 
         [HttpGet]
         public IActionResult Login()
@@ -87,39 +82,63 @@ namespace Nadixa.Web.Controllers
             return View();
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(
+            LoginViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var dto = new LoginDto
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
+                Email = model.Email,
+                Password = model.Password
+            };
 
-                if(user == null)
-                {
-                    ModelState.AddModelError("", AppMessages.InvalidLogin);
-                    return View(model);
-                }
-                var signInResult = await _signInManager.PasswordSignInAsync(user, model.Password, false, false);
+            var result =
+                await _authService.LoginAsync(dto);
 
-                if(!signInResult.Succeeded)
-                {
-                    ModelState.AddModelError("", AppMessages.InvalidLogin);
-                    return View(model);
-                }
-                TempData["Success"] = AppMessages.LoginSuccess;
-                return RedirectToAction("Index", "Home");
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError(
+                    "",
+                    AppMessages.InvalidLogin);
+
+                return View(model);
             }
-            return View(model);
+
+            TempData["Success"] =
+                AppMessages.LoginSuccess;
+
+            return RedirectToAction(
+                "Index",
+                "Home");
         }
+
+
+        // =========================================
+        // LOGOUT
+        // =========================================
 
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
-            TempData["Success"] = AppMessages.LogoutSuccess;
-            return RedirectToAction("Index", "Home");
+            await _authService.LogoutAsync();
+
+            TempData["Success"] =
+                AppMessages.LogoutSuccess;
+
+            return RedirectToAction(
+                "Index",
+                "Home");
         }
+
+
+        // =========================================
+        // ACCESS DENIED
+        // =========================================
 
         [HttpGet]
         public IActionResult AccessDenied()
@@ -127,71 +146,76 @@ namespace Nadixa.Web.Controllers
             return View();
         }
 
+
+        // =========================================
+        // GOOGLE LOGIN
+        // =========================================
+
+        [HttpGet]
         public IActionResult GoogleLogin()
         {
-            var redirectUrl = Url.Action("GoogleResponse", "Auth");
+            var redirectUrl =
+                Url.Action(
+                    "GoogleResponse",
+                    "Auth");
 
-            var properties = _signInManager
-                .ConfigureExternalAuthenticationProperties("Google", redirectUrl);
+            var properties =
+                new AuthenticationProperties
+                {
+                    RedirectUri = redirectUrl
+                };
 
-            return Challenge(properties, "Google");
+            return Challenge(
+                properties,
+                "Google");
         }
 
+
+        // =========================================
+        // GOOGLE RESPONSE
+        // =========================================
+
         [HttpGet]
-        public async Task<IActionResult> GoogleResponse()
+        public async Task<IActionResult>
+            GoogleResponse()
         {
-            var info = await _signInManager.GetExternalLoginInfoAsync();
+            var result =
+                await _authService
+                    .GoogleResponseAsync();
 
-            if (info == null)
-                return RedirectToAction("Login");
-
-            var result = await _signInManager.ExternalLoginSignInAsync(
-                info.LoginProvider,
-                info.ProviderKey,
-                isPersistent: false);
-
-            if (result.Succeeded)
+            if (!result.Succeeded)
             {
-                TempData["Success"] = AppMessages.GoogleLoginSuccess;
-                return RedirectToAction("Index", "Home");
+                TempData["Error"] =
+                    result.Errors.FirstOrDefault();
+
+                return RedirectToAction(
+                    "Login");
             }
 
-            var email = info.Principal.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            TempData["Success"] =
+                AppMessages.GoogleLoginSuccess;
 
-            if (string.IsNullOrEmpty(email))
-            {
-                TempData["Error"] = AppMessages.LoginWithEmailFaild;
-                return RedirectToAction("Login");
-            }
-
-            var user = new AppUser
-            {
-                UserName = email,
-                Email = email
-            };
-
-            var identityResult = await _userManager.CreateAsync(user);
-
-            if (!identityResult.Succeeded)
-            {
-                TempData["Error"] = string.Join(" | ",
-                    identityResult.Errors.Select(e => e.Description));
-
-                return RedirectToAction("Login");
-            }
-
-            await _userManager.AddLoginAsync(user, info);
-
-            await _signInManager.SignInAsync(user, false);
-            TempData["Success"] = AppMessages.GoogleLoginSuccess;
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction(
+                "Index",
+                "Home");
         }
 
+
+        // =========================================
+        // FORGOT PASSWORD CONFIRMATION
+        // =========================================
+
         [HttpGet]
-        public IActionResult ForgotPasswordConfirmation()
+        public IActionResult
+            ForgotPasswordConfirmation()
         {
             return View();
         }
+
+
+        // =========================================
+        // FORGOT PASSWORD - GET
+        // =========================================
 
         [HttpGet]
         public IActionResult ForgotPassword()
@@ -199,100 +223,101 @@ namespace Nadixa.Web.Controllers
             return View();
         }
 
+
+        // =========================================
+        // FORGOT PASSWORD - POST
+        // =========================================
+        // AuthController.cs
         [HttpPost]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
-
-            if (user == null)
+            var dto = new ForgotPasswordDto
             {
-                ModelState.AddModelError("", "Email not found.");
+                Email = model.Email
+            };
+
+            var result = await _authService.ForgotPasswordAsync(dto, token =>
+                Url.Action("ResetPassword", "Auth",
+                    new { token, email = dto.Email },
+                    Request.Scheme)!);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError("", error);
+
                 return View(model);
             }
-
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-
-            var resetLink = Url.Action(
-                "ResetPassword",
-                "Auth",
-                new
-                {
-                    token = token,
-                    email = user.Email
-                },
-                Request.Scheme);
-
-
-            _emailSender.SendEmail(
-    "Nadixa",
-    "your-email@gmail.com",
-    user.UserName ?? user.Email,
-    user.Email,
-    "Reset Password",
-    $"Reset your password using this link: {resetLink}");
-
-            _emailSender.SendEmail(
-                "Nadixa",
-                "your-email@gmail.com",
-                user.UserName ?? user.Email,
-                user.Email,
-                "Reset Password",
-                $"Click the following link to reset your password:\n{resetLink}"
-            );
 
             return RedirectToAction("ForgotPasswordConfirmation");
         }
 
+        // =========================================
+        // RESET PASSWORD - GET
+        // =========================================
 
         [HttpGet]
-        public IActionResult ResetPassword(string token, string email)
+        public IActionResult ResetPassword(
+            string token,
+            string email)
         {
-            if (token == null || email == null)
-                return BadRequest();
-
-            var model = new ResetPasswordViewModel
+            if (token == null ||
+                email == null)
             {
-                Token = token,
-                Email = email
-            };
+                return BadRequest();
+            }
+
+            var model =
+                new ResetPasswordViewModel
+                {
+                    Token = token,
+                    Email = email
+                };
 
             return View(model);
         }
 
 
+        // =========================================
+        // RESET PASSWORD - POST
+        // =========================================
+
         [HttpPost]
-        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        public async Task<IActionResult>
+            ResetPassword(
+                ResetPasswordViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
-
-            if (user == null)
+            var dto = new ResetPasswordDto
             {
-                ModelState.AddModelError("", "User not found.");
+                Email = model.Email,
+                Token = model.Token,
+                Password = model.Password
+            };
+
+            var result =
+                await _authService
+                    .ResetPasswordAsync(dto);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(
+                        "",
+                        error);
+                }
+
                 return View(model);
             }
 
-            var result = await _userManager.ResetPasswordAsync(
-                user,
-                model.Token,
-                model.Password);
-
-            if (result.Succeeded)
-            {
-                return RedirectToAction("Login");
-            }
-
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error.Description);
-            }
-
-            return View(model);
+            return RedirectToAction(
+                "Login");
         }
     }
 }

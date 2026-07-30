@@ -1,4 +1,6 @@
-﻿using Nadixa.Core.DTOS;
+﻿using Nadixa.Application.DTOS;
+using Nadixa.Application.Interfaces;
+using Nadixa.Core.DTOS;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
 using System;

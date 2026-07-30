@@ -1,20 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Nadixa.Core.DTOs;
 using Nadixa.Core.Entities;
-using Nadixa.Core.Interfaces;
-using Nadixa.Infrastructure.Data;
+using global::Nadixa.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-namespace Nadixa.Core.Services
+using Nadixa.Application.Interfaces;
+using Nadixa.Application.DTOs;
+namespace Nadixa.Infrastructure.Services
 {
+
     /// <summary>
     /// نقطة الدخول الوحيدة لأي كونترولر (Cart / Checkout) عشان يحسب السعر النهائي.
     /// بيستدعي كل الخدمات التانية بترتيب معين، ويجمع النتيجة في CartPricingResult واحد.
     /// </summary>
-    public class PricingEngine : IPricingEngine
+    public class PricingEngine : Application.Interfaces.IPricingEngine
     {
         private readonly IPromotionService _promotionService;
         private readonly IShippingRuleService _shippingRuleService;
@@ -181,5 +181,6 @@ namespace Nadixa.Core.Services
         {
             return !await _context.Orders.AnyAsync(o => o.UserId == userId);
         }
+
     }
 }

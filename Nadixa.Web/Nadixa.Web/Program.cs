@@ -3,9 +3,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
-using Nadixa.Core.Interfaces;
-using Nadixa.Core.Interfaces.Excel;
-using Nadixa.Core.Services;
+using Nadixa.Application.Interfaces.Excel;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Infrastructure.Repositories;
 using Nadixa.Infrastructure.Services;
@@ -13,6 +11,8 @@ using Nadixa.Infrastructure.Services.Excel;
 using Nadixa.Web.Filters;
 using Nadixa.Web.Services;
 using System.Threading.Tasks;
+using Nadixa.Application.Interfaces;
+using Nadixa.Core.Interfaces;
 
 namespace Nadixa.Web
 {
@@ -54,7 +54,7 @@ namespace Nadixa.Web
                 options.SlidingExpiration = true;
             });
 
-           
+
 
             builder.Services.AddScoped<LoadWishlistFilter>();
 
@@ -64,7 +64,7 @@ namespace Nadixa.Web
             });
 
 
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IDashboardService, DashboardService>();
             builder.Services.AddTransient<EmailSender>();
             builder.Services.AddScoped<IRazorViewRenderer, RazorViewRenderer>();
@@ -74,6 +74,7 @@ namespace Nadixa.Web
             builder.Services.AddScoped<EmailSender>();
             builder.Services.AddScoped<OrderEmailService>();
             builder.Services.AddScoped<StockNotificationService>();
+            builder.Services.AddScoped<IAuthService, Nadixa.Infrastructure.Services.AuthService>();
 
 
 
@@ -83,8 +84,8 @@ namespace Nadixa.Web
             builder.Services.AddScoped<ICouponService, CouponService>();
             builder.Services.AddScoped<ILoyaltyService, LoyaltyService>();
             builder.Services.AddScoped<IBundleDealService, BundleDealService>();
-            builder.Services.AddScoped<Nadixa.Core.Services.IUserOrderHistoryChecker,
-                                        Nadixa.Core.Services.UserOrderHistoryChecker>();
+            builder.Services.AddScoped<IUserOrderHistoryChecker,
+                                       UserOrderHistoryChecker>();
             builder.Services.AddScoped<IPricingEngine, PricingEngine>();
 
             builder.Services.AddScoped<IPermissionService, PermissionService>();
@@ -145,7 +146,6 @@ namespace Nadixa.Web
                 }
             }
 
-
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
@@ -170,3 +170,4 @@ namespace Nadixa.Web
         }
     }
 }
+

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Nadixa.Core.Interfaces;
+using Nadixa.Application.Interfaces;
 
 namespace Nadixa.Web.Controllers
 {

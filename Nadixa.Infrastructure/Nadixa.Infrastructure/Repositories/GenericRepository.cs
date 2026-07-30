@@ -1,5 +1,4 @@
 ﻿using Nadixa.Core.Common;
-using Nadixa.Core.Interfaces;
 using Nadixa.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore; // <-- مهم
 using System;
@@ -8,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Nadixa.Core.Interfaces;
 
 namespace Nadixa.Infrastructure.Repositories
 {

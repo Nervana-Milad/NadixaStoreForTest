@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
-using Nadixa.Core.Interfaces;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Application.DTOS;
+using Nadixa.Application.Interfaces;
 namespace Nadixa.Infrastructure.Services
 {
-    public class DashboardService : Core.Interfaces.IDashboardService
+    public class DashboardService : IDashboardService
     {
         private readonly NadixaDbContext _context;
         private readonly UserManager<AppUser> _userManager;

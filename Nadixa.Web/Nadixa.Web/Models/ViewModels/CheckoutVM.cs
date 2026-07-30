@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Nadixa.Application.DTOs;
+using System.ComponentModel.DataAnnotations;
 
 namespace Nadixa.Web.Models.ViewModels
 {
@@ -41,7 +42,7 @@ namespace Nadixa.Web.Models.ViewModels
 
         public int LoyaltyPointsToEarn { get; set; }
 
-        public List<Nadixa.Core.DTOs.AppliedPromotionInfo> AppliedPromotions { get; set; }
-            = new List<Nadixa.Core.DTOs.AppliedPromotionInfo>();
+        public List<AppliedPromotionInfo> AppliedPromotions { get; set; }
+            = new List<AppliedPromotionInfo>();
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Nadixa.Application.Interfaces;
 using Nadixa.Core.Entities;
-using Nadixa.Core.Interfaces;
 using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 using System.Threading.Tasks;
