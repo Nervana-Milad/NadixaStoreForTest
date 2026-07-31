@@ -4,9 +4,10 @@ using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Application.DTOS;
 using Nadixa.Application.Interfaces;
+
 namespace Nadixa.Infrastructure.Services
 {
-    public class DashboardService : IDashboardService
+    public class DashboardService :Application.Interfaces.IDashboardService
     {
         private readonly NadixaDbContext _context;
         private readonly UserManager<AppUser> _userManager;

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Web.Models.ViewModels;
+using Nadixa.Core.Common;
 
 namespace Nadixa.Web.Controllers
 {

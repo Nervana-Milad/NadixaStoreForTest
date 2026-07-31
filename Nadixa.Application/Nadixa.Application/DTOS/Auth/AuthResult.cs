@@ -1,4 +1,4 @@
-﻿namespace Nadixa.Core.DTOS.Auth
+﻿namespace Nadixa.Application.DTOS.Auth
 {
     public class AuthResult
     {

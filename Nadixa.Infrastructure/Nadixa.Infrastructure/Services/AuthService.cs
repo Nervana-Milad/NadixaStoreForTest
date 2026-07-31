@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Nadixa.Application.DTOS;
 using Nadixa.Application.Interfaces;
-using Nadixa.Core.DTOS.Auth;
+using Nadixa.Application.DTOS.Auth;
 using Nadixa.Core.Entities;
 
 namespace Nadixa.Infrastructure.Services
 {
-    public class AuthService : IAuthService
+    public class AuthService : Application.Interfaces.IAuthService
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;

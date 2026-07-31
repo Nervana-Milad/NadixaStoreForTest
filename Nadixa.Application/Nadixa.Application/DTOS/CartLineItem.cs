@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Nadixa.Application.DTOs
+namespace Nadixa.Application.DTOS
 {
     public class CartLineItem
     {

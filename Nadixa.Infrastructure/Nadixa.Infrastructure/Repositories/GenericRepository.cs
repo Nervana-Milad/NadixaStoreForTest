@@ -63,5 +63,10 @@ namespace Nadixa.Infrastructure.Repositories
             entity.IsDeleted = true;
             _dbSet.Update(entity);
         }
+
+        public void HardDelete(T entity)
+        {
+            _dbSet.Remove(entity);
+        }
     }
 }

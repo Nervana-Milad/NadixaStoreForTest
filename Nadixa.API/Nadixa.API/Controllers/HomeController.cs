@@ -2,9 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Nadixa.Application.DTOS;
 using Nadixa.Application.Interfaces;
-using Nadixa.Core.DTOS;
-using Nadixa.Core.Entities;
-using Nadixa.Core.Interfaces;
+using Nadixa.Application.Entities;
+using Nadixa.Application.Interfaces;
 
 namespace Nadixa.API.Controllers
 {

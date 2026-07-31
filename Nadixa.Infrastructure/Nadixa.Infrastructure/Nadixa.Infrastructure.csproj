@@ -30,5 +30,8 @@
 	  <ProjectReference Include="..\..\Nadixa.Application\Nadixa.Application\Nadixa.Application.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 	
 </Project>

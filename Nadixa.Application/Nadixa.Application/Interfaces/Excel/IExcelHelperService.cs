@@ -1,5 +1,5 @@
 ﻿using Nadixa.Application.DTOS;
-using Nadixa.Core.DTOS;
+using Nadixa.Application.DTOS;
 using SpreadCheetah;
 
 

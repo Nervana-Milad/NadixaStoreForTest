@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Nadixa.Core.DTOS;
+using Nadixa.Application.DTOS;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
 using Nadixa.Infrastructure.Data;

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
-using Nadixa.Web.Helpers;
+using Nadixa.Core.Common;
 using Nadixa.Web.Models.ViewModels;
 
 namespace Nadixa.Web.Controllers

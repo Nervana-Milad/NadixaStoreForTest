@@ -77,7 +77,7 @@ namespace Nadixa.Web
             builder.Services.AddScoped<IAuthService, Nadixa.Infrastructure.Services.AuthService>();
 
 
-
+            builder.Services.AddScoped<IProductService, ProductService>();
 
             builder.Services.AddScoped<IPromotionService, PromotionService>();
             builder.Services.AddScoped<IShippingRuleService, ShippingRuleService>();
@@ -96,7 +96,8 @@ namespace Nadixa.Web
             builder.Services.AddScoped<IStockNotificationRepository, StockNotificationRepository>();
             builder.Services.AddScoped<IBlogRepository, BlogRepository>();
             builder.Services.AddScoped<IHomeService, HomeService>();
-
+            builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())

@@ -1,4 +1,4 @@
-﻿using Nadixa.Application.DTOs;
+﻿using Nadixa.Application.DTOS;
 using System.Collections.Generic;
 
 namespace Nadixa.Web.Models.ViewModels

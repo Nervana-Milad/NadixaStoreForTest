@@ -1,62 +1,68 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Nadixa.Application.DTOS;
-using Nadixa.Core.Entities;
-using Nadixa.Core.Interfaces;
-namespace Nadixa.API.Controllers
-{
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ProductsController : ControllerBase
-    {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
+//using AutoMapper;
+//using Microsoft.AspNetCore.Http;
+//using Microsoft.AspNetCore.Mvc;
+////using Nadixa.Application.DTOS;
+//using Nadixa.Application.DTOS;
+//using Nadixa.Core.Entities;
+//using Nadixa.Core.Interfaces;
 
-        public ProductsController(IUnitOfWork unitOfWork, IMapper mapper)
-        {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-        }
+//namespace Nadixa.API.Controllers
+//{
+//    [ApiController]
+//    [Route("api/[controller]")]
+//    public class ProductsController : ControllerBase
+//    {
+//        private readonly IUnitOfWork _unitOfWork;
+//        private readonly IMapper _mapper;
+//        public ProductsController(IUnitOfWork unitOfWork, IMapper mapper)
+//        {
+//            _unitOfWork = unitOfWork;
+//            _mapper = mapper;
+//        }
 
-        // GET: api/products                 done
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductToReturnDto>>> GetProducts()
-        {
-            var products = await _unitOfWork.Repository<Product>().GetAllAsync(p => p.ProductCategory, p => p.Images);
+//        // GET: api/products                 done
+//        [HttpGet]
+//        public async Task<ActionResult<IEnumerable<ProductToReturnDto>>> GetProducts(
+//            [FromQuery] int? categoryId,
+//            [FromQuery] int? subCategoryId,
+//            [FromQuery] string? search,
+//            [FromQuery] int page = 1,
+//            [FromQuery] int pageSize = 10)
+//        {
+//            var products = await _unitOfWork.Repository<Product>().GetAllAsync(p => p.ProductCategory, p => p.Images);
 
-            // تحويل الداتا لـ DTO
-            var data = _mapper.Map<IEnumerable<ProductToReturnDto>>(products);
+//            // تحويل الداتا لـ DTO
+//            var data = _mapper.Map<IEnumerable<ProductToReturnDto>>(products);
 
-            return Ok(data);
-        }
+//            return Ok(data);
+//        }
 
-        // GET: api/products/5                        done
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ProductToReturnDto>> GetProduct(int id)
-        {
-            var product = await _unitOfWork.Repository<Product>().GetByIdAsync(id, p => p.ProductCategory, p => p.Images);
+//        // GET: api/products/5                        done
+//        [HttpGet("{id}")]
+//        public async Task<ActionResult<ProductToReturnDto>> GetProduct(int id)
+//        {
+//            var product = await _unitOfWork.Repository<Product>().GetByIdAsync(id, p => p.ProductCategory, p => p.Images);
 
-            if (product == null) return NotFound();
-            return Ok(_mapper.Map<ProductToReturnDto>(product));
-        }
+//            if (product == null) return NotFound();
+//            return Ok(_mapper.Map<ProductToReturnDto>(product));
+//        }
 
-        // POST: api/products (للأدمن فقط لاحقاً)
-        [HttpPost]
-        public async Task<ActionResult<Product>> CreateProduct(ProductCreateDto productDto)
-        {
-            var product = _mapper.Map<Product>(productDto);
+//        // POST: api/products (للأدمن فقط لاحقاً)
+//        [HttpPost]
+//        public async Task<ActionResult<Product>> CreateProduct(ProductCreateDto productDto)
+//        {
+//            var product = _mapper.Map<Product>(productDto);
 
-            // إضافة صورة افتراضية للتجربة
-            product.Images.Add(new ProductImage { ImageUrl = productDto.MainImageUrl, IsMain = true });
+//            // إضافة صورة افتراضية للتجربة
+//            product.Images.Add(new ProductImage { ImageUrl = productDto.MainImageUrl, IsMain = true });
 
-            await _unitOfWork.Repository<Product>().AddAsync(product);
-            await _unitOfWork.CompleteAsync();
+//            await _unitOfWork.Repository<Product>().AddAsync(product);
+//            await _unitOfWork.CompleteAsync();
 
-            return Ok(product);
-        }
+//            return Ok(product);
+//        }
     
         
     
-    }
-}
+//    }
+//}

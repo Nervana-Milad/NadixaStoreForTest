@@ -1,7 +1,7 @@
-﻿@model Nadixa.Web.Models.ViewModels.ProductDetailViewModel
+﻿@model Nadixa.Application.DTOS.ProductDetailDto
 
 @{
-	ViewData["Title"] = Model.Product.Name;
+	ViewData["Title"] = Model.Name;
 }
 
 @inject Nadixa.Application.Interfaces.IPermissionService PermissionService
@@ -51,17 +51,17 @@
 		</a>
 
 		<a href="product.html" class="stext-109 cl8 hov-cl1 trans-04">
-			@Model.Product.ProductCategory.Name
+			@Model.Category
 			<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
 		</a>
 
 		<a href="product.html" class="stext-109 cl8 hov-cl1 trans-04">
-			@Model.Product.ProductSubCategory.Name
+			@Model.SubCategory
 			<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
 		</a>
 
 		<span class="stext-109 cl4">
-			@Model.Product.Name
+			@Model.Name
 		</span>
 	</div>
 </div>
@@ -77,7 +77,7 @@
 				<!-- Edit Button -->
 				<a asp-controller="Product"
 				   asp-action="Edit"
-				   asp-route-id="@Model.Product.Id"
+				   asp-route-id="@Model.Id"
 				   class="btn text-white px-4 py-2 hov-btn3 rounded-pill shadow-sm mx-3"
 				   style="background-color:#6c7ae0;">
 					Edit Product
@@ -88,7 +88,7 @@
 					<!-- Delete Button - Admin بس -->
 					<button type="button"
 							class="btn btn-danger hov-btn3 px-4 py-2 rounded-pill shadow-sm delete-product-btn"
-							data-product-name="@Model.Product.Name">
+							data-product-name="@Model.Name">
 						Delete Product
 					</button>
 				}
@@ -102,13 +102,13 @@
 						<div class="wrap-slick3-arrows flex-sb-m flex-w"></div>
 
 						<div class="slick3 gallery-lb">
-							@if (!string.IsNullOrEmpty(Model.Product.MainImageUrlPath))
+							@if (!string.IsNullOrEmpty(Model.PictureUrl))
 							{
-								<div class="item-slick3" data-thumb="@Url.Content(Model.Product.MainImageUrlPath)">
+								<div class="item-slick3" data-thumb="@Url.Content(Model.PictureUrl)">
 									<div class="wrap-pic-w pos-relative">
-										<img src="@Url.Content(Model.Product.MainImageUrlPath)" alt="@Model.Product.Name">
+										<img src="@Url.Content(Model.PictureUrl)" alt="@Model.Name">
 										<a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04"
-										   href="@Url.Content(Model.Product.MainImageUrlPath)">
+										   href="@Url.Content(Model.PictureUrl)">
 											<i class="fa fa-expand"></i>
 										</a>
 									</div>
@@ -116,11 +116,11 @@
 							}
 
 
-							@foreach (var image in Model.ImageUrls)
+							@foreach (var image in Model.GalleryImageUrls)
 							{
 								<div class="item-slick3" data-thumb="@Url.Content(image)">
 									<div class="wrap-pic-w pos-relative">
-										<img src="@Url.Content(image)" alt="@Model.Product.Name">
+										<img src="@Url.Content(image)" alt="@Model.Name">
 										<a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04"
 										   href="@Url.Content(image)">
 											<i class="fa fa-expand"></i>
@@ -138,19 +138,19 @@
 			<div class="col-md-6 col-lg-5 p-b-30">
 				<div class="p-r-50 p-t-5 p-lr-0-lg">
 					<h4 class="mtext-105 cl2 js-name-detail">
-						@Model.Product.Name
+						@Model.Name
 					</h4>
 
 					<p class="stext-102 cl3 py-3">
-						@Model.Product.Description
+						@Model.Description
 					</p>
 
 					<span class="mtext-106 cl2">
-						$ @Model.Product.Price
+						$ @Model.Price
 					</span>
 					<div>
 						<del>
-							$ @Model.Product.OldPrice
+							$ @Model.OldPrice
 						</del>
 					</div>
 
@@ -162,29 +162,29 @@
 							<div class="size-204 flex-w flex-m respon6-next">
 								<div class="wrap-num-product flex-w m-r-20 m-tb-10 my-3">
 
-									<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m @(Model.Product.StockQuantity <= 0 ? "disabled-btn" : "")">
+									<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m @(Model.StockQuantity <= 0 ? "disabled-btn" : "")">
 										<i class="fs-16 zmdi zmdi-minus"></i>
 									</div>
 
 									<input class="mtext-104 cl3 txt-center num-product"
 										   type="number"
 										   name="num-product"
-										   value="@(Model.Product.StockQuantity > 0 ? 1 : 0)"
-										   min="@(Model.Product.StockQuantity > 0 ? 1 : 0)"
-										   max="@Model.Product.StockQuantity"
-										   @(Model.Product.StockQuantity <= 0 ? "readonly" : "")>
+										   value="@(Model.StockQuantity > 0 ? 1 : 0)"
+										   min="@(Model.StockQuantity > 0 ? 1 : 0)"
+										   max="@Model.StockQuantity"
+										   @(Model.StockQuantity <= 0 ? "readonly" : "")>
 
-									<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m @(Model.Product.StockQuantity <= 0 ? "disabled-btn" : "")">
+									<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m @(Model.StockQuantity <= 0 ? "disabled-btn" : "")">
 										<i class="fs-16 zmdi zmdi-plus"></i>
 									</div>
 
 								</div>
 
-									@if (Model.Product.StockQuantity > 0)
+									@if (Model.StockQuantity > 0)
 									{
 										<button type="button"
 												class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail my-4"
-												data-product-id="@Model.Product.Id">
+												data-product-id="@Model.Id">
 											Add to cart
 										</button>
 									}
@@ -203,9 +203,9 @@
 
 							</div>
 						</div>
-						<h4>Quantity Stock: @Model.Product.StockQuantity item(s)</h4>
+						<h4>Quantity Stock: @Model.StockQuantity item(s)</h4>
 						<p class="text-muted" style="font-size: 14px;">
-							<i class="zmdi zmdi-shopping-cart"></i> @ViewBag.SoldCount sold in the last month
+							<i class="zmdi zmdi-shopping-cart"></i> @Model.SoldLastMonth sold in the last month
 						</p>
 					</div>
 
@@ -214,7 +214,7 @@
 						<div class="flex-m bor9 p-r-10 m-r-11">
 							
 							<button class="js-addwish-detail fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2"
-									data-product-id="@Model.Product.Id" data-product-name="@Model.Product.Name">
+									data-product-id="@Model.Id" data-product-name="@Model.Name">
 								<i class="zmdi zmdi-favorite-outline"></i>
 							</button>
 							
@@ -254,7 +254,7 @@
 					<li class="nav-item p-b-10">
 						<a class="nav-link" data-toggle="tab" href="#reviews" role="tab">
 							Reviews (<span id="reviewsCount">
-								@Model.Product.Reviews.Count()
+								@Model.Reviews.Count()
 							</span>)
 						</a>
 					</li>
@@ -339,17 +339,17 @@
 									<div class="d-flex justify-content-between mb-4">
 										<h4>
 											<span id="avgRating">
-												@ViewBag.AvgRating.ToString("0.0")
+												@Model.AvgRating.ToString("0.0")
 											</span> / 5
 										</h4>
 									</div>
 
 
 									<div id="reviewSection">
-										@if (Model.Product.Reviews.Any())
+										@if (Model.Reviews.Any())
 										{
 
-											@foreach (var review in Model.Product.Reviews)
+											@foreach (var review in Model.Reviews)
 											{
 												<div class="flex-w flex-t p-b-68 review-card">
 													<div class="wrap-pic-s size-109 bor0 of-hidden m-r-18 m-t-6">
@@ -431,7 +431,7 @@
 									{
 										
 										<form id="reviewForm"  method="post" class="w-full">
-											<input type="hidden" id="ProductId" value="@Model.Product.Id" />
+											<input type="hidden" id="ProductId" value="@Model.Id" />
 											<div class="flex-w flex-m p-t-50 p-b-23 form-group">
 												<span class="stext-102 cl3 m-r-16">
 													Your Rating
@@ -479,7 +479,7 @@
 		</span>
 
 		<span class="stext-107 cl6 p-lr-25">
-			Categories: @Model.Product.ProductCategory.Name
+			Categories: @Model.Category
 		</span>
 	</div>
 
@@ -488,7 +488,7 @@
 	<form id="deleteProductForm"
 		  asp-controller="Product"
 		  asp-action="DeleteConfirmed"
-		  asp-route-id="@Model.Product.Id"
+		  asp-route-id="@Model.Id"
 		  method="post">
 	</form>
 	

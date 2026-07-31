@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Nadixa.Core.Common;
 using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Web.Helpers;

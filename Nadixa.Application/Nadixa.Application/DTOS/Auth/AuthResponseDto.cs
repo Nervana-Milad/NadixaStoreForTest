@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nadixa.Core.DTOS.Auth
+namespace Nadixa.Application.DTOS.Auth
 {
     public class AuthResponseDto
     {

@@ -1,5 +1,5 @@
 ﻿using Nadixa.Core.Attributes;
-using Nadixa.Core.DTOS;
+using Nadixa.Application.DTOS;
 using System;
 using System.Collections.Generic;
 using System.Linq;

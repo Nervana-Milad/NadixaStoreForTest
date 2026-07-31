@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Nadixa.Application.Interfaces;
-using Nadixa.Application.DTOs;
+using Nadixa.Application.DTOS;
 namespace Nadixa.Infrastructure.Services
 {
 

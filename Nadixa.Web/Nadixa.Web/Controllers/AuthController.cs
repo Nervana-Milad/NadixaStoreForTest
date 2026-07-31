@@ -3,9 +3,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nadixa.Application.DTOS;
 using Nadixa.Application.Interfaces;
-using Nadixa.Core.DTOS.Auth;
 using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
+using Nadixa.Core.Entities;
+using Nadixa.Web.Models.ViewModels;
+using Nadixa.Web.Services;
+using Nadixa.Infrastructure.Services;
+using Nadixa.Core.Common;
+using Nadixa.Application.DTOS.Auth;
 
 namespace Nadixa.Web.Controllers
 {

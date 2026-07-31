@@ -1,5 +1,5 @@
 ﻿using Nadixa.Application.DTOS;
-using Nadixa.Core.DTOS.Auth;
+using Nadixa.Application.DTOS.Auth;
 
 namespace Nadixa.Application.Interfaces
 {

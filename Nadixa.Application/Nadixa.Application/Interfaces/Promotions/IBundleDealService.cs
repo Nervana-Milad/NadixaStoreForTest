@@ -1,4 +1,4 @@
-﻿using Nadixa.Application.DTOs;
+﻿using Nadixa.Application.DTOS;
 using Nadixa.Core.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;

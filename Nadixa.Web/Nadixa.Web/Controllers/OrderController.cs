@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Nadixa.Application.DTOs;
+using Nadixa.Application.DTOS;
 using Nadixa.Application.Interfaces;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
@@ -12,6 +12,7 @@ using Nadixa.Infrastructure.Services;
 using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 using Nadixa.Web.Services;
+using Nadixa.Core.Common;
 
 namespace Nadixa.Web.Controllers
 {
