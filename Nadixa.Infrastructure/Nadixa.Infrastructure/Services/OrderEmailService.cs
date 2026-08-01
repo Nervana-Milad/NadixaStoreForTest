@@ -2,11 +2,12 @@
 using Nadixa.Core.Entities;
 using Nadixa.Web.Services;
 using Nadixa.Infrastructure.Services;
+using Nadixa.Application.Interfaces;
 
 
-namespace Nadixa.Web.Services
+namespace Nadixa.Infrastructure.Services
 {
-    public class OrderEmailService
+    public class OrderEmailService :IOrderEmailService
     {
         private readonly EmailSender _emailSender;
         private readonly UserManager<AppUser> _userManager;

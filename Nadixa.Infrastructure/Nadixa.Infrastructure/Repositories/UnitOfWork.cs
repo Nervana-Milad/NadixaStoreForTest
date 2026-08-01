@@ -1,4 +1,5 @@
 ﻿using Nadixa.Core.Common;
+using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
 using Nadixa.Infrastructure.Data;
 using System.Collections;
@@ -15,25 +16,23 @@ public class UnitOfWork : IUnitOfWork
     public IDashboardRepository Dashboard { get; }
 
     public IUserRepository Users { get; }
+    public IOrderRepository Orders { get; }
 
-    public UnitOfWork(
-        NadixaDbContext context,
-        ICouponRepository couponRepository,
-        IDashboardRepository dashboardRepository,
-        IUserRepository userRepository)
+    public UnitOfWork(NadixaDbContext context , ICouponRepository couponRepository , IDashboardRepository dashboardRepository , IUserRepository userRepository , IOrderRepository orderRepository)
     {
         _context = context;
-
         Coupons = couponRepository;
         Dashboard = dashboardRepository;
         Users = userRepository;
+        Orders = orderRepository;
     }
+    public IGenericRepository<OrderStatusHistory> OrderStatusHistories => Repository<OrderStatusHistory>();
 
     public async Task<int> CompleteAsync()
     {
         return await _context.SaveChangesAsync();
     }
-
+ 
     public IGenericRepository<T> Repository<T>()
         where T : BaseEntity
     {
@@ -57,6 +56,7 @@ public class UnitOfWork : IUnitOfWork
         return (IGenericRepository<T>)
             _repositories[type]!;
     }
+
 
     public void Dispose()
     {

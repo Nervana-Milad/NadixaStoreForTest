@@ -19,6 +19,9 @@ namespace Nadixa.Web.Models.ViewModels
         public DateTime CreatedAt { get; set; }
 
         public OrderStatus Status { get; set; }
+
+        public decimal DiscountAmount { get; set; } 
         public List<OrderItemViewModel> Items { get; set; } = new();
+
     }
 }

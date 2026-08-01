@@ -144,15 +144,26 @@
 					<p class="stext-102 cl3 py-3">
 						@Model.Description
 					</p>
+@if (!string.IsNullOrEmpty(Model.BadgeText))
+{
+    <span style="display:inline-block; background-color:@(Model.BadgeColorHex ?? "#FF3B30"); color:#fff; font-size:12px; font-weight:700; padding:4px 12px; border-radius:20px; margin-bottom:8px;">
+        @Model.BadgeText
+    </span>
+}
 
-					<span class="mtext-106 cl2">
-						$ @Model.Price
-					</span>
-					<div>
-						<del>
-							$ @Model.OldPrice
-						</del>
-					</div>
+<div class="d-flex align-items-center flex-wrap">
+    @if (Model.DiscountedPrice != null && Model.DiscountedPrice < Model.Price)
+    {
+        <span class="mtext-106" style="color:#e74c3c; font-weight:700;">$ @Model.DiscountedPrice.Value.ToString("N2")</span>
+        <span class="mtext-106 ml-3" style="text-decoration: line-through; color:#999; font-size: 0.75em;">
+            $ @Model.Price
+        </span>
+    }
+    else
+    {
+        <span class="mtext-106 cl2">$ @Model.Price</span>
+    }
+</div>
 
 					
 

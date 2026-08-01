@@ -124,6 +124,7 @@ namespace Nadixa.Infrastructure.Services
                 .FindAsync(oi => oi.ProductId == id
                     && oi.Order.Status != OrderStatus.Cancelled
                     && oi.Order.CreatedAt >= oneMonthAgo);
+
             bool notifyRequested = false;
             if (!string.IsNullOrEmpty(userId))
             {
@@ -131,6 +132,12 @@ namespace Nadixa.Infrastructure.Services
                     .FindAsync(r => r.ProductId == id && r.UserId == userId && !r.IsNotified);
                 notifyRequested = pending.Any();
             }
+
+            // --- NEW: same promotion calculation Index()/Search() already use,
+            // just applied to this single product too. ---
+            var activePromotions = await _promotionService.GetActivePromotionsAsync();
+            var promoMap = BuildPromotionsMap(new List<Product> { product }, activePromotions);
+            promoMap.TryGetValue(product.Id, out var promoInfo);
 
             return new ProductDetailDto
             {
@@ -148,6 +155,10 @@ namespace Nadixa.Infrastructure.Services
                 TotalReviews = reviews.Count,
                 SoldLastMonth = orderItems.Sum(oi => oi.Quantity),
                 NotifyRequested = notifyRequested,
+                // --- NEW fields ---
+                BadgeText = promoInfo?.BadgeText,
+                BadgeColorHex = promoInfo?.BadgeColorHex,
+                DiscountedPrice = promoInfo?.DiscountedPrice,
                 Reviews = reviews.Select(r => new ReviewDto
                 {
                     Id = r.Id,

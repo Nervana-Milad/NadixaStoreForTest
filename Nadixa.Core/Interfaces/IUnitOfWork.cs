@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Nadixa.Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,8 @@ namespace Nadixa.Core.Interfaces
         ICouponRepository Coupons { get; }
         IDashboardRepository Dashboard { get; }
         IUserRepository Users { get; }
+        IOrderRepository Orders { get; }
+        IGenericRepository<OrderStatusHistory> OrderStatusHistories { get; }
         Task<int> CompleteAsync();
     }
 }

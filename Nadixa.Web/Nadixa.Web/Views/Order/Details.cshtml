@@ -105,20 +105,29 @@
     <!-- 5. ملخص الحساب (Summary) -->
     <div class="row justify-content-end">
         <div class="col-md-5">
-            <div class="summary-box">
-                <div class="summary-row">
-                    <span>Total Price</span>
-                    <span class="fw-bold text-dark">L.E. @Model.SubTotal.ToString("N0")</span>
-                </div>
-                <div class="summary-row">
-                    <span>Shipping</span>
-                    <span class="fw-bold text-dark">L.E. @Model.ShippingFee.ToString("N0")</span>
-                </div>
-                <div class="summary-row total mt-3 pt-3">
-                    <span class="fw-bold text-dark">Total</span>
-                    <span class="total-price">L.E. @Model.GrandTotal.ToString("N0")</span>
-                </div>
-            </div>
+           <div class="summary-box">
+    <div class="summary-row">
+        <span>Total Price</span>
+        <span class="fw-bold text-dark">L.E. @Model.SubTotal.ToString("N0")</span>
+    </div>
+
+    @if (Model.DiscountAmount > 0)
+    {
+        <div class="summary-row">
+            <span>Discount</span>
+            <span class="fw-bold" style="color:#16a34a;">- L.E. @Model.DiscountAmount.ToString("N0")</span>
+        </div>
+    }
+
+    <div class="summary-row">
+        <span>Shipping</span>
+        <span class="fw-bold text-dark">L.E. @Model.ShippingFee.ToString("N0")</span>
+    </div>
+    <div class="summary-row total mt-3 pt-3">
+        <span class="fw-bold text-dark">Total</span>
+        <span class="total-price">L.E. @Model.GrandTotal.ToString("N0")</span>
+    </div>
+</div>
         </div>
     </div>
 

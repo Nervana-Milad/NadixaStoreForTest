@@ -2,8 +2,11 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Nadixa.Core.Entities;
+using Nadixa.Application.Helpers;
+using Nadixa.Application.Interfaces;
 using Nadixa.Application.Interfaces.Excel;
+using Nadixa.Core.Entities;
+using Nadixa.Core.Interfaces;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Infrastructure.Repositories;
 using Nadixa.Infrastructure.Services;
@@ -11,9 +14,7 @@ using Nadixa.Infrastructure.Services.Excel;
 using Nadixa.Web.Filters;
 using Nadixa.Web.Services;
 using System.Threading.Tasks;
-using Nadixa.Application.Interfaces;
-using Nadixa.Core.Interfaces;
-
+using AutoMapper;
 namespace Nadixa.Web
 {
     public class Program
@@ -101,6 +102,10 @@ namespace Nadixa.Web
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+            builder.Services.AddScoped<IOrderEmailService, OrderEmailService>();
 
             var app = builder.Build();
             using (var scope = app.Services.CreateScope())

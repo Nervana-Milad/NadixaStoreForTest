@@ -35,5 +35,10 @@ namespace Nadixa.Application.DTOS
         public bool NotifyRequested { get; set; }
 
         public List<ReviewDto> Reviews { get; set; } = new();
+
+        public string? BadgeText { get; set; }
+        public string? BadgeColorHex { get; set; }
+        public decimal? DiscountedPrice { get; set; }
+
     }
 }

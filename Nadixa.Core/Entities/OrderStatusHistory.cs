@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Nadixa.Core.Common;
+using System.ComponentModel.DataAnnotations;
 
 namespace Nadixa.Core.Entities
 {
-    public class OrderStatusHistory
+    public class OrderStatusHistory : BaseEntity
     {
-        public int Id { get; set; }
 
         public int OrderId { get; set; }
 

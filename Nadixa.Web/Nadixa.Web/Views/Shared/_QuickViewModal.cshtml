@@ -57,8 +57,25 @@
 						</h4>
 
 						<span class="mtext-106 cl2">
-                            @Model.Price
-						</span>
+@if (!string.IsNullOrEmpty(Model.BadgeText))
+{
+    <span style="display:inline-block; background-color:@(Model.BadgeColorHex ?? "#FF3B30"); color:#fff; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; margin-bottom:6px;">
+        @Model.BadgeText
+    </span>
+}
+<div class="d-flex align-items-center flex-wrap">
+    @if (Model.DiscountedPrice != null && Model.DiscountedPrice < Model.Price)
+    {
+        <span class="mtext-106" style="color:#e74c3c; font-weight:700;">$ @Model.DiscountedPrice.Value.ToString("N2")</span>
+        <span class="mtext-106 ml-2" style="text-decoration: line-through; color:#999; font-size: 0.75em;">
+            $ @Model.Price
+        </span>
+    }
+    else
+    {
+        <span class="mtext-106 cl2">$ @Model.Price</span>
+    }
+</div>						</span>
 
 						<p class="stext-102 cl3 p-t-23">
 							@Model.Description

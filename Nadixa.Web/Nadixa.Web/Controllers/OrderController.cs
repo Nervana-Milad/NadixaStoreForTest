@@ -296,6 +296,7 @@ namespace Nadixa.Web.Controllers
                 Status = order.Status,
                 ShippingFee = order.ShippingFee,
                 SubTotal = order.SubTotal,
+                DiscountAmount = order.DiscountAmount,
                 GrandTotal = order.TotalPrice,
                 Items = order.OrderItems.Select(item => new OrderItemViewModel
                 {
