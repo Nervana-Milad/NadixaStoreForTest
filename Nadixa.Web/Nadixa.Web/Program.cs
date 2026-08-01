@@ -66,12 +66,11 @@ namespace Nadixa.Web
 
             //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IDashboardService, DashboardService>();
-            builder.Services.AddTransient<EmailSender>();
+            builder.Services.AddScoped<EmailSender>();
             builder.Services.AddScoped<IRazorViewRenderer, RazorViewRenderer>();
 
             builder.Services.AddScoped<IExcelService, ExcelService>();
             builder.Services.AddScoped<IExcelHelperService, ExcelHelperService>();
-            builder.Services.AddScoped<EmailSender>();
             builder.Services.AddScoped<OrderEmailService>();
             builder.Services.AddScoped<StockNotificationService>();
             builder.Services.AddScoped<IAuthService, Nadixa.Infrastructure.Services.AuthService>();
@@ -98,8 +97,12 @@ namespace Nadixa.Web
             builder.Services.AddScoped<IHomeService, HomeService>();
             builder.Services.AddScoped<IFileUploadService, FileUploadService>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            var app = builder.Build();
+            builder.Services.AddScoped<ICouponRepository, CouponRepository>();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+            var app = builder.Build();
             using (var scope = app.Services.CreateScope())
             {
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();

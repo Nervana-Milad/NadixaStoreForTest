@@ -119,9 +119,17 @@ namespace Nadixa.Infrastructure.Services
             // 4) الكوبون (لو العميل دخل كود)
             if (!string.IsNullOrWhiteSpace(request.CouponCode))
             {
-                var (isValid, discountAmount, error, coupon) = await _couponService.ValidateAndCalculateAsync(
-                    request.CouponCode, request.UserId, netSubtotalAfterProductDiscounts, isFirstOrder);
+                var couponResult =
+                    await _couponService.ValidateAndCalculateAsync(
+                        request.CouponCode,
+                        request.UserId,
+                        netSubtotalAfterProductDiscounts,
+                        isFirstOrder);
 
+                var isValid = couponResult.IsValid;
+                var discountAmount = couponResult.DiscountAmount;
+                var error = couponResult.Error;
+                var coupon = couponResult.Coupon;
                 if (isValid && coupon != null)
                 {
                     result.CouponDiscount = discountAmount;

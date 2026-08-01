@@ -1,11 +1,11 @@
-﻿using Nadixa.Application.DTOS;
+﻿using Nadixa.Core.Models.Dashboard;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nadixa.Application.DTOS
+namespace Nadixa.Application.DTOS.Dashboard
 {
     public class DashboardStatsDto
     {

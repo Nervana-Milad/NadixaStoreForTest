@@ -1,129 +1,274 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Nadixa.Application.DTOS.Coupons;
 using Nadixa.Application.Interfaces;
 using Nadixa.Core.Entities;
-using Nadixa.Web.Helpers;
-using Nadixa.Application.Interfaces;
-using Nadixa.Web.Models.ViewModels;
-using System.Threading.Tasks;
-using Nadixa.Core.Common;
+using Nadixa.Core.Interfaces;
 
-namespace Nadixa.Web.Controllers
+namespace Nadixa.Infrastructure.Services;
+
+public class CouponService : ICouponService
 {
-    [Authorize(Roles = "Admin")]
-    public class AdminCouponController : Controller
+    private readonly IUnitOfWork _unitOfWork;
+
+    public CouponService(IUnitOfWork unitOfWork)
     {
-        private readonly ICouponService _couponService;
+        _unitOfWork = unitOfWork;
+    }
 
-        public AdminCouponController(ICouponService couponService)
+    // =========================================
+    // GET ALL
+    // =========================================
+    public async Task<IEnumerable<CouponDto>> GetAllAsync()
+    {
+        var coupons = await _unitOfWork.Coupons.GetAllAsync();
+        return coupons.Select(MapToDto);
+    }
+
+    // =========================================
+    // GET BY ID
+    // =========================================
+    public async Task<CouponDto?> GetByIdAsync(int id)
+    {
+        var coupon = await _unitOfWork.Coupons.GetByIdAsync(id);
+        return coupon is null ? null : MapToDto(coupon);
+    }
+
+    // =========================================
+    // CREATE
+    // =========================================
+    public async Task<CouponDto> CreateAsync(CreateCouponDto dto)
+    {
+        var coupon = new Coupon
         {
-            _couponService = couponService;
+            Code = NormalizeCode(dto.Code),
+            DiscountType = Enum.Parse<CouponDiscountType>(dto.DiscountType, true),
+            Value = dto.Value,
+            MinOrderAmount = dto.MinOrderAmount,
+            MaxDiscountAmount = dto.MaxDiscountAmount,
+            MaxTotalUsage = dto.MaxTotalUsage,
+            MaxUsagePerUser = dto.MaxUsagePerUser,
+            FirstOrderOnly = dto.FirstOrderOnly,
+            StartDate = dto.StartDate,
+            EndDate = dto.EndDate ?? DateTime.MaxValue,
+            IsActive = dto.IsActive
+        };
+
+        await _unitOfWork.Coupons.AddAsync(coupon);
+        await _unitOfWork.CompleteAsync();
+
+        return MapToDto(coupon);
+    }
+
+    // =========================================
+    // UPDATE
+    // =========================================
+    public async Task<bool> UpdateAsync(UpdateCouponDto dto)
+    {
+        var existingCoupon = await _unitOfWork.Coupons.GetByIdAsync(dto.Id);
+
+        if (existingCoupon is null)
+            return false;
+
+        existingCoupon.Code = NormalizeCode(dto.Code);
+        existingCoupon.DiscountType = Enum.Parse<CouponDiscountType>(dto.DiscountType, true);
+        existingCoupon.Value = dto.Value;
+        existingCoupon.MinOrderAmount = dto.MinOrderAmount;
+        existingCoupon.MaxDiscountAmount = dto.MaxDiscountAmount;
+        existingCoupon.MaxTotalUsage = dto.MaxTotalUsage;
+        existingCoupon.MaxUsagePerUser = dto.MaxUsagePerUser;
+        existingCoupon.FirstOrderOnly = dto.FirstOrderOnly;
+        existingCoupon.StartDate = dto.StartDate;
+        existingCoupon.EndDate = dto.EndDate ?? DateTime.MaxValue;
+        existingCoupon.IsActive = dto.IsActive;
+
+        _unitOfWork.Coupons.Update(existingCoupon);
+
+        return await _unitOfWork.CompleteAsync() > 0;
+    }
+
+    // =========================================
+    // DELETE
+    // =========================================
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var coupon = await _unitOfWork.Coupons.GetByIdAsync(id);
+
+        if (coupon is null)
+            return false;
+
+        _unitOfWork.Coupons.Delete(coupon);
+
+        return await _unitOfWork.CompleteAsync() > 0;
+    }
+
+    // =========================================
+    // TOGGLE ACTIVE
+    // =========================================
+    public async Task<bool> ToggleActiveAsync(int id)
+    {
+        var coupon = await _unitOfWork.Coupons.GetByIdAsync(id);
+
+        if (coupon is null)
+            return false;
+
+        coupon.IsActive = !coupon.IsActive;
+
+        _unitOfWork.Coupons.Update(coupon);
+
+        return await _unitOfWork.CompleteAsync() > 0;
+    }
+
+    // =========================================
+    // VALIDATE & CALCULATE
+    // =========================================
+    public async Task<CouponValidationResult> ValidateAndCalculateAsync(
+        string code,
+        string userId,
+        decimal orderSubtotal,
+        bool isUserFirstOrder)
+    {
+        var coupon = await _unitOfWork.Coupons.GetByCodeAsync(code);
+
+        if (coupon is null)
+        {
+            return new CouponValidationResult
+            {
+                IsValid = false,
+                DiscountAmount = 0,
+                Error = "Coupon code does not exist.",
+                Coupon = null
+            };
         }
 
-        // GET: /AdminCoupon
-        public async Task<IActionResult> Index()
+        if (!coupon.IsCurrentlyValid)
         {
-            var coupons = await _couponService.GetAllAsync();
-            return View(coupons);
+            return new CouponValidationResult
+            {
+                IsValid = false,
+                DiscountAmount = 0,
+                Error = "Coupon is expired or inactive.",
+                Coupon = null
+            };
         }
 
-        // GET: /AdminCoupon/Create
-        public IActionResult Create()
+        if (coupon.FirstOrderOnly && !isUserFirstOrder)
         {
-            return View("Form", new CouponFormViewModel());
+            return new CouponValidationResult
+            {
+                IsValid = false,
+                DiscountAmount = 0,
+                Error = "This coupon is only valid for your first order.",
+                Coupon = null
+            };
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CouponFormViewModel vm)
+        if (coupon.MinOrderAmount.HasValue && orderSubtotal < coupon.MinOrderAmount.Value)
         {
-            if (!ModelState.IsValid)
-                return View("Form", vm);
-
-            var coupon = MapToEntity(vm, new Coupon());
-            coupon.Code = coupon.Code.Trim().ToUpper();
-
-            await _couponService.CreateAsync(coupon);
-
-            TempData["Success"] = AppMessages.CouponCreated;
-            return RedirectToAction(nameof(Index));
+            return new CouponValidationResult
+            {
+                IsValid = false,
+                DiscountAmount = 0,
+                Error = $"The minimum order amount for this coupon is {coupon.MinOrderAmount.Value}.",
+                Coupon = null
+            };
         }
 
-        // GET: /AdminCoupon/Edit/5
-        public async Task<IActionResult> Edit(int id)
-        {
-            var coupon = await _couponService.GetByIdAsync(id);
-            if (coupon == null) return NotFound();
+        var totalUsage = await _unitOfWork.Coupons.GetTotalUsageCountAsync(coupon.Id);
 
-            return View("Form", MapToViewModel(coupon));
+        if (coupon.MaxTotalUsage.HasValue && totalUsage >= coupon.MaxTotalUsage.Value)
+        {
+            return new CouponValidationResult
+            {
+                IsValid = false,
+                DiscountAmount = 0,
+                Error = "This coupon has reached its maximum usage limit.",
+                Coupon = null
+            };
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(CouponFormViewModel vm)
+        var userUsage = await _unitOfWork.Coupons.GetUserUsageCountAsync(coupon.Id, userId);
+
+        if (coupon.MaxUsagePerUser.HasValue && userUsage >= coupon.MaxUsagePerUser.Value)
         {
-            if (!ModelState.IsValid)
-                return View("Form", vm);
-
-            var coupon = await _couponService.GetByIdAsync(vm.Id);
-            if (coupon == null) return NotFound();
-
-            MapToEntity(vm, coupon);
-            coupon.Code = coupon.Code.Trim().ToUpper();
-
-            await _couponService.UpdateAsync(coupon);
-
-            TempData["Success"] = AppMessages.CouponUpdated;
-            return RedirectToAction(nameof(Index));
+            return new CouponValidationResult
+            {
+                IsValid = false,
+                DiscountAmount = 0,
+                Error = "You have already used this coupon.",
+                Coupon = null
+            };
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
-        {
-            await _couponService.DeleteAsync(id);
-            TempData["Success"] = AppMessages.CouponDeleted;
-            return RedirectToAction(nameof(Index));
-        }
+        var discount = CalculateDiscount(coupon, orderSubtotal);
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ToggleActive(int id)
+        return new CouponValidationResult
         {
-            await _couponService.ToggleActiveAsync(id);
-            return RedirectToAction(nameof(Index));
-        }
+            IsValid = true,
+            DiscountAmount = discount,
+            Error = null,
+            Coupon = coupon
+        };
+    }
 
-        private static Coupon MapToEntity(CouponFormViewModel vm, Coupon entity)
+    // =========================================
+    // REGISTER USAGE
+    // =========================================
+    public async Task RegisterUsageAsync(
+        int couponId,
+        string userId,
+        int orderId,
+        decimal discountApplied)
+    {
+        var usage = new CouponUsage
         {
-            entity.Code = vm.Code;
-            entity.DiscountType = vm.DiscountType;
-            entity.Value = vm.Value;
-            entity.MinOrderAmount = vm.MinOrderAmount;
-            entity.MaxDiscountAmount = vm.MaxDiscountAmount;
-            entity.MaxTotalUsage = vm.MaxTotalUsage;
-            entity.MaxUsagePerUser = vm.MaxUsagePerUser;
-            entity.FirstOrderOnly = vm.FirstOrderOnly;
-            entity.StartDate = vm.StartDate;
-            entity.EndDate = vm.EndDate;
-            entity.IsActive = vm.IsActive;
-            return entity;
-        }
+            CouponId = couponId,
+            UserId = userId,
+            OrderId = orderId,
+            DiscountApplied = discountApplied,
+            UsedAt = DateTime.UtcNow
+        };
 
-        private static CouponFormViewModel MapToViewModel(Coupon c) => new()
+        await _unitOfWork.Repository<CouponUsage>().AddAsync(usage);
+        await _unitOfWork.CompleteAsync();
+    }
+
+    // =========================================
+    // PRIVATE HELPERS
+    // =========================================
+    private static decimal CalculateDiscount(Coupon coupon, decimal orderSubtotal)
+    {
+        var discount = coupon.DiscountType == CouponDiscountType.Percentage
+            ? orderSubtotal * (coupon.Value / 100)
+            : coupon.Value;
+
+        if (coupon.MaxDiscountAmount.HasValue)
+            discount = Math.Min(discount, coupon.MaxDiscountAmount.Value);
+
+        discount = Math.Min(discount, orderSubtotal);
+
+        return Math.Round(discount, 2);
+    }
+
+    private static string NormalizeCode(string code)
+    {
+        return code.Trim().ToUpperInvariant();
+    }
+
+    private static CouponDto MapToDto(Coupon coupon)
+    {
+        return new CouponDto
         {
-            Id = c.Id,
-            Code = c.Code,
-            DiscountType = c.DiscountType,
-            Value = c.Value,
-            MinOrderAmount = c.MinOrderAmount,
-            MaxDiscountAmount = c.MaxDiscountAmount,
-            MaxTotalUsage = c.MaxTotalUsage,
-            MaxUsagePerUser = c.MaxUsagePerUser,
-            FirstOrderOnly = c.FirstOrderOnly,
-            StartDate = c.StartDate,
-            EndDate = c.EndDate,
-            IsActive = c.IsActive
+            Id = coupon.Id,
+            Code = coupon.Code,
+            DiscountType = coupon.DiscountType.ToString(),
+            Value = coupon.Value,
+            MinOrderAmount = coupon.MinOrderAmount,
+            MaxDiscountAmount = coupon.MaxDiscountAmount,
+            MaxTotalUsage = coupon.MaxTotalUsage,
+            MaxUsagePerUser = coupon.MaxUsagePerUser,
+            FirstOrderOnly = coupon.FirstOrderOnly,
+            StartDate = coupon.StartDate,
+            EndDate = coupon.EndDate,
+            IsActive = coupon.IsActive
         };
     }
 }

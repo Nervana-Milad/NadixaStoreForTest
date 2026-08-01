@@ -49,6 +49,6 @@ namespace Nadixa.Core.Entities
         public string UserId { get; set; } = string.Empty;
         public int OrderId { get; set; }
         public decimal DiscountApplied { get; set; }
-        public DateTime UsedAt { get; set; } = DateTime.Now;
+        public DateTime? UsedAt { get; set; } = DateTime.Now;
     }
 }

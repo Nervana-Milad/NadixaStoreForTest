@@ -27,11 +27,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\Nadixa.Application\Nadixa.Application\Nadixa.Application.csproj" />
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	  <ProjectReference Include="..\..\Nadixa.Application\Nadixa.Application\Nadixa.Application.csproj" />
+	  <ProjectReference Include="..\..\Nadixa.Core\Nadixa.Core.csproj" />
 	</ItemGroup>
 	
 </Project>

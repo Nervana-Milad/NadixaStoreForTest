@@ -223,7 +223,7 @@ namespace Nadixa.Infrastructure.Services
         // FORGOT PASSWORD
         // =========================================
 
- 
+
         public async Task<AuthResult> ForgotPasswordAsync(
          ForgotPasswordDto dto,
          Func<string, string> buildResetLink)   // بدل string resetLink
@@ -236,7 +236,7 @@ namespace Nadixa.Infrastructure.Services
             var resetLink = buildResetLink(token);
 
             var sent = _emailSender.SendEmail(
-                "Nadixa", "vanamilad2@gmail.com",
+                "Nadixaaa", "nermenhosny9@gmail.com",
                 user.UserName ?? user.Email, user.Email,
                 "Reset Password",
                 $"Click the following link to reset your password:\n{resetLink}");
@@ -246,6 +246,7 @@ namespace Nadixa.Infrastructure.Services
 
             return AuthResult.Success();
         }
+        
 
         // =========================================
         // RESET PASSWORD

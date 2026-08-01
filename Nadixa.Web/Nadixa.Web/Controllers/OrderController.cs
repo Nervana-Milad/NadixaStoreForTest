@@ -227,8 +227,13 @@ namespace Nadixa.Web.Controllers
             // تسجيل استخدام الكوبون فعليًا (بعد ما الأوردر اتأكد)
             if (pricing.CouponDiscount > 0 && !string.IsNullOrWhiteSpace(couponCode))
             {
-                var (isValid, _, _, coupon) = await _couponService.ValidateAndCalculateAsync(
-                    couponCode, user.Id, pricing.SubTotal, false);
+                var validationResult = await _couponService.ValidateAndCalculateAsync(
+       couponCode, user.Id, pricing.SubTotal, false);
+
+                var isValid = validationResult.IsValid;
+                var coupon = validationResult.Coupon;
+                var discountAmount = validationResult.DiscountAmount;
+                var error = validationResult.Error;
 
                 if (isValid && coupon != null)
                 {

@@ -4,9 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Nadixa.Application.Helpers;
 using Nadixa.Core.Entities;
- Replace
-using Nadixa.Core.Interfaces.Excel;
-using Nadixa.Core.Services;
+using Nadixa.Core.Interfaces;
+using Nadixa.Infrastructure.Services;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Infrastructure.Repositories;
 using Nadixa.Infrastructure.Services;
@@ -38,15 +37,6 @@ namespace Nadixa.API
 
            
 
-            builder.Services.AddScoped<IProductRepository, ProductRepository>();
-            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-            builder.Services.AddScoped<ICartRepository, CartRepository>();
-            builder.Services.AddScoped<IStockNotificationRepository, StockNotificationRepository>();
-            builder.Services.AddScoped<IBlogRepository, BlogRepository>();
-            builder.Services.AddScoped<IHomeService, HomeService>();
-            builder.Services.AddScoped<IPromotionService, PromotionService>(); // لو مش مسجل بالفعل
-            builder.Services.AddScoped<IProductService, ProductService>();
-
             builder.Services.AddDbContext<NadixaDbContext>(options =>
             {
                 options.UseSqlServer(
@@ -61,10 +51,7 @@ namespace Nadixa.API
                 .AddEntityFrameworkStores<NadixaDbContext>()
                 .AddDefaultTokenProviders();
 
-            // تسجيل الـ Repository و UnitOfWork
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IProductRepository, ProductRepository>();
-            builder.Services.AddScoped<IProductService, ProductService>();
+      
 
 
 

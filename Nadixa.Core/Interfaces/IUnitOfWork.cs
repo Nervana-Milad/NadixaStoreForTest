@@ -9,6 +9,9 @@ namespace Nadixa.Core.Interfaces
     public interface IUnitOfWork : IDisposable
     {
         IGenericRepository<T> Repository<T>() where T : Common.BaseEntity;
+        ICouponRepository Coupons { get; }
+        IDashboardRepository Dashboard { get; }
+        IUserRepository Users { get; }
         Task<int> CompleteAsync();
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nadixa.Application.DTOS
+namespace Nadixa.Application.DTOS.Dashboard
 {
     public class RecentOrderDto
     {

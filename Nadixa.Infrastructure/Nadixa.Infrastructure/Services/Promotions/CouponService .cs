@@ -1,117 +1,274 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Nadixa.Application.DTOS.Coupons;
 using Nadixa.Application.Interfaces;
 using Nadixa.Core.Entities;
-using Nadixa.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Nadixa.Core.Interfaces;
 
-namespace Nadixa.Infrastructure.Services
+namespace Nadixa.Infrastructure.Services;
 
+public class CouponService : ICouponService
 {
-    public class CouponService : ICouponService
+    private readonly IUnitOfWork _unitOfWork;
+
+    public CouponService(IUnitOfWork unitOfWork)
     {
-        private readonly NadixaDbContext _context;
+        _unitOfWork = unitOfWork;
+    }
 
-        public CouponService(NadixaDbContext context)
+    // =========================================
+    // GET ALL
+    // =========================================
+    public async Task<IEnumerable<CouponDto>> GetAllAsync()
+    {
+        var coupons = await _unitOfWork.Coupons.GetAllAsync();
+        return coupons.Select(MapToDto);
+    }
+
+    // =========================================
+    // GET BY ID
+    // =========================================
+    public async Task<CouponDto?> GetByIdAsync(int id)
+    {
+        var coupon = await _unitOfWork.Coupons.GetByIdAsync(id);
+        return coupon is null ? null : MapToDto(coupon);
+    }
+
+    // =========================================
+    // CREATE
+    // =========================================
+    public async Task<CouponDto> CreateAsync(CreateCouponDto dto)
+    {
+        var coupon = new Coupon
         {
-            _context = context;
-        }
+            Code = NormalizeCode(dto.Code),
+            DiscountType = Enum.Parse<CouponDiscountType>(dto.DiscountType, true),
+            Value = dto.Value,
+            MinOrderAmount = dto.MinOrderAmount,
+            MaxDiscountAmount = dto.MaxDiscountAmount,
+            MaxTotalUsage = dto.MaxTotalUsage,
+            MaxUsagePerUser = dto.MaxUsagePerUser,
+            FirstOrderOnly = dto.FirstOrderOnly,
+            StartDate = dto.StartDate,
+            EndDate = dto.EndDate ?? DateTime.MaxValue,
+            IsActive = dto.IsActive
+        };
 
-        public async Task<(bool isValid, decimal discountAmount, string? error, Coupon? coupon)>
-            ValidateAndCalculateAsync(string code, string userId, decimal orderSubtotal, bool isUserFirstOrder)
+        await _unitOfWork.Coupons.AddAsync(coupon);
+        await _unitOfWork.CompleteAsync();
+
+        return MapToDto(coupon);
+    }
+
+    // =========================================
+    // UPDATE
+    // =========================================
+    public async Task<bool> UpdateAsync(UpdateCouponDto dto)
+    {
+        var existingCoupon = await _unitOfWork.Coupons.GetByIdAsync(dto.Id);
+
+        if (existingCoupon is null)
+            return false;
+
+        existingCoupon.Code = NormalizeCode(dto.Code);
+        existingCoupon.DiscountType = Enum.Parse<CouponDiscountType>(dto.DiscountType, true);
+        existingCoupon.Value = dto.Value;
+        existingCoupon.MinOrderAmount = dto.MinOrderAmount;
+        existingCoupon.MaxDiscountAmount = dto.MaxDiscountAmount;
+        existingCoupon.MaxTotalUsage = dto.MaxTotalUsage;
+        existingCoupon.MaxUsagePerUser = dto.MaxUsagePerUser;
+        existingCoupon.FirstOrderOnly = dto.FirstOrderOnly;
+        existingCoupon.StartDate = dto.StartDate;
+        existingCoupon.EndDate = dto.EndDate ?? DateTime.MaxValue;
+        existingCoupon.IsActive = dto.IsActive;
+
+        _unitOfWork.Coupons.Update(existingCoupon);
+
+        return await _unitOfWork.CompleteAsync() > 0;
+    }
+
+    // =========================================
+    // DELETE
+    // =========================================
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var coupon = await _unitOfWork.Coupons.GetByIdAsync(id);
+
+        if (coupon is null)
+            return false;
+
+        _unitOfWork.Coupons.Delete(coupon);
+
+        return await _unitOfWork.CompleteAsync() > 0;
+    }
+
+    // =========================================
+    // TOGGLE ACTIVE
+    // =========================================
+    public async Task<bool> ToggleActiveAsync(int id)
+    {
+        var coupon = await _unitOfWork.Coupons.GetByIdAsync(id);
+
+        if (coupon is null)
+            return false;
+
+        coupon.IsActive = !coupon.IsActive;
+
+        _unitOfWork.Coupons.Update(coupon);
+
+        return await _unitOfWork.CompleteAsync() > 0;
+    }
+
+    // =========================================
+    // VALIDATE & CALCULATE
+    // =========================================
+    public async Task<CouponValidationResult> ValidateAndCalculateAsync(
+        string code,
+        string userId,
+        decimal orderSubtotal,
+        bool isUserFirstOrder)
+    {
+        var coupon = await _unitOfWork.Coupons.GetByCodeAsync(code);
+
+        if (coupon is null)
         {
-            var coupon = await _context.Coupons
-                .Include(c => c.Usages)
-                .FirstOrDefaultAsync(c => c.Code.ToUpper() == code.ToUpper());
-
-            if (coupon == null)
-                return (false, 0, "الكود غير موجود", null);
-
-            if (!coupon.IsCurrentlyValid)
-                return (false, 0, "الكود منتهي أو غير مفعّل", null);
-
-            if (coupon.FirstOrderOnly && !isUserFirstOrder)
-                return (false, 0, "الكود ده لأول عملية شراء بس", null);
-
-            if (coupon.MinOrderAmount.HasValue && orderSubtotal < coupon.MinOrderAmount.Value)
-                return (false, 0, $"الحد الأدنى لاستخدام الكود {coupon.MinOrderAmount.Value} جنيه", null);
-
-            if (coupon.MaxTotalUsage.HasValue && coupon.Usages.Count >= coupon.MaxTotalUsage.Value)
-                return (false, 0, "الكود وصل للحد الأقصى من الاستخدام", null);
-
-            var userUsageCount = coupon.Usages.Count(u => u.UserId == userId);
-            if (coupon.MaxUsagePerUser.HasValue && userUsageCount >= coupon.MaxUsagePerUser.Value)
-                return (false, 0, "لقد استخدمت هذا الكود من قبل", null);
-
-            decimal discount = coupon.DiscountType == CouponDiscountType.Percentage
-                ? orderSubtotal * (coupon.Value / 100)
-                : coupon.Value;
-
-            if (coupon.MaxDiscountAmount.HasValue)
-                discount = Math.Min(discount, coupon.MaxDiscountAmount.Value);
-
-            discount = Math.Min(discount, orderSubtotal);
-
-            return (true, Math.Round(discount, 2), null, coupon);
-        }
-
-        public async Task RegisterUsageAsync(int couponId, string userId, int orderId, decimal discountApplied)
-        {
-            _context.CouponUsages.Add(new CouponUsage
+            return new CouponValidationResult
             {
-                CouponId = couponId,
-                UserId = userId,
-                OrderId = orderId,
-                DiscountApplied = discountApplied,
-                UsedAt = DateTime.Now
-            });
-            await _context.SaveChangesAsync();
+                IsValid = false,
+                DiscountAmount = 0,
+                Error = "Coupon code does not exist.",
+                Coupon = null
+            };
         }
 
-        public async Task<List<Coupon>> GetAllAsync()
+        if (!coupon.IsCurrentlyValid)
         {
-            return await _context.Coupons.OrderByDescending(c => c.Id).ToListAsync();
+            return new CouponValidationResult
+            {
+                IsValid = false,
+                DiscountAmount = 0,
+                Error = "Coupon is expired or inactive.",
+                Coupon = null
+            };
         }
 
-        public async Task<Coupon> CreateAsync(Coupon coupon)
+        if (coupon.FirstOrderOnly && !isUserFirstOrder)
         {
-            _context.Coupons.Add(coupon);
-            await _context.SaveChangesAsync();
-            return coupon;
+            return new CouponValidationResult
+            {
+                IsValid = false,
+                DiscountAmount = 0,
+                Error = "This coupon is only valid for your first order.",
+                Coupon = null
+            };
         }
 
-        public async Task<bool> UpdateAsync(Coupon coupon)
+        if (coupon.MinOrderAmount.HasValue && orderSubtotal < coupon.MinOrderAmount.Value)
         {
-            _context.Coupons.Update(coupon);
-            return await _context.SaveChangesAsync() > 0;
+            return new CouponValidationResult
+            {
+                IsValid = false,
+                DiscountAmount = 0,
+                Error = $"The minimum order amount for this coupon is {coupon.MinOrderAmount.Value}.",
+                Coupon = null
+            };
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        var totalUsage = await _unitOfWork.Coupons.GetTotalUsageCountAsync(coupon.Id);
+
+        if (coupon.MaxTotalUsage.HasValue && totalUsage >= coupon.MaxTotalUsage.Value)
         {
-            var coupon = await _context.Coupons.FindAsync(id);
-            if (coupon == null) return false;
-
-            _context.Coupons.Remove(coupon);
-            return await _context.SaveChangesAsync() > 0;
+            return new CouponValidationResult
+            {
+                IsValid = false,
+                DiscountAmount = 0,
+                Error = "This coupon has reached its maximum usage limit.",
+                Coupon = null
+            };
         }
 
-        public async Task<bool> ToggleActiveAsync(int id)
+        var userUsage = await _unitOfWork.Coupons.GetUserUsageCountAsync(coupon.Id, userId);
+
+        if (coupon.MaxUsagePerUser.HasValue && userUsage >= coupon.MaxUsagePerUser.Value)
         {
-            var coupon = await _context.Coupons.FindAsync(id);
-            if (coupon == null) return false;
-
-            coupon.IsActive = !coupon.IsActive;
-            return await _context.SaveChangesAsync() > 0;
+            return new CouponValidationResult
+            {
+                IsValid = false,
+                DiscountAmount = 0,
+                Error = "You have already used this coupon.",
+                Coupon = null
+            };
         }
 
+        var discount = CalculateDiscount(coupon, orderSubtotal);
 
-  
-
-        public async Task<Coupon?> GetByIdAsync(int id)      // ⬅️ الميثود الجديدة
+        return new CouponValidationResult
         {
-            return await _context.Coupons.FindAsync(id);
-        }
+            IsValid = true,
+            DiscountAmount = discount,
+            Error = null,
+            Coupon = coupon
+        };
+    }
+
+    // =========================================
+    // REGISTER USAGE
+    // =========================================
+    public async Task RegisterUsageAsync(
+        int couponId,
+        string userId,
+        int orderId,
+        decimal discountApplied)
+    {
+        var usage = new CouponUsage
+        {
+            CouponId = couponId,
+            UserId = userId,
+            OrderId = orderId,
+            DiscountApplied = discountApplied,
+            UsedAt = DateTime.UtcNow
+        };
+
+        await _unitOfWork.Repository<CouponUsage>().AddAsync(usage);
+        await _unitOfWork.CompleteAsync();
+    }
+
+    // =========================================
+    // PRIVATE HELPERS
+    // =========================================
+    private static decimal CalculateDiscount(Coupon coupon, decimal orderSubtotal)
+    {
+        var discount = coupon.DiscountType == CouponDiscountType.Percentage
+            ? orderSubtotal * (coupon.Value / 100)
+            : coupon.Value;
+
+        if (coupon.MaxDiscountAmount.HasValue)
+            discount = Math.Min(discount, coupon.MaxDiscountAmount.Value);
+
+        discount = Math.Min(discount, orderSubtotal);
+
+        return Math.Round(discount, 2);
+    }
+
+    private static string NormalizeCode(string code)
+    {
+        return code.Trim().ToUpperInvariant();
+    }
+
+    private static CouponDto MapToDto(Coupon coupon)
+    {
+        return new CouponDto
+        {
+            Id = coupon.Id,
+            Code = coupon.Code,
+            DiscountType = coupon.DiscountType.ToString(),
+            Value = coupon.Value,
+            MinOrderAmount = coupon.MinOrderAmount,
+            MaxDiscountAmount = coupon.MaxDiscountAmount,
+            MaxTotalUsage = coupon.MaxTotalUsage,
+            MaxUsagePerUser = coupon.MaxUsagePerUser,
+            FirstOrderOnly = coupon.FirstOrderOnly,
+            StartDate = coupon.StartDate,
+            EndDate = coupon.EndDate,
+            IsActive = coupon.IsActive
+        };
     }
 }

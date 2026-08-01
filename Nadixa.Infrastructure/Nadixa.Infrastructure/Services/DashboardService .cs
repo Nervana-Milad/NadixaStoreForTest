@@ -1,151 +1,203 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Nadixa.Core.Entities;
-using Nadixa.Infrastructure.Data;
 using Nadixa.Application.DTOS;
+using Nadixa.Application.DTOS.Dashboard;
 using Nadixa.Application.Interfaces;
+using Nadixa.Core.Entities;
+using Nadixa.Core.Interfaces;
 
-namespace Nadixa.Infrastructure.Services
+namespace Nadixa.Infrastructure.Services;
+
+public class DashboardService : IDashboardService
 {
-    public class DashboardService :Application.Interfaces.IDashboardService
+    private readonly IDashboardRepository _dashboardRepository;
+    private readonly UserManager<AppUser> _userManager;
+
+    public DashboardService(
+        IDashboardRepository dashboardRepository,
+        UserManager<AppUser> userManager)
     {
-        private readonly NadixaDbContext _context;
-        private readonly UserManager<AppUser> _userManager;
+        _dashboardRepository = dashboardRepository;
+        _userManager = userManager;
+    }
 
-        public DashboardService(NadixaDbContext context, UserManager<AppUser> userManager)
+    public async Task<DashboardStatsDto> GetStatsAsync()
+    {
+        var now = DateTime.UtcNow;
+
+        var thisMonth = new DateTime(
+            now.Year,
+            now.Month,
+            1);
+
+        var lastMonth = thisMonth.AddMonths(-1);
+
+        var today = now.Date;
+
+        var last7Days = today.AddDays(-6);
+
+        var revenueThis =
+            await _dashboardRepository.GetRevenueAsync(
+                thisMonth);
+
+        var revenueLast =
+            await _dashboardRepository.GetRevenueAsync(
+                lastMonth,
+                thisMonth);
+
+        decimal changePercent =
+            revenueLast == 0
+                ? 100
+                : Math.Round(
+                    (revenueThis - revenueLast)
+                    / revenueLast * 100,
+                    1);
+
+        var ordersByStatus =
+            await _dashboardRepository
+                .GetOrdersCountByStatusAsync();
+
+        int Get(OrderStatus status)
         {
-            _context = context;
-            _userManager = userManager;
+            return ordersByStatus
+                .GetValueOrDefault(status);
         }
 
-        public async Task<DashboardStatsDto> GetStatsAsync()
+        var totalOrdersThisMonth =
+            await _dashboardRepository
+                .GetOrderCountAsync(thisMonth);
+
+        var totalProducts =
+            await _dashboardRepository
+                .GetTotalProductsAsync();
+
+        var lowStockCount =
+            await _dashboardRepository
+                .GetLowStockProductsCountAsync(5);
+
+        var outOfStock =
+            await _dashboardRepository
+                .GetOutOfStockProductsCountAsync();
+
+        var totalUsers =
+            await _userManager.Users.CountAsync();
+
+        var newUsersToday =
+            await _userManager.Users
+                .CountAsync(u =>
+                    u.CreatedAt.Date == today);
+
+        var topProducts =
+            await _dashboardRepository
+                .GetTopSellingProductsAsync(5);
+
+        var recentOrders =
+            await _dashboardRepository
+                .GetRecentOrdersAsync(8);
+
+        var lowStockProducts =
+            await _dashboardRepository
+                .GetLowStockProductsAsync(5, 6);
+
+        var revenueData =
+            await _dashboardRepository
+                .GetDailyRevenueAsync(last7Days);
+
+        var dailyRevenue =
+            Enumerable.Range(0, 7)
+                .Select(i =>
+                {
+                    var date =
+                        last7Days.AddDays(i);
+
+                    var revenue =
+                        revenueData
+                            .FirstOrDefault(x =>
+                                x.Date == date)
+                            ?.Revenue ?? 0;
+
+                    return new DailyRevenueDto
+                    {
+                        Day = date.ToString("ddd"),
+                        Revenue = revenue
+                    };
+                })
+                .ToList();
+
+        return new DashboardStatsDto
         {
-            var now = DateTime.UtcNow;
-            var thisMonth = new DateTime(now.Year, now.Month, 1);
-            var lastMonth = thisMonth.AddMonths(-1);
-            var today = now.Date;
-            var last7Days = today.AddDays(-6);
+            TotalRevenueThisMonth = revenueThis,
+            TotalRevenueLastMonth = revenueLast,
+            RevenueChangePercent = changePercent,
 
-            // ── Revenue ───────────────────────────────────────────────
-            var revenueThis = await _context.Orders
-                .Where(o => o.CreatedAt >= thisMonth
-                         && o.Status != OrderStatus.Cancelled)
-                .SumAsync(o => (decimal?)o.TotalPrice) ?? 0;
+            TotalOrdersThisMonth =
+                totalOrdersThisMonth,
 
-            var revenueLast = await _context.Orders
-                .Where(o => o.CreatedAt >= lastMonth
-                         && o.CreatedAt < thisMonth
-                         && o.Status != OrderStatus.Cancelled)
-                .SumAsync(o => (decimal?)o.TotalPrice) ?? 0;
+            PendingOrders =
+                Get(OrderStatus.Pending),
 
-            decimal changePercent = revenueLast == 0 ? 100 :
-                Math.Round((revenueThis - revenueLast) / revenueLast * 100, 1);
+            ProcessingOrders =
+                Get(OrderStatus.Processing),
 
-            // ── Orders by status ──────────────────────────────────────
-            var ordersByStatus = await _context.Orders
-                .GroupBy(o => o.Status)
-                .Select(g => new { Status = g.Key, Count = g.Count() })
-                .ToListAsync();
+            ShippedOrders =
+                Get(OrderStatus.Shipped),
 
-            int Get(OrderStatus s) => ordersByStatus.FirstOrDefault(x => x.Status == s)?.Count ?? 0;
+            DeliveredOrders =
+                Get(OrderStatus.Delivered),
 
-            int totalOrdersThisMonth = await _context.Orders
-                .CountAsync(o => o.CreatedAt >= thisMonth);
+            CancelledOrders =
+                Get(OrderStatus.Cancelled),
 
-            // ── Products ──────────────────────────────────────────────
-            var totalProducts = await _context.Products.CountAsync();
-            var lowStockCount = await _context.Products.CountAsync(p => p.StockQuantity <= 5 && p.StockQuantity > 0);
-            var outOfStock = await _context.Products.CountAsync(p => p.StockQuantity == 0);
+            TotalProducts =
+                totalProducts,
 
-            // ── Users ─────────────────────────────────────────────────
-            var totalUsers = _userManager.Users.Count();
-            var newUsersToday = _userManager.Users
-                .Count(u => u.CreatedAt.Date == today);
+            LowStockCount =
+                lowStockCount,
 
-            // ── Top 5 best-selling products ───────────────────────────
-            var topProducts = await _context.OrderItems
-                .Where(oi => oi.Order.Status != OrderStatus.Cancelled)
-                .GroupBy(oi => new { oi.ProductId, oi.Product.Name, oi.Product.MainImageUrlPath })
-                .Select(g => new TopProductDto
-                {
-                    Id = g.Key.ProductId,
-                    Name = g.Key.Name,
-                    ImageUrl = g.Key.MainImageUrlPath,
-                    TotalSold = g.Sum(x => x.Quantity),
-                    Revenue = g.Sum(x => x.Quantity * x.Price)
-                })
-                .OrderByDescending(x => x.TotalSold)
-                .Take(5)
-                .ToListAsync();
+            OutOfStockCount =
+                outOfStock,
 
-            // ── Recent 8 orders ───────────────────────────────────────
-            var recentOrders = await _context.Orders
-                .OrderByDescending(o => o.CreatedAt)
-                .Take(8)
-                .Select(o => new RecentOrderDto
-                {
-                    Id = o.Id,
-                    CustomerName = o.FullName,
-                    Total = o.TotalPrice,
-                    Status = o.Status.ToString(),
-                    CreatedAt = o.CreatedAt
-                })
-                .ToListAsync();
+            TotalUsers =
+                totalUsers,
 
-            // ── Low stock alert list ──────────────────────────────────
-            var lowStockList = await _context.Products
-                .Where(p => p.StockQuantity <= 5)
-                .OrderBy(p => p.StockQuantity)
-                .Take(6)
-                .Select(p => new LowStockProductDto
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    ImageUrl = p.MainImageUrlPath,
-                    StockQuantity = p.StockQuantity
-                })
-                .ToListAsync();
+            NewUsersToday =
+                newUsersToday,
 
-            // ── Daily revenue last 7 days ─────────────────────────────
-            var last7Revenue = await _context.Orders
-                .Where(o => o.CreatedAt >= last7Days
-                         && o.Status != OrderStatus.Cancelled)
-                .GroupBy(o => o.CreatedAt.Date)
-                .Select(g => new { Date = g.Key, Revenue = g.Sum(x => x.TotalPrice) })
-                .ToListAsync();
+            TopProducts =
+                topProducts.Select(x =>
+                    new TopProductDto
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        ImageUrl = x.ImageUrl,
+                        TotalSold = x.TotalSold,
+                        Revenue = x.Revenue
+                    }).ToList(),
 
-            var dailyRevenue = Enumerable.Range(0, 7).Select(i =>
-            {
-                var date = last7Days.AddDays(i);
-                var rev = last7Revenue.FirstOrDefault(x => x.Date == date)?.Revenue ?? 0;
-                return new DailyRevenueDto
-                {
-                    Day = date.ToString("ddd"),
-                    Revenue = rev
-                };
-            }).ToList();
+            RecentOrders =
+                recentOrders.Select(x =>
+                    new RecentOrderDto
+                    {
+                        Id = x.Id,
+                        CustomerName = x.CustomerName,
+                        Total = x.Total,
+                        Status = x.Status,
+                        CreatedAt = x.CreatedAt
+                    }).ToList(),
 
-            return new DashboardStatsDto
-            {
-                TotalRevenueThisMonth = revenueThis,
-                TotalRevenueLastMonth = revenueLast,
-                RevenueChangePercent = changePercent,
-                TotalOrdersThisMonth = totalOrdersThisMonth,
-                PendingOrders = Get(OrderStatus.Pending),
-                ProcessingOrders = Get(OrderStatus.Processing),
-                ShippedOrders = Get(OrderStatus.Shipped),
-                DeliveredOrders = Get(OrderStatus.Delivered),
-                CancelledOrders = Get(OrderStatus.Cancelled),
-                TotalProducts = totalProducts,
-                LowStockCount = lowStockCount,
-                OutOfStockCount = outOfStock,
-                TotalUsers = totalUsers,
-                NewUsersToday = newUsersToday,
-                TopProducts = topProducts,
-                RecentOrders = recentOrders,
-                LowStockProducts = lowStockList,
-                DailyRevenue = dailyRevenue
-            };
-        }
+            LowStockProducts =
+                lowStockProducts.Select(x =>
+                    new LowStockProductDto
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        ImageUrl = x.ImageUrl,
+                        StockQuantity =
+                            x.StockQuantity
+                    }).ToList(),
+
+            DailyRevenue =
+                dailyRevenue
+        };
     }
 }
