@@ -107,6 +107,8 @@ namespace Nadixa.Web
             builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
             builder.Services.AddScoped<IOrderEmailService, OrderEmailService>();
             builder.Services.AddScoped<ICartService, CartService>();
+            builder.Services.AddScoped<IWishlistRepository, WishlistRepository>();
+            builder.Services.AddScoped<IWishlistService, WishlistService>();
 
             var app = builder.Build();
             using (var scope = app.Services.CreateScope())

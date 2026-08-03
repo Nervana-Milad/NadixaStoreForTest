@@ -15,6 +15,8 @@ namespace Nadixa.Core.Interfaces
         IUserRepository Users { get; }
         IOrderRepository Orders { get; }
         ICartRepository Carts { get; }
+        IWishlistRepository Wishlists { get; }
+
         IGenericRepository<OrderStatusHistory> OrderStatusHistories { get; }
         Task<int> CompleteAsync();
     }

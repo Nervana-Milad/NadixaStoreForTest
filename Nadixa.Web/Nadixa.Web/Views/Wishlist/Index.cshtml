@@ -1,5 +1,4 @@
-﻿@model List<Nadixa.Web.Models.ViewModels.WishlistItemViewModel>
-
+﻿@model List<Nadixa.Application.DTOS.WishlistItemDto>
 
 @{
     ViewData["Title"] = "Your Wishlist";
@@ -7,168 +6,151 @@
 
 <style>
     .wishlist-page {
-        margin-top: 80px;
+        margin-top: 90px;
     }
 
-    /* Header */
     .wishlist-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
+        align-items: baseline;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #ebebeb;
     }
 
         .wishlist-header h3 {
-            font-weight: 600;
+            font-weight: 700;
+            color: #222;
+            margin: 0;
         }
 
         .wishlist-header span {
-            color: #777;
+            font-size: 14px;
+            color: #999;
         }
 
-    /* Card */
     .wishlist-card {
         position: relative;
-        background: #fff;
-        border-radius: 15px;
-        overflow: hidden;
-        transition: 0.3s;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
     }
 
-        .wishlist-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-        }
-
-    /* Image */
-    .wishlist-img {
+    .wishlist-pic {
+        position: relative;
         overflow: hidden;
+        border-radius: 4px;
     }
 
-        .wishlist-img img {
+        .wishlist-pic img {
             width: 100%;
-            height: 230px;
+            height: 270px;
             object-fit: cover;
-            transition: 0.4s;
+            transition: transform 0.4s ease;
         }
 
-    .wishlist-card:hover img {
-        transform: scale(1.08);
+    .wishlist-card:hover .wishlist-pic img {
+        transform: scale(1.06);
     }
 
-    /* Heart */
-    .heart-btn {
+    .wishlist-remove-btn {
         position: absolute;
         top: 12px;
         right: 12px;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         background: #fff;
         border: none;
         border-radius: 50%;
-        padding: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,.12);
         cursor: pointer;
         z-index: 2;
-        transition: 0.3s;
+        transition: 0.25s;
     }
 
-        .heart-btn i {
-            font-size: 18px;
-            color: #999;
-            transition: 0.3s;
-        }
-
-        .heart-btn.js-addedwish-detail i {
+        .wishlist-remove-btn i {
+            font-size: 16px;
             color: #717fe0;
         }
 
-        .heart-btn:hover {
-            transform: scale(1.2);
+        .wishlist-remove-btn:hover {
+            background: #717fe0;
         }
 
-    /* Content */
-    .wishlist-content {
-        padding: 15px;
-        text-align: center;
+            .wishlist-remove-btn:hover i {
+                color: #fff;
+            }
+
+    .wishlist-txt {
+        padding-top: 14px;
     }
 
-        .wishlist-content h6 {
-            font-weight: 500;
-            margin-bottom: 8px;
+        .wishlist-txt .name {
+            display: block;
+            font-size: 15px;
+            color: #222;
+            margin-bottom: 6px;
+            text-decoration: none;
+            transition: 0.2s;
         }
 
-    .price {
-        display: block;
-        color: #717fe0;
-        font-weight: 600;
-        margin-bottom: 12px;
-    }
+            .wishlist-txt .name:hover {
+                color: #717fe0;
+            }
 
-    /* Button */
-    .btn-add-cart {
-        width: 100%;
-        border: none;
-        background: #717fe0;
-        color: white;
-        padding: 8px;
-        border-radius: 25px;
-        transition: 0.3s;
-    }
-
-        .btn-add-cart:hover {
-            background: #333;
+        .wishlist-txt .price {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 14px;
         }
 
-    /* Empty */
+    /* Empty state */
     .empty-wishlist {
         text-align: center;
-        padding: 60px 20px;
+        padding: 90px 20px;
     }
 
         .empty-wishlist i {
-            font-size: 60px;
-            color: #ddd;
+            font-size: 56px;
+            color: #e2e2e2;
         }
 
         .empty-wishlist h4 {
-            margin-top: 15px;
+            margin-top: 18px;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .empty-wishlist p {
+            color: #999;
+            margin-bottom: 24px;
         }
 
     .btn-shop {
         display: inline-block;
-        margin-top: 15px;
-        padding: 10px 20px;
-        background: #717fe0;
-        color: white;
-        border-radius: 25px;
+        padding: 12px 28px;
+        background: #222;
+        color: #fff;
+        border-radius: 30px;
+        font-size: 13px;
+        letter-spacing: .5px;
+        text-transform: uppercase;
+        text-decoration: none;
+        transition: 0.25s;
     }
 
-    /* Remove animation */
+        .btn-shop:hover {
+            background: #717fe0;
+            color: #fff;
+        }
+
     .wishlist-item.removing {
         opacity: 0;
-        transform: scale(0.8);
+        transform: scale(0.92);
         transition: 0.3s;
     }
-
-    .wishlist-btn {
-        background: white;
-        border: none;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-
-        .wishlist-btn i {
-            color: #999;
-            font-size: 20px;
-        }
-
-        .wishlist-btn.active i {
-            color: rgb(113, 127, 224);
-            transform: scale(1.2);
-        }
-
-        .wishlist-btn:hover i {
-            color: rgb(113, 127, 224);
-        }
 </style>
 
 <div class="container wishlist-page">
@@ -183,10 +165,9 @@
             <i class="zmdi zmdi-favorite-outline"></i>
             <h4>Your wishlist is empty</h4>
             <p>Start adding products you love ❤️</p>
-            <a asp-controller="Product" asp-action="Index" class="btn-shop flex-c-m stext-101 cl0 size-103 bg1 bor1 hov-btn3 p-lr-15 trans-04">
+            <a asp-controller="Product" asp-action="Index" class="btn-shop">
                 Start Shopping
             </a>
-            
         </div>
     }
     else
@@ -197,27 +178,52 @@
                 <div class="col-lg-3 col-md-4 col-sm-6 wishlist-item">
                     <div class="wishlist-card">
 
-                        <!-- ❤️ Heart -->
-                        <button class="js-addwish-detail heart-btn js-addedwish-detail"
-                                data-product-id="@item.ProductId"
-                                data-product-name="@item.ProductName">
-                            <i class="zmdi zmdi-favorite"></i>
-                        </button>
+                        <div class="wishlist-pic">
+                            <button class="wishlist-remove-btn js-addwish-detail js-addedwish-detail"
+                                    data-product-id="@item.ProductId"
+                                    data-product-name="@item.ProductName"
+                                    title="Remove from wishlist">
+                                <i class="zmdi zmdi-favorite"></i>
+                            </button>
 
-                        <!-- Image -->
-                        <div class="wishlist-img">
                             <img src="@item.MainImageUrl" alt="@item.ProductName">
                         </div>
 
-                        <!-- Content -->
-                        <div class="wishlist-content">
-                            <h6>@item.ProductName</h6>
+                        <div class="wishlist-txt">
+                            <a asp-controller="Product" asp-action="Detail" asp-route-id="@item.ProductId" class="name">
+                                @item.ProductName
+                            </a>
                             <span class="price">L.E. @item.Price</span>
 
-                            <button class="btn-add-cart move-to-cart"
-                                    data-product-id="@item.ProductId">
-                                Add to Cart
-                            </button>
+                            <div class="cart-controls" data-product-id="@item.ProductId">
+                                @if (item.CartQuantity > 0)
+                                {
+                                    <div class="cart-counter">
+                                        <button class="cart-minus" data-product-id="@item.ProductId">
+                                            @(item.CartQuantity == 1 ? "🗑" : "-")
+                                        </button>
+                                        <span class="cart-qty">@item.CartQuantity in cart</span>
+                                        <button class="cart-plus"
+                                                data-product-id="@item.ProductId"
+                                                @(item.CartQuantity >= item.StockQuantity ? "disabled" : "")>
+                                            +
+                                        </button>
+                                    </div>
+                                }
+                                else if (item.StockQuantity > 0)
+                                {
+                                    <button class="btn-addcart-card js-addcart-detail hov-btn3"
+                                            data-product-id="@item.ProductId">
+                                        Add to Cart
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="button" disabled class="btn-addcart-card" style="opacity:.6; cursor:not-allowed;">
+                                        Out of Stock
+                                    </button>
+                                }
+                            </div>
                         </div>
 
                     </div>

@@ -18,13 +18,15 @@ public class UnitOfWork : IUnitOfWork
     public IUserRepository Users { get; }
     public IOrderRepository Orders { get; }
     public ICartRepository Carts { get; }
+    public IWishlistRepository Wishlists { get; }
 
     public UnitOfWork(NadixaDbContext context,
         ICouponRepository couponRepository,
         IDashboardRepository dashboardRepository,
         IUserRepository userRepository,
         IOrderRepository orderRepository,
-        ICartRepository cartRepository)
+        ICartRepository cartRepository,
+        IWishlistRepository wishlistRepository)
     {
         _context = context;
         Coupons = couponRepository;
@@ -32,6 +34,7 @@ public class UnitOfWork : IUnitOfWork
         Users = userRepository;
         Orders = orderRepository;
         Carts = cartRepository;
+        Wishlists = wishlistRepository;
     }
     public IGenericRepository<OrderStatusHistory> OrderStatusHistories => Repository<OrderStatusHistory>();
 
