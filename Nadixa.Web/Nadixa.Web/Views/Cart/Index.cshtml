@@ -152,6 +152,36 @@
 			text-decoration: underline;
 		}
 
+	.btn-shop {
+		display: inline-block;
+		margin-top: 15px;
+		padding: 10px 20px;
+		background: #717fe0;
+		color: white;
+		border-radius: 25px;
+	}
+	.empty-cart {
+		text-align: center;
+		padding: 80px 20px;
+	}
+
+		.empty-cart i {
+			font-size: 60px;
+			color: #d1d5db;
+			margin-bottom: 20px;
+			display: inline-block;
+		}
+
+		.empty-cart h4 {
+			font-weight: 700;
+			color: #2d3748;
+			margin-bottom: 10px;
+		}
+
+		.empty-cart p {
+			color: #718096;
+			margin-bottom: 30px;
+		}
 </style>
 <!-- breadcrumb -->
 <div class="container" style="margin-top:80px">
@@ -167,229 +197,248 @@
 	</div>
 </div>
 
-@if (hasStockIssues)
+
+@if (!Model.Items.Any())
 {
-	<div class="container" id="stockWarningContainer">
-		<div class="alert alert-warning d-flex align-items-center" role="alert" style="border-radius:8px;">
-			<i class="zmdi zmdi-alert-triangle fs-20 mr-2"></i>
-			<div>
-				Some items in your cart are unavailable or exceed the available stock.
-				Please update the quantity or remove the item before proceeding to checkout.
-			</div>
+	<!-- 👇 جديد: حالة السلة الفاضية -->
+	<div class="container">
+		<div class="empty-cart">
+			<i class="zmdi zmdi-shopping-cart"></i>
+			<h4>Your cart is empty</h4>
+			<p>Looks like you haven't added anything yet 🛍️</p>
+			<a asp-controller="Product" asp-action="Index" class="btn-shop flex-c-m stext-101 cl0 size-103 bg1 bor1 hov-btn3 p-lr-15 trans-04">
+				Continue Shopping
+			</a>
 		</div>
 	</div>
 }
-
-<!-- Shoping Cart -->
-<form class="bg0 p-t-75 p-b-85" asp-controller="Cart" asp-action="UpdateCart" method="post">
-	<div class="container">
-		<div class="row gx-5">
-			<div class="col-lg-7 col-xl-7 m-b-50">
-				<div class="m-l-25 m-lr-0-xl">
-					<div class="wrap-table-shopping-cart">
-						<table class="table-shopping-cart">
-							<tr class="table_head">
-								<th class="column-1">Product</th>
-								<th class="column-2"></th>
-								<th class="column-3">Price</th>
-								<th class="column-4">Quantity</th>
-								<th class="column-5">Total</th>
-								<th class="column-6"></th>
-
-							</tr>
-							@foreach (var item in Model.Items)
-							{
-								bool isOutOfStock = item.StockQuantity <= 0;
-								bool isPartialShortage = !isOutOfStock && item.Quantity > item.StockQuantity;
-								bool rowHasIssue = isOutOfStock || isPartialShortage;
-
-
-								<tr class="table_row @(isOutOfStock ? "row-out-of-stock" : "")"
-									data-stock-issue="@rowHasIssue.ToString().ToLower()">
-									<td class="column-1">
-										<div class="how-itemcart1" style="position:relative;">
-											@if (!string.IsNullOrEmpty(item.PromoBadgeText))
-											{
-												<span style="position:absolute; top:-6px; left:-6px; z-index:5; background-color:@(item.PromoBadgeColorHex ?? "#FF3B30"); color:#fff; font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px;">
-													@item.PromoBadgeText
-												</span>
-											}
-											<img src="@item.MainImageUrl" alt="IMG">
-										</div>
-									</td>
-									<td class="column-2">
-										@item.ProductName
-
-										@if (isOutOfStock)
-										{
-											<div class="text-danger small mt-1">
-												<i class="zmdi zmdi-alert-circle-o"></i> This item is out of stock
-											</div>
-										}
-										else if (isPartialShortage)
-										{
-											<div class="text-warning small mt-1">
-												<i class="zmdi zmdi-alert-triangle"></i> Only @item.StockQuantity available
-											</div>
-										}
-									</td>
-									<td class="column-3">
-										@if (item.DiscountedUnitPrice != null && item.DiscountedUnitPrice < item.Price)
-										{
-											<div>
-												<span style="color:#e74c3c; font-weight:700;">L.E. @item.DiscountedUnitPrice.Value.ToString("N2")</span>
-												<div style="text-decoration:line-through; color:#999; font-size:12px;">L.E. @item.Price.ToString("N2")</div>
-											</div>
-										}
-										else
-										{
-											@:L.E. @item.Price
-										}
-									</td>
-									<td class="column-4">
-
-										<div class="wrap-num-product flex-w m-r-20 m-tb-10 my-3">
-
-											<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m @(item.StockQuantity <= 0 ? "disabled-btn" : "")">
-												<i class="fs-16 zmdi zmdi-minus"></i>
-											</div>
-
-											<input class="mtext-104 cl3 txt-center num-product"
-												   type="number"
-												   name="quantities[@item.ProductId]"
-												   value="@(item.StockQuantity > 0 ? item.Quantity : 0)"
-												   min="@(item.StockQuantity > 0 ? 1 : 0)"
-												   max="@item.StockQuantity"
-												   @(item.StockQuantity <= 0 ? "readonly" : "")>
-
-											<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m @(item.StockQuantity <= 0 ? "disabled-btn" : "")">
-												<i class="fs-16 zmdi zmdi-plus"></i>
-											</div>
-
-										</div>
-									</td>
-									<td class="column-5">L.E. @item.TotalPrice</td>
-									<td class="column-6">
-										<button class="remove-item-btn text-danger fs-20"
-												data-product-id="@item.ProductId"
-												type="button">
-											<i class="bi bi-trash"></i>
-										</button>
-									</td>
-
-								</tr>
-							}
-						</table>
-					</div>
-
-					<div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-20 p-lr-15-sm">
-						<div class="flex-w flex-m m-r-20 m-tb-5">
-							<input class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5"
-								   type="text"
-								   name="couponCode"
-								   value="@Model.CouponCode"
-								   placeholder="Coupon Code">
-
-							<button type="submit"
-									formaction="@Url.Action("ApplyCoupon", "Cart")"
-									class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5"
-									style="border:none;">
-								Apply coupon
-							</button>
-						</div>
-
-						<button type="submit" class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10">
-							Update Cart
-						</button>
-					</div>
-
-					@if (!string.IsNullOrEmpty(Model.Pricing.CouponError))
-					{
-						<div class="coupon-message coupon-error p-lr-40 p-lr-15-sm">
-							<i class="zmdi zmdi-alert-circle"></i>
-							@Model.Pricing.CouponError
-						</div>
-					}
-					@if (!string.IsNullOrEmpty(Model.CouponCode) && string.IsNullOrEmpty(Model.Pricing.CouponError) && Model.Pricing.CouponDiscount > 0)
-					{
-						<div class="coupon-message coupon-success p-lr-40 p-lr-15-sm">
-							<div class="coupon-success-text">
-								<i class="zmdi zmdi-check-circle"></i>
-								Coupon "<strong>@Model.CouponCode</strong>" applied — you saved L.E. @Model.Pricing.CouponDiscount.ToString("N2")
-							</div>
-							<button type="submit" formaction="@Url.Action("RemoveCoupon", "Cart")" class="coupon-remove-btn">
-								Remove
-							</button>
-						</div>
-					}
+else
+{
+	@if (hasStockIssues)
+	{
+		<div class="container" id="stockWarningContainer">
+			<div class="alert alert-warning d-flex align-items-center" role="alert" style="border-radius:8px;">
+				<i class="zmdi zmdi-alert-triangle fs-20 mr-2"></i>
+				<div>
+					Some items in your cart are unavailable or exceed the available stock.
+					Please update the quantity or remove the item before proceeding to checkout.
 				</div>
 			</div>
+		</div>
+	}
 
-			<div class="col-sm-10 col-lg-5 col-xl-5 m-b-50">
-				<div class="cart-summary-card">
+	<!-- Shoping Cart -->
+	<form class="bg0 p-t-75 p-b-85" asp-controller="Cart" asp-action="UpdateCart" method="post">
+		<div class="container">
+			<div class="row gx-5">
+				<div class="col-lg-7 col-xl-7 m-b-50">
+					<div class="m-l-25 m-lr-0-xl">
+						<div class="wrap-table-shopping-cart">
+							<table class="table-shopping-cart">
+								<tr class="table_head">
+									<th class="column-1">Product</th>
+									<th class="column-2"></th>
+									<th class="column-3">Price</th>
+									<th class="column-4">Quantity</th>
+									<th class="column-5">Total</th>
+									<th class="column-6"></th>
 
-					<h4 class="summary-title">Cart Totals</h4>
+								</tr>
+								@foreach (var item in Model.Items)
+								{
+									bool isOutOfStock = item.StockQuantity <= 0;
+									bool isPartialShortage = !isOutOfStock && item.Quantity > item.StockQuantity;
+									bool rowHasIssue = isOutOfStock || isPartialShortage;
 
-					<div class="price-section">
-						<div class="summary-row">
-							<span>Subtotal</span>
-							<span class="summary-value">L.E. @Model.Pricing.SubTotal.ToString("N2")</span>
+
+									<tr class="table_row @(isOutOfStock ? "row-out-of-stock" : "")"
+										data-stock-issue="@rowHasIssue.ToString().ToLower()">
+										<td class="column-1">
+											<div class="how-itemcart1" style="position:relative;">
+												@if (!string.IsNullOrEmpty(item.PromoBadgeText))
+												{
+													<span style="position:absolute; top:-6px; left:-6px; z-index:5; background-color:@(item.PromoBadgeColorHex ?? "#FF3B30"); color:#fff; font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px;">
+														@item.PromoBadgeText
+													</span>
+												}
+												<img src="@item.MainImageUrl" alt="IMG">
+											</div>
+										</td>
+										<td class="column-2">
+											@item.ProductName
+
+											@if (isOutOfStock)
+											{
+												<div class="text-danger small mt-1">
+													<i class="zmdi zmdi-alert-circle-o"></i> This item is out of stock
+												</div>
+											}
+											else if (isPartialShortage)
+											{
+												<div class="text-warning small mt-1">
+													<i class="zmdi zmdi-alert-triangle"></i> Only @item.StockQuantity available
+												</div>
+											}
+										</td>
+										<td class="column-3">
+											@if (item.DiscountedUnitPrice != null && item.DiscountedUnitPrice < item.Price)
+											{
+												<div>
+													<span style="color:#e74c3c; font-weight:700;">L.E. @item.DiscountedUnitPrice.Value.ToString("N2")</span>
+													<div style="text-decoration:line-through; color:#999; font-size:12px;">L.E. @item.Price.ToString("N2")</div>
+												</div>
+											}
+											else
+											{
+												@:L.E. @item.Price
+											}
+										</td>
+										<td class="column-4">
+
+											<div class="wrap-num-product flex-w m-r-20 m-tb-10 my-3">
+
+												<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m @(item.StockQuantity <= 0 ? "disabled-btn" : "")">
+													<i class="fs-16 zmdi zmdi-minus"></i>
+												</div>
+
+												<input class="mtext-104 cl3 txt-center num-product"
+													   type="number"
+													   name="quantities[@item.ProductId]"
+													   value="@(item.StockQuantity > 0 ? item.Quantity : 0)"
+													   min="@(item.StockQuantity > 0 ? 1 : 0)"
+													   max="@item.StockQuantity"
+													   @(item.StockQuantity <= 0 ? "readonly" : "")>
+
+												<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m @(item.StockQuantity <= 0 ? "disabled-btn" : "")">
+													<i class="fs-16 zmdi zmdi-plus"></i>
+												</div>
+
+											</div>
+										</td>
+										<td class="column-5">L.E. @item.TotalPrice</td>
+										<td class="column-6">
+											<button class="remove-item-btn text-danger fs-20"
+													data-product-id="@item.ProductId"
+													type="button">
+												<i class="bi bi-trash"></i>
+											</button>
+										</td>
+
+									</tr>
+								}
+							</table>
 						</div>
 
-						@{
-							var totalDiscount = Model.Pricing.ProductsDiscountTotal
-							+ Model.Pricing.BundleDiscountTotal
-							+ Model.Pricing.CouponDiscount;
-						}
-						@if (totalDiscount > 0)
+						<div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-20 p-lr-15-sm">
+							<div class="flex-w flex-m m-r-20 m-tb-5">
+								<input class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5"
+									   type="text"
+									   name="couponCode"
+									   value="@Model.CouponCode"
+									   placeholder="Coupon Code">
+
+								<button type="submit"
+										formaction="@Url.Action("ApplyCoupon", "Cart")"
+										class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5"
+										style="border:none;">
+									Apply coupon
+								</button>
+							</div>
+
+							<button type="submit" class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10">
+								Update Cart
+							</button>
+						</div>
+
+						@if (!string.IsNullOrEmpty(Model.Pricing.CouponError))
 						{
-							
+							<div class="coupon-message coupon-error p-lr-40 p-lr-15-sm">
+								<i class="zmdi zmdi-alert-circle"></i>
+								@Model.Pricing.CouponError
+							</div>
+						}
+						@if (!string.IsNullOrEmpty(Model.CouponCode) && string.IsNullOrEmpty(Model.Pricing.CouponError) && Model.Pricing.CouponDiscount > 0)
+						{
+							<div class="coupon-message coupon-success p-lr-40 p-lr-15-sm">
+								<div class="coupon-success-text">
+									<i class="zmdi zmdi-check-circle"></i>
+									Coupon "<strong>@Model.CouponCode</strong>" applied — you saved L.E. @Model.Pricing.CouponDiscount.ToString("N2")
+								</div>
+								<button type="submit" formaction="@Url.Action("RemoveCoupon", "Cart")" class="coupon-remove-btn">
+									Remove
+								</button>
+							</div>
+						}
+					</div>
+				</div>
 
-							@if (Model.Pricing.AppliedPromotions.Any())
+				<div class="col-sm-10 col-lg-5 col-xl-5 m-b-50">
+					<div class="cart-summary-card">
+
+						<h4 class="summary-title">Cart Totals</h4>
+
+						<div class="price-section">
+							<div class="summary-row">
+								<span>Subtotal</span>
+								<span class="summary-value">L.E. @Model.Pricing.SubTotal.ToString("N2")</span>
+							</div>
+
+							@{
+								var totalDiscount = Model.Pricing.ProductsDiscountTotal
+								+ Model.Pricing.BundleDiscountTotal
+								+ Model.Pricing.CouponDiscount;
+							}
+							@if (totalDiscount > 0)
 							{
-								<div class="discount-details">
-									@foreach (var promo in Model.Pricing.AppliedPromotions)
-									{
-										<div class="promotion-row">
-											<span>@(promo.BadgeText ?? promo.Name)</span>
 
-											<span>- L.E. @promo.DiscountAmount.ToString("N2")</span>
-										</div>
-									}
+
+								@if (Model.Pricing.AppliedPromotions.Any())
+								{
+									<div class="discount-details">
+										@foreach (var promo in Model.Pricing.AppliedPromotions)
+										{
+											<div class="promotion-row">
+												<span>@(promo.BadgeText ?? promo.Name)</span>
+
+												<span>- L.E. @promo.DiscountAmount.ToString("N2")</span>
+											</div>
+										}
+									</div>
+								}
+
+								<div class="summary-row">
+									<span>Discount</span>
+									<span class="summary-value summary-discount">- L.E. @totalDiscount.ToString("N2")</span>
 								</div>
 							}
 
 							<div class="summary-row">
-								<span>Discount</span>
-								<span class="summary-value summary-discount">- L.E. @totalDiscount.ToString("N2")</span>
+								<span>Shipping</span>
+								<span class="summary-value">
+									@(Model.Pricing.ShippingFee == 0 ? "Free" : $"L.E. {Model.Pricing.ShippingFee:N2}")
+								</span>
 							</div>
-						}
-
-						<div class="summary-row">
-							<span>Shipping</span>
-							<span class="summary-value">
-								@(Model.Pricing.ShippingFee == 0 ? "Free" : $"L.E. {Model.Pricing.ShippingFee:N2}")
-							</span>
 						</div>
-					</div>
 
-					<div class="summary-total-row">
-						<span>Total</span>
-						<span class="summary-total-value">L.E. @Model.Pricing.GrandTotal.ToString("N2")</span>
-					</div>
+						<div class="summary-total-row">
+							<span>Total</span>
+							<span class="summary-total-value">L.E. @Model.Pricing.GrandTotal.ToString("N2")</span>
+						</div>
 
-					<a asp-controller="Order"
-					   asp-action="Checkout"
-					   id="checkoutBtn"
-					   class="btn-checkout @(hasStockIssues ? "disabled" : "")"
-					   style="@(hasStockIssues ? "pointer-events:none; opacity:0.5; cursor:not-allowed;" : "")"
-					   tabindex="@(hasStockIssues ? "-1" : "0")"
-					   aria-disabled="@hasStockIssues.ToString().ToLower()">
-						Proceed To Checkout
-					</a>
+						<a asp-controller="Order"
+						   asp-action="Checkout"
+						   id="checkoutBtn"
+						   class="btn-checkout @(hasStockIssues ? "disabled" : "")"
+						   style="@(hasStockIssues ? "pointer-events:none; opacity:0.5; cursor:not-allowed;" : "")"
+						   tabindex="@(hasStockIssues ? "-1" : "0")"
+						   aria-disabled="@hasStockIssues.ToString().ToLower()">
+							Proceed To Checkout
+						</a>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-</form>
+	</form>
 
+
+}

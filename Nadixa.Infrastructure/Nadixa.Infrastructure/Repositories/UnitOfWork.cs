@@ -17,14 +17,21 @@ public class UnitOfWork : IUnitOfWork
 
     public IUserRepository Users { get; }
     public IOrderRepository Orders { get; }
+    public ICartRepository Carts { get; }
 
-    public UnitOfWork(NadixaDbContext context , ICouponRepository couponRepository , IDashboardRepository dashboardRepository , IUserRepository userRepository , IOrderRepository orderRepository)
+    public UnitOfWork(NadixaDbContext context,
+        ICouponRepository couponRepository,
+        IDashboardRepository dashboardRepository,
+        IUserRepository userRepository,
+        IOrderRepository orderRepository,
+        ICartRepository cartRepository)
     {
         _context = context;
         Coupons = couponRepository;
         Dashboard = dashboardRepository;
         Users = userRepository;
         Orders = orderRepository;
+        Carts = cartRepository;
     }
     public IGenericRepository<OrderStatusHistory> OrderStatusHistories => Repository<OrderStatusHistory>();
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Nadixa.Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,11 @@ namespace Nadixa.Core.Interfaces
 {
     public interface ICartRepository
     {
-        Task<Dictionary<int, int>> GetCartItemsAsync(string userId);
-
+        Task<Cart?> GetCartWithItemsAndProductsAsync(string userId);
+        Task<Cart> GetOrCreateCartAsync(string userId);
+        Task<int> GetCartCountAsync(int cartId);
+        void AddItem(CartItem item);
+        void RemoveItem(CartItem item);
+        Task SaveChangesAsync();
     }
 }

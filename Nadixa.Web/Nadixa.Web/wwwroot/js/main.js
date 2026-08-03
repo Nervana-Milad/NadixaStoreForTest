@@ -189,19 +189,6 @@
         }    
     });
 
-
-
-
-    /*==================================================================
-    [ Cart ]*/
-    //$('.js-show-cart').on('click',function(){
-    //    $('.js-panel-cart').addClass('show-header-cart');
-    //});
-
-    //$('.js-hide-cart').on('click',function(){
-    //    $('.js-panel-cart').removeClass('show-header-cart');
-    //});
-
     /*==================================================================
 [ Cart ]*/
     $(document).on('click', '.js-show-cart', function () {
@@ -467,8 +454,10 @@ $(document).on("click", ".remove-item-btn", function () {
                     if (response.success) {
                         row.fadeOut(300, function () {
                             $(this).remove();
-
                             updateStockWarningState();
+                            if ($(".table_row").length === 0) {
+                                location.reload();
+                            }
                         });
                         showSuccess(response.message);
                         document.querySelector(".icon-header-noti")
@@ -572,7 +561,6 @@ $("#globalSearchInput").on("keyup", function () {
     }, 300);
 });
 
-// ≈Œ›«¡ «·‹ results ·„« «·ÌÊ“— Ì÷€ÿ »—«
 $(document).on("click", function (e) {
     if (!$(e.target).closest("#globalSearchInput, #globalSearchResults").length) {
         $("#globalSearchResults").hide();
