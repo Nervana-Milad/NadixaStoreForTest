@@ -23,7 +23,7 @@ namespace Nadixa.Web.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IPermissionService _permissionService;
-        private readonly IProductService _productService;   // 👈 جديد
+        private readonly IProductService _productService;
 
 
 

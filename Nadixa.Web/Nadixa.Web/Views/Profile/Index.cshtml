@@ -1,5 +1,4 @@
-﻿@model Nadixa.Web.Models.ViewModels.ProfileViewModel
-
+﻿@model Nadixa.Application.DTOS.ProfileDto
 @{
     ViewData["Title"] = "My Profile";
 }
@@ -58,8 +57,7 @@
                                 Total Spending
                             </div>
                             <div class="info-value">
-                                L.E.
-                                @Model.Orders.Sum(x => x.GrandTotal)
+                                L.E. @Model.TotalSpending
                             </div>
                         </div>
                     </div>

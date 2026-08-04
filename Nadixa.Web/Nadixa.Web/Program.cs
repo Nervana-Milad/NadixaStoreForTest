@@ -109,6 +109,8 @@ namespace Nadixa.Web
             builder.Services.AddScoped<ICartService, CartService>();
             builder.Services.AddScoped<IWishlistRepository, WishlistRepository>();
             builder.Services.AddScoped<IWishlistService, WishlistService>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
+
 
             var app = builder.Build();
             using (var scope = app.Services.CreateScope())
