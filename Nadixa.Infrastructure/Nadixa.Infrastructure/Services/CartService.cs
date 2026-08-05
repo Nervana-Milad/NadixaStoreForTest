@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Nadixa.Application.DTOS;
+using Nadixa.Application.DTOS.Cart;
+using Nadixa.Application.DTOS.Promotion;
 using Nadixa.Application.Interfaces;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Nadixa.Application.DTOS;
+using Nadixa.Application.DTOS.Wishlist;
 using Nadixa.Application.Interfaces;
 using Nadixa.Core.Common;
 using Nadixa.Core.Entities;

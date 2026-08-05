@@ -1,4 +1,4 @@
-﻿using Nadixa.Application.DTOS;
+﻿using Nadixa.Application.DTOS.Review;
 using System;
 using System.Collections.Generic;
 using System.Linq;

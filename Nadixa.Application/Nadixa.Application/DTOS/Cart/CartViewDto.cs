@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Nadixa.Application.DTOS.Promotion;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nadixa.Application.DTOS
+namespace Nadixa.Application.DTOS.Cart
 {
     public class CartViewDto
     {

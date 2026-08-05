@@ -1,7 +1,6 @@
-﻿using Nadixa.Application.DTOS;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Nadixa.Application.DTOS
+namespace Nadixa.Application.DTOS.Product
 {
     public class ProductEditDataDto
     {

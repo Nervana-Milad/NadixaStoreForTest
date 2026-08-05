@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nadixa.Application.DTOS
+namespace Nadixa.Application.DTOS.Product
 {
     public class ProductExportDto
     {

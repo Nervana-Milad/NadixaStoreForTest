@@ -1,4 +1,5 @@
 ﻿using Nadixa.Application.DTOS;
+using Nadixa.Application.DTOS.Promotion;
 using Nadixa.Core.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;

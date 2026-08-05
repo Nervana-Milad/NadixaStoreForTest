@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Nadixa.Application.DTOS.Review;
+using System;
 using System.Collections.Generic;
 
-namespace Nadixa.Application.DTOS
+namespace Nadixa.Application.DTOS.Product
 {
     // Returned by GET /api/products/{id}
     public class ProductDetailDto

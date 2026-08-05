@@ -13,6 +13,7 @@ using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 using Nadixa.Web.Services;
 using Nadixa.Core.Common;
+using Nadixa.Application.DTOS.Promotion;
 
 namespace Nadixa.Web.Controllers
 {

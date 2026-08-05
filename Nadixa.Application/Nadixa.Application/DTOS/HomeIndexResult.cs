@@ -1,4 +1,5 @@
-﻿using Nadixa.Core.Entities;
+﻿using Nadixa.Application.DTOS.Product;
+using Nadixa.Core.Entities;
 using System.Collections.Generic;
 
 namespace Nadixa.Application.DTOS
@@ -8,7 +9,7 @@ namespace Nadixa.Application.DTOS
         public List<ProductListItemDto> Products { get; set; } = new();
         public List<ProductListItemDto> BestSellers { get; set; } = new();
         public List<CategoryToReturnDto> Categories { get; set; } = new();
-        public List<Promotion> ActivePromotions { get; set; } = new();   // 👈 جديد
+        public List<Nadixa.Core.Entities.Promotion> ActivePromotions { get; set; } = new();   // 👈 جديد
 
     }
 }

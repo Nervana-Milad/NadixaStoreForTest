@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Nadixa.Application.DTOS;
+using Nadixa.Application.DTOS.Product;
+using Nadixa.Application.DTOS.Review;
 using Nadixa.Application.Interfaces;
 using Nadixa.Core.Common;
 using Nadixa.Core.Entities;

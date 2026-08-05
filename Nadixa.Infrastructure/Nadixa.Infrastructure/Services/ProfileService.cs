@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Nadixa.Application.DTOS;
+using Nadixa.Application.DTOS.Order;
 using Nadixa.Application.Interfaces;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;

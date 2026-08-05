@@ -3,12 +3,11 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Nadixa.Application.DTOS;
 using Nadixa.Application.Interfaces.Excel;
-using Nadixa.Application.DTOS;
 using Nadixa.Core.Entities;
 using Nadixa.Infrastructure.Data;
 using Nadixa.Infrastructure.Services;
+using Nadixa.Application.DTOS.Product;
 
 namespace Nadixa.Web.Controllers
 {

@@ -1,4 +1,5 @@
 ﻿using Nadixa.Application.DTOS;
+using Nadixa.Application.DTOS.Promotion;
 using System.ComponentModel.DataAnnotations;
 
 namespace Nadixa.Web.Models.ViewModels

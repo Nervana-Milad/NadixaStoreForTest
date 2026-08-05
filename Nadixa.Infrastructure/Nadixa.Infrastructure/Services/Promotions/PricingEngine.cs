@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Nadixa.Application.Interfaces;
 using Nadixa.Application.DTOS;
+using Nadixa.Application.DTOS.Promotion;
 namespace Nadixa.Infrastructure.Services
 {
 

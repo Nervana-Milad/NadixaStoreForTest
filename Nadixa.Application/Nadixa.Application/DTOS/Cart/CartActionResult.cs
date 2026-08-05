@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nadixa.Application.DTOS
+namespace Nadixa.Application.DTOS.Cart
 {
-    public class ReviewResult
+    public class CartActionResult
     {
         public bool Success { get; set; }
+        public bool RequiresLogin { get; set; }
         public string? Message { get; set; }
-        public ReviewDto? Review { get; set; }
-        public double AvgRating { get; set; }
-        public int ReviewsCount { get; set; }
+        public int CartCount { get; set; }
+        public int Quantity { get; set; }
     }
 }

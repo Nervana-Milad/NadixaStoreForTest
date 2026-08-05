@@ -1,4 +1,6 @@
 ﻿using Nadixa.Application.DTOS;
+using Nadixa.Application.DTOS.Product;
+using Nadixa.Application.DTOS.Review;
 using Nadixa.Core.Entities;
 using System;
 using System.Collections.Generic;

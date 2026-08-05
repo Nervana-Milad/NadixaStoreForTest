@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Nadixa.Application.DTOS;
-using Nadixa.Core.Entities;    
+using Nadixa.Core.Entities;
+using Nadixa.Application.DTOS.Cart;
 
 namespace Nadixa.Application.Mapping
 {

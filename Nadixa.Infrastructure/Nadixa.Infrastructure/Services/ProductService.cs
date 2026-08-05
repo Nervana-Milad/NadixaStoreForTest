@@ -7,8 +7,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using Nadixa.Application.DTOS;
 using Nadixa.Application.Interfaces;
+using Nadixa.Application.DTOS.Review;
+using Nadixa.Application.DTOS.Product;
 namespace Nadixa.Infrastructure.Services
 {
     public class ProductService :IProductService

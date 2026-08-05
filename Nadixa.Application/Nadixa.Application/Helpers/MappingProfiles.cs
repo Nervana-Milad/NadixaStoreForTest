@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Nadixa.Application.DTOS;
 using Nadixa.Application.DTOS.order;
+using Nadixa.Application.DTOS.Product;
 using Nadixa.Core.Entities;
 using System;
 using System.Collections.Generic;

@@ -64,53 +64,52 @@ namespace Nadixa.Web
                 options.Filters.Add<LoadWishlistFilter>();
             });
 
-
-            //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IDashboardService, DashboardService>();
-            builder.Services.AddScoped<EmailSender>();
-            builder.Services.AddScoped<IRazorViewRenderer, RazorViewRenderer>();
-
-            builder.Services.AddScoped<IExcelService, ExcelService>();
-            builder.Services.AddScoped<IExcelHelperService, ExcelHelperService>();
-            builder.Services.AddScoped<OrderEmailService>();
-            builder.Services.AddScoped<StockNotificationService>();
-            builder.Services.AddScoped<IAuthService, Nadixa.Infrastructure.Services.AuthService>();
-
-
-            builder.Services.AddScoped<IProductService, ProductService>();
-
-            builder.Services.AddScoped<IPromotionService, PromotionService>();
-            builder.Services.AddScoped<IShippingRuleService, ShippingRuleService>();
-            builder.Services.AddScoped<ICouponService, CouponService>();
-            builder.Services.AddScoped<ILoyaltyService, LoyaltyService>();
-            builder.Services.AddScoped<IBundleDealService, BundleDealService>();
-            builder.Services.AddScoped<IUserOrderHistoryChecker,
-                                       UserOrderHistoryChecker>();
-            builder.Services.AddScoped<IPricingEngine, PricingEngine>();
-
-            builder.Services.AddScoped<IPermissionService, PermissionService>();
-
+            //Repositories
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<ICartRepository, CartRepository>();
             builder.Services.AddScoped<IStockNotificationRepository, StockNotificationRepository>();
             builder.Services.AddScoped<IBlogRepository, BlogRepository>();
-            builder.Services.AddScoped<IHomeService, HomeService>();
-            builder.Services.AddScoped<IFileUploadService, FileUploadService>();
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ICouponRepository, CouponRepository>();
-            builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IWishlistRepository, WishlistRepository>();
+
+
+            //Services
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
+            builder.Services.AddScoped<IExcelService, ExcelService>();
+            builder.Services.AddScoped<IExcelHelperService, ExcelHelperService>();
+            builder.Services.AddScoped<OrderEmailService>();
+            builder.Services.AddScoped<StockNotificationService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IPromotionService, PromotionService>();
+            builder.Services.AddScoped<IShippingRuleService, ShippingRuleService>();
+            builder.Services.AddScoped<ICouponService, CouponService>();
+            builder.Services.AddScoped<ILoyaltyService, LoyaltyService>();
+            builder.Services.AddScoped<IBundleDealService, BundleDealService>();
+            builder.Services.AddScoped<IPermissionService, PermissionService>();
+            builder.Services.AddScoped<IHomeService, HomeService>();
+            builder.Services.AddScoped<IFileUploadService, FileUploadService>();
             builder.Services.AddScoped<IOrderService, OrderService>();
-            builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
             builder.Services.AddScoped<IOrderEmailService, OrderEmailService>();
             builder.Services.AddScoped<ICartService, CartService>();
-            builder.Services.AddScoped<IWishlistRepository, WishlistRepository>();
             builder.Services.AddScoped<IWishlistService, WishlistService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
 
+
+            //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<EmailSender>();
+            builder.Services.AddScoped<IRazorViewRenderer, RazorViewRenderer>();            
+            builder.Services.AddScoped<IAuthService, Nadixa.Infrastructure.Services.AuthService>();
+            builder.Services.AddScoped<IUserOrderHistoryChecker, UserOrderHistoryChecker>();
+            builder.Services.AddScoped<IPricingEngine, PricingEngine>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();            
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+            
 
             var app = builder.Build();
             using (var scope = app.Services.CreateScope())
