@@ -1,5 +1,6 @@
 ﻿@using Nadixa.Application.DTOS
 @using Nadixa.Application.DTOS.Product
+@using Nadixa.Application.DTOS.Promotion
 @using Nadixa.Core.Entities
 @model IEnumerable<ProductListItemDto>
 
@@ -7,9 +8,7 @@
     ViewData["Title"] = "Home Page";
 }
 <style>
-	/* تصميم الشريط الترويجي الاحترافي (Banner) */
 	.category-banner {
-		/* تدريج لوني برتقالي مميز ليطابق الصورة */
 		background: linear-gradient(135deg, #6C7AED 0%, #6C7AED 100%);
 		border-radius: 6px;
 		min-height: 52px;
@@ -25,17 +24,15 @@
 			color: #fff !important;
 		}
 
-		/* إضافة حركة تفاعلية مرنة للسهم عند تمرير الماوس */
 		.see-all-link i {
 			transition: transform 0.3s ease;
 			display: inline-block;
 		}
 
 		.see-all-link:hover i {
-			transform: translateX(-4px); /* تحريك السهم لليسار برفق عند التمرير */
+			transform: translateX(-4px); 
 		}
 
-	/* كود الـ CSS لتنسيق وتصغير حجم الصور لتصبح متناسقة تماماً */
 	.product-carousel-img {
 		height: 200px !important;
 		width: 100% !important;
@@ -44,7 +41,6 @@
 		padding: 10px;
 	}
 
-	/* تنسيق أسهم الحركة لتظهر بشكل لائق وجميل فوق السلايدر */
 	.custom-swiper-btn {
 		color: #333 !important;
 		background-color: rgba(255, 255, 255, 0.9);
@@ -65,7 +61,6 @@
 			font-weight: bold;
 		}
 
-	/* بانر العروض النشطة */
 	.promo-banner-card {
 		display: block;
 		min-width: 260px;
@@ -185,7 +180,7 @@
 
 <!-- Active Promotions Banner -->
 @{
-	var activePromos = ViewBag.ActivePromotions as List<Promotion> ?? new List<Promotion>();
+	var activePromos = ViewBag.ActivePromotions as List<PromotionDto> ?? new List<PromotionDto>();
 }
 @if (activePromos.Any())
 {
@@ -195,7 +190,7 @@
 				@foreach (var promo in activePromos.OrderByDescending(p => p.Priority).Take(3))
 				{
 					<a asp-controller="Product" asp-action="Index"
-					   asp-route-categoryId="@(promo.Scope == PromotionScope.Category ? promo.ProductCategoryId : null)"
+					   asp-route-categoryId="@(promo.Scope == "Category" ? promo.ProductCategoryId : null)"
 					   class="promo-banner-card"
 					   style="background: linear-gradient(135deg, @(promo.BadgeColorHex ?? "#6C7AED") 0%, @(promo.BadgeColorHex ?? "#6C7AED") 100%);">
 						<div class="promo-banner-badge">@(promo.BadgeText ?? promo.Name)</div>

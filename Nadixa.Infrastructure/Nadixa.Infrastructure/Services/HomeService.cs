@@ -1,4 +1,5 @@
 ﻿using Nadixa.Application.DTOS;
+using Nadixa.Application.DTOS.Promotion;
 using Nadixa.Application.Interfaces;
 using Nadixa.Core.Entities;
 using Nadixa.Core.Interfaces;
@@ -46,6 +47,19 @@ namespace Nadixa.Infrastructure.Services
 
             var activePromotions = await _promotionService.GetActivePromotionsAsync();
 
+            // 👇 جديد: تحويل Entities لـ DTOs
+            var promotionDtos = activePromotions.Select(p => new PromotionDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                BadgeText = p.BadgeText,
+                BadgeColorHex = p.BadgeColorHex,
+                IsFlashSale = p.IsFlashSale,
+                EndDate = p.EndDate,
+                Priority = p.Priority,
+                ProductCategoryId = p.ProductCategoryId,
+                Scope = p.Scope.ToString()
+            }).ToList();
 
             return new HomeIndexResult
             {
@@ -58,7 +72,7 @@ namespace Nadixa.Infrastructure.Services
                     Description = c.Description,
                     ImageUrl = c.ImageUrl
                 }).ToList(),
-                ActivePromotions = activePromotions   // 👈 جديد
+                ActivePromotions = promotionDtos   // 👈 جديد
 
             };
         }
