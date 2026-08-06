@@ -12,7 +12,9 @@ namespace Nadixa.Core.Interfaces
     {
         Task<T?> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes);
         Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes);
-        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes); 
+        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
+        Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate, bool includeSoftDeleted = false);   // 👈 جديد
+
         Task AddAsync(T entity);
         void Update(T entity);
         void Delete(T entity);

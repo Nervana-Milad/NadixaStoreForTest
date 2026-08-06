@@ -48,6 +48,14 @@ namespace Nadixa.Infrastructure.Repositories
             return await query.Where(predicate).ToListAsync();
         }
 
+        public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate, bool includeSoftDeleted = false)
+        {
+            var query = includeSoftDeleted
+                ? _dbSet.IgnoreQueryFilters().AsQueryable()
+                : _dbSet.AsQueryable();
+
+            return await query.AnyAsync(predicate);
+        }
         public async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);

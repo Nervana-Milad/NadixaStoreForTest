@@ -91,17 +91,19 @@ namespace Nadixa.Infrastructure.Services
             if (category == null)
                 return new CategoryDeleteResult { Success = false, ErrorMessage = "Category not found." };
 
-            var productsInCategory = await _unitOfWork.Repository<Product>()
-                .FindAsync(p => p.ProductCategoryId == id);
+            // 👇 نفس التصحيح هنا
+            var hasProducts = await _unitOfWork.Repository<Product>()
+                .ExistsAsync(p => p.ProductCategoryId == id, includeSoftDeleted: true);
 
-            var productsCount = productsInCategory.Count();
 
-            if (productsCount > 0)
+            //var productsCount = productsInCategory.Count();
+
+            if (hasProducts)
             {
                 return new CategoryDeleteResult
                 {
                     Success = false,
-                    ErrorMessage = $"Cannot delete '{category.Name}' because it has {productsCount} product(s). Please delete the products first."
+                    ErrorMessage = $"Cannot delete '{category.Name}' because it has product(s). Please delete the products first."
                 };
             }
 

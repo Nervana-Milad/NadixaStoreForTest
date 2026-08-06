@@ -1,6 +1,4 @@
-﻿@model List<Nadixa.Core.Entities.ProductSubCategory>
-
-
+﻿@model List<Nadixa.Application.DTOS.ProductSubCategory.SubCategoryDto>
 
 @{
     ViewData["Title"] = "SubCategories";
@@ -92,7 +90,7 @@
 
                             <span class="badge rounded-pill px-3 py-2 mb-3 align-self-start"
                                   style="background:#6c7ae0">
-                                @item.ProductCategory.Name
+                                @item.ProductCategoryName
                                 </span>
 
                                 <!-- NAME -->
