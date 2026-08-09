@@ -91,12 +91,8 @@ namespace Nadixa.Infrastructure.Services
             if (category == null)
                 return new CategoryDeleteResult { Success = false, ErrorMessage = "Category not found." };
 
-            // 👇 نفس التصحيح هنا
             var hasProducts = await _unitOfWork.Repository<Product>()
-                .ExistsAsync(p => p.ProductCategoryId == id, includeSoftDeleted: true);
-
-
-            //var productsCount = productsInCategory.Count();
+                .ExistsAsync(p => p.ProductCategoryId == id);
 
             if (hasProducts)
             {
@@ -107,7 +103,7 @@ namespace Nadixa.Infrastructure.Services
                 };
             }
 
-            _unitOfWork.Repository<ProductCategory>().HardDelete(category);
+            _unitOfWork.Repository<ProductCategory>().Delete(category);
             await _unitOfWork.CompleteAsync();
 
             return new CategoryDeleteResult { Success = true };

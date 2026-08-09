@@ -92,7 +92,7 @@ namespace Nadixa.Infrastructure.Services
                 return new SubCategoryDeleteResult { Success = false, ErrorMessage = "SubCategory not found." };
 
             var hasProducts = await _unitOfWork.Repository<Product>()
-    .ExistsAsync(p => p.ProductSubCategoryId == id, includeSoftDeleted: true);
+                .ExistsAsync(p => p.ProductSubCategoryId == id);    
 
 
             if (hasProducts)
@@ -104,7 +104,7 @@ namespace Nadixa.Infrastructure.Services
                 };
             }
 
-            _unitOfWork.Repository<ProductSubCategory>().HardDelete(subCategory);
+            _unitOfWork.Repository<ProductSubCategory>().Delete(subCategory);
             await _unitOfWork.CompleteAsync();
 
             return new SubCategoryDeleteResult { Success = true };

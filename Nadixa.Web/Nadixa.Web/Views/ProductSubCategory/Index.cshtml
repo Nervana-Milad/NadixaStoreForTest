@@ -4,133 +4,134 @@
     ViewData["Title"] = "SubCategories";
 }
 
-<style>
-    .sub-card {
-        transition: .3s ease;
-        background: #fff;
-    }
+<div class="container py-5 categories-page">
 
-        .sub-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(0,0,0,.12) !important;
-        }
-
-    .sub-image {
-        height: 260px;
-        object-fit: cover;
-        transition: .4s ease;
-    }
-
-    .sub-card:hover .sub-image {
-        transform: scale(1.05);
-    }
-
-    .sub-description {
-        height: 60px;
-        overflow: hidden;
-    }
-
-    .action-btn {
-        border-radius: 50px;
-    }
-</style>
-
-    <div class="container py-5" style="margin-top:100px">
-
-        <!-- HEADER -->
-    <div class="d-flex justify-content-between align-items-center mb-5">
+    <!-- HEADER -->
+    <div class="page-header d-flex justify-content-between align-items-center mb-5">
         <div>
-            <h2 class="fw-bold mb-1">
+            <span class="page-eyebrow">
+                STORE MANAGEMENT
+            </span>
+
+            <h2 class="page-title mb-2">
                 Product SubCategories
             </h2>
 
-            <p class="text-muted">
-                Explore and manage all available subcategories
+            <p class="page-subtitle mb-0">
+                Organize your products into clear and attractive categories.
             </p>
         </div>
 
         @if (User.IsInRole("Admin"))
         {
             <a asp-action="Create"
-               class="btn px-4 py-2 hov-btn3 rounded-pill shadow-sm"
-               style="background:#6c7ae0;color:white">
-                <i class="bi bi-plus-circle me-2"></i>
-                Add SubCategory
+               class="add-category-btn">
+                <i class="bi bi-plus-lg"></i>
+                <span>Add SubCategory</span>
             </a>
         }
     </div>
-        <!-- EMPTY -->
-        @if (Model == null || Model.Count == 0)
-        {
-            <div class="card border-0 shadow-sm rounded-4 p-5 text-center">
-                <h4 class="fw-bold mb-3">
-                    No SubCategories Yet
-                </h4>
-                <p class="text-muted">
-                    Start by creating your first subcategory
-                </p>
+
+
+    <!-- EMPTY STATE -->
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="bi bi-grid"></i>
             </div>
-        }
-        else
-        {
-            <!-- GRID -->
-            <div class="row g-4">
-                @foreach (var item in Model)
-                {
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card border-0 shadow rounded-4 overflow-hidden h-100 sub-card">
-                            <!-- IMAGE -->
-                            <div style="height:260px; overflow:hidden;">
-                                <img src="@Url.Content(item.ImageUrl)"
-                                     class="w-100 sub-image"
-                                     alt="@item.Name" />
-                            </div>
-                            <!-- BODY -->
-                            <div class="card-body d-flex flex-column p-4">
 
-                            <span class="badge rounded-pill px-3 py-2 mb-3 align-self-start"
-                                  style="background:#6c7ae0">
-                                @item.ProductCategoryName
-                                </span>
+            <h4>No Categories Yet</h4>
 
-                                <!-- NAME -->
-                                <h5 class="fw-bold mb-2">
-                                    @item.Name
-                                </h5>
+            <p>
+                Start organizing your store by creating your first product category.
+            </p>
 
-                                
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-action="Create"
+                   class="add-category-btn mt-3">
+                    <i class="bi bi-plus-lg"></i>
+                    Add SubCategory
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- CATEGORIES GRID -->
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 col-xl-4">
+                    <div class="category-card">
 
-                                <!-- DESCRIPTION -->
-                                <p class="text-muted sub-description">
-                                    @(string.IsNullOrEmpty(item.Description)
-                                                            ? "No description available"
-                                                            : item.Description)
-                                </p>
-                                <div class="mt-auto d-flex gap-2">
+                        <!-- IMAGE -->
+                        <div class="category-image-wrapper">
+                            <img src="@Url.Content(item.ImageUrl)"
+                                 alt="@item.Name"
+                                 class="category-image" />
+
+                            <div class="category-image-overlay"></div>
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <!-- ADMIN ACTIONS -->
+                                <div class="category-actions">
+
                                     <a asp-action="Edit"
                                        asp-route-id="@item.Id"
-                                       class="btn btn-outline-dark hov-btn3 action-btn w-100">
-                                        <i class="bi bi-pencil-square me-1"></i>
-                                        Edit
+                                       class="category-action edit-action"
+                                       title="Edit SubCategory">
+                                        <i class="bi bi-pencil"></i>
                                     </a>
 
                                     <button type="button"
-                                        class="btn btn-danger hov-btn3 action-btn w-100 delete-subcategory-btn"
+                                            class="category-action delete-action delete-subcategory-btn"
                                             data-subcategory-id="@item.Id"
-                                            data-subcategory-name="@item.Name">
-                                        <i class="bi bi-trash me-1"></i>
-                                        Delete
+                                            data-subcategory-name="@item.Name"
+                                            title="Delete SubCategory">
+                                        <i class="bi bi-trash3"></i>
                                     </button>
+
                                 </div>
-                                
-                            </div>
+                            }
+
+                            <!-- SubCATEGORY LINK -->
+                            <a asp-controller="Product"
+                               asp-action="Index"
+                               asp-route-subcategoryId="@item.Id"
+                               class="category-shop-link">
+
+                                <span>View Products</span>
+
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+
+
+                        <!-- CONTENT -->
+                        <div class="category-content">
+
+                            <h4 class="category-name">
+                                @item.Name
+                            </h4>
+
+                            <p class="category-description">
+                                @(string.IsNullOrWhiteSpace(item.Description)
+                                                        ? "Explore products in this category."
+                                                        : item.Description)
+                            </p>
                         </div>
                     </div>
-                        
+                </div>
                 }
-            <form id="deleteSubCategoryForm" method="post">
-                @Html.AntiForgeryToken()
-            </form>
-            </div>
-        }
-    </div>
+        </div>
+
+        <!-- DELETE FORM -->
+        <form id="deleteSubCategoryForm" method="post">
+            @Html.AntiForgeryToken()
+        </form>
+    }
+
+</div>

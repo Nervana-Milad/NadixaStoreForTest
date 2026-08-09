@@ -4016,3 +4016,338 @@ input.num-product::-webkit-inner-spin-button {
     .cart-counter span {
         font-weight: 600;
     }
+
+/* =========================================
+CATEGORY / SUBCATEGORY PAGES
+========================================= */
+
+.categories-page,
+.subcategories-page {
+    margin-top: 80px;
+    margin-bottom: 80px;
+}
+
+
+/* =========================================
+PAGE HEADER
+========================================= */
+
+.page-header {
+    border-bottom: 1px solid #eeeeee;
+    padding-bottom: 25px;
+}
+
+.page-eyebrow {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    color: #6c7ae0;
+    margin-bottom: 8px;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #222222;
+}
+
+.page-subtitle {
+    color: #888888;
+    font-size: 14px;
+}
+
+
+/* =========================================
+ADD BUTTON
+========================================= */
+
+.add-category-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: #6c7ae0;
+    color: #ffffff !important;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all .25s ease;
+    box-shadow: 0 5px 15px rgba(108, 122, 224, .18);
+}
+
+    .add-category-btn:hover {
+        background: #5967d5;
+        color: #ffffff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(108, 122, 224, .25);
+    }
+
+    .add-category-btn i {
+        font-size: 15px;
+    }
+
+
+/* =========================================
+CATEGORY CARD
+Used by BOTH Category & SubCategory
+========================================= */
+
+.category-card {
+    background: #ffffff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, .06);
+    transition: all .3s ease;
+    height: 100%;
+}
+
+    .category-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, .10);
+    }
+
+
+/* =========================================
+CATEGORY IMAGE
+Used by BOTH Category & SubCategory
+========================================= */
+
+.category-image-wrapper {
+    height: 280px;
+    position: relative;
+    overflow: hidden;
+}
+
+.category-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .5s ease;
+}
+
+.category-card:hover .category-image {
+    transform: scale(1.06);
+}
+
+.category-image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient( to bottom, rgba(0, 0, 0, .05), rgba(0, 0, 0, .55) );
+}
+
+
+/* =========================================
+ADMIN ACTIONS
+Used by BOTH Category & SubCategory
+========================================= */
+
+.category-actions {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 8px;
+    z-index: 5;
+}
+
+.category-action {
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    background: rgba(255, 255, 255, .95);
+    color: #333;
+    cursor: pointer;
+    transition: all .2s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .12);
+}
+
+    .category-action:hover {
+        transform: translateY(-2px);
+    }
+
+.edit-action:hover {
+    background: #6c7ae0;
+    color: #fff;
+}
+
+.delete-action:hover {
+    background: #dc3545;
+    color: #fff;
+}
+
+
+/* =========================================
+SHOP NOW
+========================================= */
+
+.category-shop-link {
+    position: absolute;
+    left: 25px;
+    bottom: 22px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff !important;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all .25s ease;
+}
+
+    .category-shop-link i {
+        transition: transform .25s ease;
+    }
+
+    .category-shop-link:hover i {
+        transform: translateX(5px);
+    }
+
+
+/* =========================================
+CATEGORY CONTENT
+Used by BOTH Category & SubCategory
+========================================= */
+
+.category-content {
+    padding: 22px;
+}
+
+.category-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 8px;
+}
+
+.category-description {
+    color: #777;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 18px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+
+/* =========================================
+VIEW PRODUCTS
+========================================= */
+
+.category-view-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #6c7ae0 !important;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+    .category-view-link i {
+        transition: transform .2s ease;
+    }
+
+    .category-view-link:hover i {
+        transform: translateX(4px);
+    }
+
+
+/* =========================================
+SUBCATEGORY BADGE ONLY
+========================================= */
+
+.subcategory-category {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    padding: 7px 13px;
+    background: rgba(108, 122, 224, .95);
+    color: #fff;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .12);
+    z-index: 4;
+}
+
+
+/* =========================================
+EMPTY STATE
+========================================= */
+
+.empty-state {
+    text-align: center;
+    padding: 80px 30px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, .05);
+}
+
+.empty-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(108, 122, 224, .1);
+    color: #6c7ae0;
+    font-size: 28px;
+}
+
+.empty-state h4 {
+    font-size: 21px;
+    font-weight: 700;
+    color: #222;
+}
+
+.empty-state p {
+    color: #888;
+    font-size: 14px;
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+
+/* =========================================
+RESPONSIVE
+========================================= */
+
+@media (max-width: 767px) {
+
+    .categories-page,
+    .subcategories-page {
+        margin-top: 40px;
+        margin-bottom: 50px;
+    }
+
+    .page-header {
+        align-items: flex-start !important;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .page-title {
+        font-size: 26px;
+    }
+
+    .add-category-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .category-image-wrapper {
+        height: 240px;
+    }
+}

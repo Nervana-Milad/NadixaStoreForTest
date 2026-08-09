@@ -91,6 +91,7 @@ namespace Nadixa.Infrastructure.Data
             // أي استعلام هيرجع بس الحاجات اللي مش ممسوحة (IsDeleted = false)
             builder.Entity<Product>().HasQueryFilter(p => !p.IsDeleted);
             builder.Entity<ProductCategory>().HasQueryFilter(c => !c.IsDeleted);
+            builder.Entity<ProductSubCategory>().HasQueryFilter(s => !s.IsDeleted);
             builder.Entity<WishlistItem>().HasIndex(w => new { w.WishlistId, w.ProductId }).IsUnique();
 
             builder.Entity<AppUserPermission>()
