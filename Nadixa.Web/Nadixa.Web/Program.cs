@@ -99,7 +99,7 @@ namespace Nadixa.Web
             builder.Services.AddScoped<IProfileService, ProfileService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
-
+            builder.Services.AddScoped<IBlogService, BlogService>();
 
             //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<EmailSender>();

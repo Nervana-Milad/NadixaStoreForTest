@@ -47,12 +47,12 @@
 							</span>
 
 							<span>
-                                @Model.Blog.BlogCategory.Name
+                                @Model.Blog.Category
 								<span class="cl12 m-l-4 m-r-6">|</span>
 							</span>
 
 							<span>
-								@Model.Blog.BlogComments.Count() Comments
+								@Model.Blog.Comments.Count Comments
 							</span>
 						</span>
 
@@ -85,24 +85,24 @@
 						</div>
 					</div>
 
-					@if (Model.Blog.BlogComments.Any())
+					@if (Model.Blog.Comments.Any())
 					{
 						<div class="p-b-40">
 							<h4 class="mtext-112 cl2 p-b-20">
-								Comments (@Model.Blog.BlogComments.Count)
+								Comments (@Model.Blog.Comments.Count)
 							</h4>
-							@foreach(var comment in Model.Blog.BlogComments.OrderByDescending(c => c.CreatedAt))
+							@foreach(var comment in Model.Blog.Comments.OrderByDescending(c => c.CreatedAt))
 							{
 								<div class="bor19 p-3 m-b-20 comment-card" data-comment-id="@comment.Id" ">
 									<div class="d-flex justify-content-between align-items-center mb-2">
 										<strong>
-											@comment.AppUser.FirstName
-											@comment.AppUser.LastName
+                                            @comment.AuthorName 
+											
 										</strong>
 										<small class="text-muted">
 											@comment.CreatedAt.ToString("dd MMM yyyy")
 										</small>
-										@if (User.IsInRole("Admin") || comment.AppUserId == ViewBag.CurrentUserId)
+										@if (User.IsInRole("Admin") || comment.AuthorId == ViewBag.CurrentUserId)
 										{
 											<button type="button"
 													class="delete-comment-btn btn btn-sm text-danger border-0 bg-transparent p-0"

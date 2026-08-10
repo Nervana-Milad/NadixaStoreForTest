@@ -58,6 +58,7 @@ namespace Nadixa.Infrastructure.Repositories
         }
         public async Task AddAsync(T entity)
         {
+            entity.CreatedAt = DateTime.UtcNow;
             await _dbSet.AddAsync(entity);
         }
 
