@@ -92,6 +92,7 @@ namespace Nadixa.Infrastructure.Data
             builder.Entity<Product>().HasQueryFilter(p => !p.IsDeleted);
             builder.Entity<ProductCategory>().HasQueryFilter(c => !c.IsDeleted);
             builder.Entity<ProductSubCategory>().HasQueryFilter(s => !s.IsDeleted);
+            builder.Entity<Blog>().HasQueryFilter(b => !b.IsDeleted);
             builder.Entity<WishlistItem>().HasIndex(w => new { w.WishlistId, w.ProductId }).IsUnique();
 
             builder.Entity<AppUserPermission>()
