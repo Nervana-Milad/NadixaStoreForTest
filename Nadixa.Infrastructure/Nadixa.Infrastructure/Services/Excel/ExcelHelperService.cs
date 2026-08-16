@@ -11,6 +11,7 @@ using SpreadCheetah.Styling;
 using System.Drawing;
 using Nadixa.Application.Interfaces.Excel;
 using Nadixa.Application.DTOS;
+using ClosedXML.Excel;
 
 
 namespace Nadixa.Infrastructure.Services.Excel

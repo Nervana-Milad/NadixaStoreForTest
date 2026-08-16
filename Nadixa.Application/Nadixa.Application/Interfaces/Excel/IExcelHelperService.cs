@@ -1,4 +1,5 @@
-﻿using Nadixa.Application.DTOS;
+﻿using ClosedXML.Excel;
+using Nadixa.Application.DTOS;
 using Nadixa.Application.DTOS;
 using SpreadCheetah;
 
@@ -18,5 +19,6 @@ namespace Nadixa.Application.Interfaces.Excel
 
         // بتتأكد إن اسم الشيت valid (Excel بيرفض أكتر من 31 حرف وبعض الرموز) وترجعه نضيف
         string CheckSheetName(string sheetName);
+
     }
 }

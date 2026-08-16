@@ -100,6 +100,8 @@ namespace Nadixa.Web
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
             builder.Services.AddScoped<IBlogService, BlogService>();
+            builder.Services.AddScoped<IUserManagementService, UserManagementService>();
+            builder.Services.AddScoped<IProductImportExportService, ProductImportExportService>();
 
             //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<EmailSender>();

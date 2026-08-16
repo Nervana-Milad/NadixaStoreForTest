@@ -19,5 +19,6 @@ namespace Nadixa.Application.Interfaces.Excel
             IEnumerable<T> data,
             string sheetName,
             CancellationToken ct = default);
+
     }
 }

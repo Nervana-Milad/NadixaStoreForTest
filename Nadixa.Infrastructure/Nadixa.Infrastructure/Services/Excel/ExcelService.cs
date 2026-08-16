@@ -1,12 +1,13 @@
-﻿using Nadixa.Application.DTOS;
+﻿using ClosedXML.Excel;
+using Nadixa.Application.DTOS;
+using Nadixa.Application.Interfaces.Excel;
+using SpreadCheetah;
+using ClosedXML.Excel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SpreadCheetah;
-using Nadixa.Application.Interfaces.Excel;
-using Nadixa.Application.DTOS;
 
 namespace Nadixa.Infrastructure.Services.Excel
 {
@@ -51,17 +52,17 @@ namespace Nadixa.Infrastructure.Services.Excel
         }
 
         private static DataCell[] BuildRowCells<T>(T item, List<ExcelColumnInfo> columns)
-        {
-            var cells = new DataCell[columns.Count];
-
-            for (int i = 0; i < columns.Count; i++)
             {
-                var value = columns[i].Property.GetValue(item);
-                cells[i] = ToDataCell(value);
-            }
+                var cells = new DataCell[columns.Count];
 
-            return cells;
-        }
+                for (int i = 0; i < columns.Count; i++)
+                {
+                    var value = columns[i].Property.GetValue(item);
+                    cells[i] = ToDataCell(value);
+                }
+
+                return cells;
+            }
 
         private static DataCell ToDataCell(object? value)
         {
