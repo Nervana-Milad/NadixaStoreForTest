@@ -1,71 +1,124 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿//using Microsoft.AspNetCore.Authorization;
+//using Microsoft.AspNetCore.Mvc;
+//using Microsoft.EntityFrameworkCore;
+//using Nadixa.Infrastructure.Data;
+//using Nadixa.Core.Common;
+
+//namespace Nadixa.Web.Controllers
+//{
+//    [Authorize(Roles = "Admin")]
+//    public class AdminPermissionController : Controller
+//    {
+//        private readonly NadixaDbContext _context;
+//        public AdminPermissionController(NadixaDbContext context)
+//        {
+//            _context = context;
+//        }
+
+//        public async Task<IActionResult> Index()
+//        {
+//            var permissions = await _context.Permissions.OrderBy(p => p.Name).ToListAsync();
+
+//            return View(permissions);
+//        }
+
+//        [HttpPost]
+//        public async Task<IActionResult> Create(string code, string name, string? description)
+//        {
+
+//            if (string.IsNullOrWhiteSpace(code) || string.IsNullOrWhiteSpace(name))
+//            {
+//                TempData["Error"] = AppMessages.CodeAndNameRequired;
+//                return RedirectToAction("Index");
+//            }
+
+//            bool exists = await _context.Permissions.AnyAsync(p => p.Code == code);
+//            if (exists)
+//            {
+//                TempData["Error"] = AppMessages.PermissionCodeExists;
+//                return RedirectToAction("Index");
+//            }
+
+//            _context.Permissions.Add(new Nadixa.Core.Entities.Permission
+//            {
+//                Code = code.Trim(),
+//                Name = name.Trim(),
+//                Description = description
+//            });
+
+//            await _context.SaveChangesAsync();
+
+//            TempData["Success"] = AppMessages.PermissionCreated;
+//            return RedirectToAction("Index");
+//        }
+
+//        [HttpPost]
+//        public async Task<IActionResult> Delete(int id)
+//        {
+//            var permission = await _context.Permissions.FindAsync(id);
+//            if (permission != null)
+//            {
+//                _context.Permissions.Remove(permission);
+//                await _context.SaveChangesAsync();
+
+//                TempData["Success"] = AppMessages.PermissionDeleted;
+//            }
+
+//            return RedirectToAction("Index");
+//        }
+
+//    }
+//}
+
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Nadixa.Infrastructure.Data;
-using Nadixa.Core.Common;
+using Nadixa.Application.DTOS.Permission;
+using Nadixa.Application.Interfaces;
 
 namespace Nadixa.Web.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class AdminPermissionController : Controller
     {
-        private readonly NadixaDbContext _context;
-        public AdminPermissionController(NadixaDbContext context)
+        private readonly IPermissionManagementService _permissionManagementService;
+
+        public AdminPermissionController(IPermissionManagementService permissionManagementService)
         {
-            _context = context;
+            _permissionManagementService = permissionManagementService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var permissions = await _context.Permissions.OrderBy(p => p.Name).ToListAsync();
-
+            var permissions = await _permissionManagementService.GetAllAsync();
             return View(permissions);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(string code, string name, string? description)
         {
-
-            if (string.IsNullOrWhiteSpace(code) || string.IsNullOrWhiteSpace(name))
+            var dto = new PermissionCreateDto
             {
-                TempData["Error"] = AppMessages.CodeAndNameRequired;
-                return RedirectToAction("Index");
-            }
-
-            bool exists = await _context.Permissions.AnyAsync(p => p.Code == code);
-            if (exists)
-            {
-                TempData["Error"] = AppMessages.PermissionCodeExists;
-                return RedirectToAction("Index");
-            }
-
-            _context.Permissions.Add(new Nadixa.Core.Entities.Permission
-            {
-                Code = code.Trim(),
-                Name = name.Trim(),
+                Code = code,
+                Name = name,
                 Description = description
-            });
+            };
 
-            await _context.SaveChangesAsync();
+            var result = await _permissionManagementService.CreateAsync(dto);
 
-            TempData["Success"] = AppMessages.PermissionCreated;
+            TempData[result.Success ? "Success" : "Error"] = result.Message;
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var permission = await _context.Permissions.FindAsync(id);
-            if (permission != null)
-            {
-                _context.Permissions.Remove(permission);
-                await _context.SaveChangesAsync();
+            var result = await _permissionManagementService.DeleteAsync(id);
 
-                TempData["Success"] = AppMessages.PermissionDeleted;
-            }
+            if (result.Success)
+                TempData["Success"] = result.Message;
 
             return RedirectToAction("Index");
         }
-    
     }
 }

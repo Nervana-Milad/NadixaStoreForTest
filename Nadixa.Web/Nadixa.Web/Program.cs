@@ -102,7 +102,7 @@ namespace Nadixa.Web
             builder.Services.AddScoped<IBlogService, BlogService>();
             builder.Services.AddScoped<IUserManagementService, UserManagementService>();
             builder.Services.AddScoped<IProductImportExportService, ProductImportExportService>();
-
+            builder.Services.AddScoped<IPermissionManagementService, PermissionManagementService>();
             //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<EmailSender>();
             builder.Services.AddScoped<IRazorViewRenderer, RazorViewRenderer>();            
