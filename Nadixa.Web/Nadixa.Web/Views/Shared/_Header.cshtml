@@ -43,42 +43,16 @@
 					}
 
 					<div class="dropdown flex-c-m" style="position: relative; z-index: 9999;">
-	<a class="flex-c-m trans-04 p-lr-25 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-		<i class="bi bi-globe m-r-5"></i>@System.Globalization.CultureInfo.CurrentCulture.DisplayName
-	</a>
-	<ul class="dropdown-menu" style="z-index: 9999; background-color: #fff;">
-		<li><a class="dropdown-item" asp-controller="Language" asp-action="Index" asp-route-culture="en">EN</a></li>
-		<li><a class="dropdown-item" asp-controller="Language" asp-action="Index" asp-route-culture="ar">AR</a></li>
-	</ul>
-</div>
+						<a class="flex-c-m trans-04 p-lr-25 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="bi bi-globe m-r-5"></i>@System.Globalization.CultureInfo.CurrentCulture.DisplayName
+						</a>
+						<ul class="dropdown-menu" style="z-index: 9999; background-color: #fff;">
+							<li><a class="dropdown-item" asp-controller="Language" asp-action="Index" asp-route-culture="en">EN</a></li>
+							<li><a class="dropdown-item" asp-controller="Language" asp-action="Index" asp-route-culture="ar">AR</a></li>
+						</ul>
+					</div>
 				</div>
 
-				@* <div class="right-top-bar flex-w h-full">
-					<a asp-controller="Help" asp-action="Index" class="flex-c-m trans-04 p-lr-25">
-						Help & FAQs
-					</a>
-
-					@if (User.Identity.IsAuthenticated)
-					{
-						<a asp-controller="Profile" asp-action="Index" class="flex-c-m trans-04 p-lr-25">
-							My Account
-						</a>
-					}
-					else
-					{
-						<a href="#" id="myAccountBtn" class="flex-c-m trans-04 p-lr-25">
-							My Account
-						</a>
-					}
-
-					<a class="nav-link dropdown-toggle text-dark" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						<i class="bi bi-globe"></i>@System.Globalization.CultureInfo.CurrentCulture.DisplayName
-					</a>
-					<ul class="dropdown-menu">
-						<li><a class="dropdown-item" asp-controller="Language" asp-action="Index" asp-route-culture="en">EN</a></li>
-						<li><a class="dropdown-item" asp-controller="Language" asp-action="Index" asp-route-culture="ar">AR</a></li>
-					</ul>
-				</div> *@
 			</div>
 
 			<div class="wrap-menu-desktop">
@@ -285,33 +259,7 @@
 						</ul>
 					</div>
 				</div>
-				@* <div class="right-top-bar flex-w h-full">
-					<a asp-controller="Help" asp-action="Index" class="flex-c-m p-lr-10 trans-04">
-						Help & FAQs
-					</a>
 
-					@if (User.Identity.IsAuthenticated)
-					{
-						<a asp-controller="Profile" asp-action="Index" class="flex-c-m p-lr-10 trans-04">
-							My Account
-						</a>
-					}
-					else
-					{
-						<a href="#" id="myAccountBtn" class="flex-c-m p-lr-10 trans-04">
-							My Account
-						</a>
-				}
-
-					<a class="nav-link dropdown-toggle text-dark" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						<i class="bi bi-globe"></i>@System.Globalization.CultureInfo.CurrentCulture.DisplayName
-					</a>
-					<ul class="dropdown-menu">
-						<li><a class="dropdown-item" asp-controller="Language" asp-action="Index" asp-route-culture="en">EN</a></li>
-						<li><a class="dropdown-item" asp-controller="Language" asp-action="Index" asp-route-culture="ar">AR</a></li>
-					</ul>
-
-				</div> *@
 			</li>
 		</ul>
 
