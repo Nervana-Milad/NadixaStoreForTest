@@ -7,19 +7,18 @@ namespace Nadixa.Web.ViewComponents
     public class CategoryMenuViewComponent : ViewComponent
     {
         private readonly NadixaDbContext _context;
-
         public CategoryMenuViewComponent(NadixaDbContext context)
         {
             _context = context;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync()
+        public async Task<IViewComponentResult> InvokeAsync(string viewName = "Default")
         {
             var categories = await _context.ProductCategories
                 .OrderBy(c => c.Name)
                 .ToListAsync();
 
-            return View(categories);
+            return View(viewName, categories);
         }
     }
 }

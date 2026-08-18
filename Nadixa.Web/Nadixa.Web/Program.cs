@@ -25,7 +25,18 @@ namespace Nadixa.Web
             builder.Services.AddTransient<EmailSender>();
             builder.Services.AddSession();
             // Add services to the container.
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllersWithViews()
+                .AddViewLocalization();
+
+            builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+            builder.Services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = new[] { "en", "fr", "ar" };
+                options.SetDefaultCulture(supportedCultures[0])
+                       .AddSupportedCultures(supportedCultures)
+                       .AddSupportedUICultures(supportedCultures);
+            });
 
             builder.Services.AddDbContext<NadixaDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -169,6 +180,8 @@ namespace Nadixa.Web
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseRequestLocalization();   // To find the selected language, this middleware will look for the language in 3 locations: URL, Cookie, and the Request header.
 
             app.UseHttpsRedirection();
             app.UseRouting();

@@ -10,22 +10,19 @@ namespace Nadixa.Core.Entities
         FixedAmount
     }
 
-    /// <summary>
-    /// كود خصم يدخله العميل بنفسه وقت الـ Checkout.
-    /// </summary>
     public class Coupon : BaseEntity
     {
-        public string Code { get; set; } = string.Empty;   // "WELCOME10"
+        public string Code { get; set; } = string.Empty;  
         public CouponDiscountType DiscountType { get; set; }
         public decimal Value { get; set; }
 
-        public decimal? MinOrderAmount { get; set; }        // أقل قيمة أوردر عشان الكود يشتغل
-        public decimal? MaxDiscountAmount { get; set; }      // سقف الخصم (مفيد لو النوع نسبة %)
+        public decimal? MinOrderAmount { get; set; }      
+        public decimal? MaxDiscountAmount { get; set; }  
 
-        public int? MaxTotalUsage { get; set; }               // إجمالي مرات الاستخدام لكل العملاء
-        public int? MaxUsagePerUser { get; set; } = 1;         // كام مرة اليوزر الواحد يقدر يستخدمه
+        public int? MaxTotalUsage { get; set; }             
+        public int? MaxUsagePerUser { get; set; } = 1;        
 
-        public bool FirstOrderOnly { get; set; } = false;      // أول أوردر بس
+        public bool FirstOrderOnly { get; set; } = false;     
 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
@@ -37,10 +34,7 @@ namespace Nadixa.Core.Entities
             IsActive && DateTime.Now >= StartDate && DateTime.Now <= EndDate;
     }
 
-    /// <summary>
-    /// سجل استخدام لكل مرة يتم فيها تطبيق الكوبون على أوردر - يمنع تكرار الاستخدام
-    /// أكتر من المسموح ويحتفظ بالخصم الفعلي اللي اتطبق وقتها.
-    /// </summary>
+
     public class CouponUsage : BaseEntity
     {
         public int CouponId { get; set; }

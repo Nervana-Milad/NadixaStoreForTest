@@ -1,0 +1,19 @@
+﻿@model IEnumerable<Nadixa.Core.Entities.ProductCategory>
+<li>
+    <a href="#">Categories</a>
+    <ul class="sub-menu-m">
+        @foreach (var category in Model)
+        {
+            <li>
+                <a asp-controller="Product"
+                   asp-action="Index"
+                   asp-route-categoryId="@category.Id">
+                    @category.Name
+                </a>
+            </li>
+        }
+    </ul>
+    <span class="arrow-main-menu-m">
+        <i class="fa fa-angle-right" aria-hidden="true"></i>
+    </span>
+</li>

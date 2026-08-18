@@ -35,7 +35,6 @@ namespace Nadixa.Infrastructure.Services
 
             var ordered = blogs.OrderByDescending(b => b.CreateAt).ToList();
 
-            // Manual mapping: فيه substring وCount، مش نسخ مباشر بحت
             return ordered.Select(b => new BlogListItemDto
             {
                 Id = b.Id,
@@ -56,7 +55,6 @@ namespace Nadixa.Infrastructure.Services
 
             if (blog == null) return null;
 
-            // هنحتاج نجيب الـ Comments بالـ Author بتاعهم (ThenInclude مش متاحة عن طريق GenericRepository)
             var comments = await _unitOfWork.Repository<BlogComment>()
                 .FindAsync(c => c.BlogId == id, c => c.AppUser);
 
@@ -126,7 +124,7 @@ namespace Nadixa.Infrastructure.Services
             if (!string.IsNullOrEmpty(blog.ImageUrl))
                 _fileUploadService.DeleteFile(blog.ImageUrl);
 
-            _unitOfWork.Repository<Blog>().Delete(blog);   // Soft Delete، اتساق مع باقي الكيانات
+            _unitOfWork.Repository<Blog>().Delete(blog);   
             await _unitOfWork.CompleteAsync();
 
             return true;

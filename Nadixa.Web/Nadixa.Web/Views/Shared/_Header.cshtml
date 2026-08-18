@@ -8,7 +8,6 @@
 	bool canEditProducts = isAdmin || await PermissionService.UserHasPermissionAsync(User, "EditProductQuantity");
 	bool canEditOrders = isAdmin || await PermissionService.UserHasPermissionAsync(User, "EditOrderStatus");
 
-	// القائمة تظهر لو Admin، أو SubAdmin عنده صلاحية واحدة على الأقل من دول
 	bool showAdminMenu = isAdmin || (isSubAdmin && (canEditProducts || canEditOrders));
 }
 
@@ -30,7 +29,34 @@
 						Help & FAQs
 					</a>
 
-					
+					@if (User.Identity.IsAuthenticated)
+					{
+						<a asp-controller="Profile" asp-action="Index" class="flex-c-m trans-04 p-lr-25">
+							My Account
+						</a>
+					}
+					else
+					{
+						<a href="#" id="myAccountBtn" class="flex-c-m trans-04 p-lr-25">
+							My Account
+						</a>
+					}
+
+					<div class="dropdown flex-c-m" style="position: relative; z-index: 9999;">
+	<a class="flex-c-m trans-04 p-lr-25 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+		<i class="bi bi-globe m-r-5"></i>@System.Globalization.CultureInfo.CurrentCulture.DisplayName
+	</a>
+	<ul class="dropdown-menu" style="z-index: 9999; background-color: #fff;">
+		<li><a class="dropdown-item" asp-controller="Language" asp-action="Index" asp-route-culture="en">EN</a></li>
+		<li><a class="dropdown-item" asp-controller="Language" asp-action="Index" asp-route-culture="ar">AR</a></li>
+	</ul>
+</div>
+				</div>
+
+				@* <div class="right-top-bar flex-w h-full">
+					<a asp-controller="Help" asp-action="Index" class="flex-c-m trans-04 p-lr-25">
+						Help & FAQs
+					</a>
 
 					@if (User.Identity.IsAuthenticated)
 					{
@@ -45,16 +71,14 @@
 						</a>
 					}
 
-
-					<a href="#" class="flex-c-m trans-04 p-lr-25">
-						EN
+					<a class="nav-link dropdown-toggle text-dark" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						<i class="bi bi-globe"></i>@System.Globalization.CultureInfo.CurrentCulture.DisplayName
 					</a>
-
-					<a href="#" class="flex-c-m trans-04 p-lr-25">
-						USD
-					</a>
-
-				</div>
+					<ul class="dropdown-menu">
+						<li><a class="dropdown-item" asp-controller="Language" asp-action="Index" asp-route-culture="en">EN</a></li>
+						<li><a class="dropdown-item" asp-controller="Language" asp-action="Index" asp-route-culture="ar">AR</a></li>
+					</ul>
+				</div> *@
 			</div>
 
 			<div class="wrap-menu-desktop">
@@ -68,7 +92,7 @@
 					<!-- Menu desktop -->
 					<div class="menu-desktop">
 						<ul class="main-menu">
-						
+
 							<li class="@Html.IsActive("Home", "Index")">
 								<a asp-action="Index" asp-controller="Home">Home</a>
 							</li>
@@ -80,12 +104,12 @@
 
 							@await Component.InvokeAsync("CategoryMenu")
 
-								@if (showAdminMenu)
-								{
-									<li>
-										<a href="#">Admin</a>
+							@if (showAdminMenu)
+							{
+								<li>
+									<a href="#">Admin</a>
 
-										<ul class="sub-menu">
+									<ul class="sub-menu">
 										@if (isAdmin)
 										{
 											{
@@ -124,16 +148,16 @@
 												<a asp-controller="AdminPermission" asp-action="Index">Manage Permissions</a>
 											</li>
 										}
-										
-										</ul>
-									</li>
-								}
+
+									</ul>
+								</li>
+							}
 
 							<li class="@Html.IsActive("Blog", "Index")">
 								<a asp-action="Index" asp-controller="Blog">Blog</a>
 							</li>
 
-						
+
 							<li class="@Html.IsActive("Home", "About")">
 								<a asp-action="About" asp-controller="Home">About</a>
 							</li>
@@ -151,7 +175,7 @@
 							<div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 js-show-modal-search">
 								<i class="zmdi zmdi-search"></i>
 							</div>
-						
+
 							<div id="mini-cart-container">
 								@await Component.InvokeAsync("Cart")
 							</div>
@@ -182,7 +206,7 @@
 									<li class="@Html.IsActive("Auth", "Register")">
 										<a asp-action="Register" asp-controller="Auth">Register</a>
 									</li>
-								
+
 								</ul>
 							</div>
 						}
@@ -191,8 +215,9 @@
 			</div>
 		</div>
 	</div>
-	
-<!-- Header Mobile -->
+
+
+	<!-- Header Mobile -->
 	<div class="wrap-header-mobile">
 		<!-- Logo moblie -->
 		<div class="logo-mobile">
@@ -237,7 +262,6 @@
 						Help & FAQs
 					</a>
 
-					
 					@if (User.Identity.IsAuthenticated)
 					{
 						<a asp-controller="Profile" asp-action="Index" class="flex-c-m p-lr-10 trans-04">
@@ -251,14 +275,43 @@
 						</a>
 					}
 
-					<a href="#" class="flex-c-m p-lr-10 trans-04">
-						EN
+					<div class="dropdown flex-c-m">
+						<a class="flex-c-m p-lr-10 trans-04 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="bi bi-globe m-r-5"></i>@System.Globalization.CultureInfo.CurrentCulture.DisplayName
+						</a>
+						<ul class="dropdown-menu">
+							<li><a class="dropdown-item" asp-controller="Language" asp-action="Index" asp-route-culture="en">EN</a></li>
+							<li><a class="dropdown-item" asp-controller="Language" asp-action="Index" asp-route-culture="ar">AR</a></li>
+						</ul>
+					</div>
+				</div>
+				@* <div class="right-top-bar flex-w h-full">
+					<a asp-controller="Help" asp-action="Index" class="flex-c-m p-lr-10 trans-04">
+						Help & FAQs
 					</a>
 
-					<a href="#" class="flex-c-m p-lr-10 trans-04">
-						USD
+					@if (User.Identity.IsAuthenticated)
+					{
+						<a asp-controller="Profile" asp-action="Index" class="flex-c-m p-lr-10 trans-04">
+							My Account
+						</a>
+					}
+					else
+					{
+						<a href="#" id="myAccountBtn" class="flex-c-m p-lr-10 trans-04">
+							My Account
+						</a>
+				}
+
+					<a class="nav-link dropdown-toggle text-dark" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						<i class="bi bi-globe"></i>@System.Globalization.CultureInfo.CurrentCulture.DisplayName
 					</a>
-				</div>
+					<ul class="dropdown-menu">
+						<li><a class="dropdown-item" asp-controller="Language" asp-action="Index" asp-route-culture="en">EN</a></li>
+						<li><a class="dropdown-item" asp-controller="Language" asp-action="Index" asp-route-culture="ar">AR</a></li>
+					</ul>
+
+				</div> *@
 			</li>
 		</ul>
 
@@ -269,18 +322,15 @@
 					<li class="@Html.IsActive("Home", "Index")"><a>Home</a></li>
 
 				</ul>
-				<span class="arrow-main-menu-m">
-					<i class="fa fa-angle-right" aria-hidden="true"></i>
-				</span>
 			</li>
 
 			<li class="@Html.IsActive("Product", "Index")">
 				<a asp-action="Index" asp-controller="Product">Shop</a>
 			</li>
 
-			
 
-			@await Component.InvokeAsync("CategoryMenu")
+
+			@await Component.InvokeAsync("CategoryMenu", new { viewName = "Mobile" })
 
 			@if (showAdminMenu)
 			{
@@ -290,6 +340,9 @@
 					<ul class="sub-menu-m">
 						@if (isAdmin)
 						{
+							<li>
+								<a asp-controller="AdminDashboard" asp-action="Index">Dashboard</a>
+							</li>
 							<li>
 								<a asp-controller="ProductCategory" asp-action="Index">Categories</a>
 							</li>
@@ -336,14 +389,14 @@
 			<li class="@Html.IsActive("Blog", "Index")">
 				<a asp-action="Index" asp-controller="Blog">Blog</a>
 			</li>
-			
+
 			<li class="@Html.IsActive("Home", "About")">
 				<a asp-action="About" asp-controller="Home">About</a>
 			</li>
-			
+
 
 			<li class="@Html.IsActive("Contact", "Index")">
-				<a asp-action="Index" asp-controller="Contact">Contact</a>
+				<a asp-controller="Contact" asp-action="Index">Contact</a>
 			</li>
 			@if (User.Identity.IsAuthenticated)
 			{
@@ -355,15 +408,15 @@
 			}
 			else
 			{
-			<li class="@Html.IsActive("Auth", "Login")">
-				<a asp-action="Login" asp-controller="Auth">Login</a>
-			</li>
-			<li class="@Html.IsActive("Auth", "Register")">
-				<a asp-action="Register" asp-controller="Auth">Register</a>
-			</li>
+				<li class="@Html.IsActive("Auth", "Login")">
+					<a asp-action="Login" asp-controller="Auth">Login</a>
+				</li>
+				<li class="@Html.IsActive("Auth", "Register")">
+					<a asp-action="Register" asp-controller="Auth">Register</a>
+				</li>
 			}
-			
-			
+
+
 		</ul>
 	</div>
 
