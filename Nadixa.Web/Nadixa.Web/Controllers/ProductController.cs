@@ -405,7 +405,7 @@ namespace Nadixa.Web.Controllers
         }
 
 
-[HttpGet]
+    [HttpGet]
     public async Task<IActionResult> Search(string term)
     {
         var user = await _userManager.GetUserAsync(User);
@@ -453,34 +453,7 @@ namespace Nadixa.Web.Controllers
 
         return Content(htmlBuilder.ToString(), "text/html");
     }
-    //[HttpGet]
-    //public async Task<IActionResult> Search(string term)
-    //{
-    //    var user = await _userManager.GetUserAsync(User);
-
-    //    var result = await _productService.SearchProductsAsync(term, user?.Id);
-
-    //    var json = result.Select(p => new
-    //    {
-    //        id = p.Id,
-    //        name = p.Name,
-    //        price = p.Price,
-    //        oldPrice = p.OldPrice,
-    //        stockQuantity = p.StockQuantity,
-    //        description = p.Description,
-    //        mainImageUrlPath = p.MainImageUrlPath,
-    //        categoryName = p.CategoryName,
-    //        cartQuantity = p.CartQuantity,
-    //        notifyRequested = p.NotifyRequested,
-    //        badgeText = p.BadgeText,
-    //        badgeColorHex = p.BadgeColorHex,
-    //        discountedPrice = p.DiscountedPrice,
-    //        avgRating = p.AvgRating,
-    //        reviewsCount = p.ReviewsCount
-    //    });
-
-    //    return Json(json);
-    //}
+    
 
 }
 }

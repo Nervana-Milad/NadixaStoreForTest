@@ -611,47 +611,6 @@ namespace Nadixa.Infrastructure.Services
                 ReviewsCount = reviewStats.ContainsKey(p.Id) ? reviewStats[p.Id].Count : 0
             }).ToList();
         }
-        //public async Task<List<ProductSearchResultItem>> SearchProductsAsync(string? term, string? userId)
-        //{
-        //    var products = string.IsNullOrEmpty(term)
-        //        ? await _unitOfWork.Repository<Product>().GetAllAsync(p => p.ProductCategory)
-        //        : await _unitOfWork.Repository<Product>().FindAsync(p => p.Name.Contains(term), p => p.ProductCategory);
-
-        //    var productsList = products.ToList();
-
-        //    var cartItems = new Dictionary<int, int>();
-        //    var notifyRequestedIds = new HashSet<int>();
-
-        //    if (!string.IsNullOrEmpty(userId))
-        //    {
-        //        var carts = await _unitOfWork.Repository<Cart>().FindAsync(c => c.UserId == userId, c => c.Items);
-        //        cartItems = carts.SelectMany(c => c.Items).ToDictionary(i => i.ProductId, i => i.Quantity);
-
-        //        var notifications = await _unitOfWork.Repository<StockNotificationRequest>()
-        //            .FindAsync(r => r.UserId == userId && !r.IsNotified);
-        //        notifyRequestedIds = notifications.Select(r => r.ProductId).ToHashSet();
-        //    }
-
-        //    var activePromotions = await _promotionService.GetActivePromotionsAsync();
-        //    var productPromotions = BuildPromotionsMap(productsList, activePromotions);
-
-        //    return productsList.Select(p => new ProductSearchResultItem
-        //    {
-        //        Id = p.Id,
-        //        Name = p.Name,
-        //        Price = p.Price,
-        //        OldPrice = p.OldPrice,
-        //        StockQuantity = p.StockQuantity,
-        //        Description = string.IsNullOrEmpty(p.Description) ? ""
-        //            : (p.Description.Length > 50 ? p.Description.Substring(0, 50) + "..." : p.Description),
-        //        MainImageUrlPath = GetMainImage(p),
-        //        CategoryName = p.ProductCategory?.Name ?? string.Empty,
-        //        CartQuantity = cartItems.ContainsKey(p.Id) ? cartItems[p.Id] : 0,
-        //        NotifyRequested = notifyRequestedIds.Contains(p.Id),
-        //        BadgeText = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].BadgeText : null,
-        //        BadgeColorHex = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].BadgeColorHex : null,
-        //        DiscountedPrice = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].DiscountedPrice : null
-        //    }).ToList();
-        //}
+        
     }
 }
