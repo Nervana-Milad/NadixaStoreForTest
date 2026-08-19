@@ -21,5 +21,7 @@ namespace Nadixa.Application.DTOS.Product
         public string? BadgeText { get; set; }
         public string? BadgeColorHex { get; set; }
         public decimal? DiscountedPrice { get; set; }
+        public double AvgRating { get; set; }
+        public int ReviewsCount { get; set; }
     }
 }

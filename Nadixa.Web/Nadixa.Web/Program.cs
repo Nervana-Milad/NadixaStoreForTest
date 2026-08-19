@@ -126,6 +126,7 @@ namespace Nadixa.Web
             
 
             var app = builder.Build();
+
             using (var scope = app.Services.CreateScope())
             {
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();

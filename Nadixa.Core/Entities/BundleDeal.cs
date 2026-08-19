@@ -4,10 +4,7 @@ using System.Collections.Generic;
 
 namespace Nadixa.Core.Entities
 {
-    /// <summary>
-    /// عرض على مجموعة منتجات محددة تُشترى مع بعض بسعر خاص
-    /// (مثال: شيّل + كريم = 250 جنيه بدل 320).
-    /// </summary>
+
     public class BundleDeal : BaseEntity
     {
         public string Name { get; set; } = string.Empty;

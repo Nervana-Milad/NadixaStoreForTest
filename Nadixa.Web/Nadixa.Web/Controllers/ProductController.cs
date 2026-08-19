@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,7 @@ using Nadixa.Web.Filters;
 using Nadixa.Web.Helpers;
 using Nadixa.Web.Models.ViewModels;
 using System.Threading.Tasks;
+//using Nadixa.Web.Helpers;
 
 
 
@@ -36,7 +38,7 @@ namespace Nadixa.Web.Controllers
         {
             _userManager = userManager;
             _permissionService = permissionService;
-            _productService = productService;   // 👈 جديد
+            _productService = productService; 
         }
 
 
@@ -401,33 +403,84 @@ namespace Nadixa.Web.Controllers
                 reviewsCount = result.ReviewsCount
             });
         }
-       
-        [HttpGet]
-        public async Task<IActionResult> Search(string term)
+
+
+[HttpGet]
+    public async Task<IActionResult> Search(string term)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        var result = await _productService.SearchProductsAsync(term, user?.Id);
+
+        if (!result.Any())
         {
-            var user = await _userManager.GetUserAsync(User);
-
-            var result = await _productService.SearchProductsAsync(term, user?.Id);
-
-            var json = result.Select(p => new
-            {
-                id = p.Id,
-                name = p.Name,
-                price = p.Price,
-                oldPrice = p.OldPrice,
-                stockQuantity = p.StockQuantity,
-                description = p.Description,
-                mainImageUrlPath = p.MainImageUrlPath,
-                categoryName = p.CategoryName,
-                cartQuantity = p.CartQuantity,
-                notifyRequested = p.NotifyRequested,
-                badgeText = p.BadgeText,
-                badgeColorHex = p.BadgeColorHex,
-                discountedPrice = p.DiscountedPrice
-            });
-
-            return Json(json);
+            return Content("<div class=\"col-12 text-center\"><p>No products found</p></div>", "text/html");
         }
 
+        var htmlBuilder = new System.Text.StringBuilder();
+
+        foreach (var p in result)
+        {
+            var cardVm = new ProductCardViewModel
+            {
+                Product = new ProductListItemDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    OldPrice = p.OldPrice,
+                    StockQuantity = p.StockQuantity,
+                    PictureUrl = p.MainImageUrlPath ?? string.Empty,
+                    Category = p.CategoryName,
+                    BadgeText = p.BadgeText,
+                    BadgeColorHex = p.BadgeColorHex,
+                    DiscountedPrice = p.DiscountedPrice,
+                    AvgRating = p.AvgRating,
+                    ReviewsCount = p.ReviewsCount,
+                    CartQuantity = p.CartQuantity,
+                    NotifyRequested = p.NotifyRequested
+                },
+                CartQuantity = p.CartQuantity,
+                NotifyRequested = p.NotifyRequested
+            };
+
+            var cardHtml = await this.RenderPartialViewToStringAsync("_ProductCard", cardVm);
+
+            // نلف كل كارد في نفس wrapper div المستخدم في الـ Index/الـ JS القديم
+            htmlBuilder.Append($"<div class=\"col-sm-6 col-md-4 col-lg-3 isotope-item bag pb-3\">{cardHtml}</div>");
+        }
+
+        return Content(htmlBuilder.ToString(), "text/html");
     }
+    //[HttpGet]
+    //public async Task<IActionResult> Search(string term)
+    //{
+    //    var user = await _userManager.GetUserAsync(User);
+
+    //    var result = await _productService.SearchProductsAsync(term, user?.Id);
+
+    //    var json = result.Select(p => new
+    //    {
+    //        id = p.Id,
+    //        name = p.Name,
+    //        price = p.Price,
+    //        oldPrice = p.OldPrice,
+    //        stockQuantity = p.StockQuantity,
+    //        description = p.Description,
+    //        mainImageUrlPath = p.MainImageUrlPath,
+    //        categoryName = p.CategoryName,
+    //        cartQuantity = p.CartQuantity,
+    //        notifyRequested = p.NotifyRequested,
+    //        badgeText = p.BadgeText,
+    //        badgeColorHex = p.BadgeColorHex,
+    //        discountedPrice = p.DiscountedPrice,
+    //        avgRating = p.AvgRating,
+    //        reviewsCount = p.ReviewsCount
+    //    });
+
+    //    return Json(json);
+    //}
+
+}
 }

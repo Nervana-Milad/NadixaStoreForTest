@@ -28,6 +28,28 @@
             <a asp-controller="Product" asp-action="Detail" asp-route-id="@product.Id" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
                 @product.Name
             </a>
+            
+
+            @if (product.ReviewsCount > 0)
+            {
+                <div class="d-flex align-items-center mb-1" style="font-size: 13px;">
+                    <span class="cl11" style="letter-spacing: 1px;">
+                        @{
+                            int fullStars = (int)Math.Round(product.AvgRating);
+                            int emptyStars = 5 - fullStars;
+                        }
+                        @for (int i = 0; i < fullStars; i++)
+                        {
+                            <i class="zmdi zmdi-star"></i>
+                        }
+                        @for (int i = 0; i < emptyStars; i++)
+                        {
+                            <i class="zmdi zmdi-star-outline"></i>
+                        }
+                    </span>
+                    <span class="ml-1" style="color:#999; font-size: 12px;">(@product.ReviewsCount)</span>
+                </div>
+            }
 
             @* السعر: أولوية لعرض الـ Promotion لو موجود، وإلا السعر القديم العادي *@
             <div class="d-flex align-items-center flex-wrap">

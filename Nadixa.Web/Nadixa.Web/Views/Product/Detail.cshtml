@@ -145,26 +145,46 @@
 					<p class="stext-102 cl3 py-3">
 						@Model.Description
 					</p>
-@if (!string.IsNullOrEmpty(Model.BadgeText))
-{
-    <span style="display:inline-block; background-color:@(Model.BadgeColorHex ?? "#FF3B30"); color:#fff; font-size:12px; font-weight:700; padding:4px 12px; border-radius:20px; margin-bottom:8px;">
-        @Model.BadgeText
-    </span>
-}
+					@if (!string.IsNullOrEmpty(Model.BadgeText))
+					{
+						<span style="display:inline-block; background-color:@(Model.BadgeColorHex ?? "#FF3B30"); color:#fff; font-size:12px; font-weight:700; padding:4px 12px; border-radius:20px; margin-bottom:8px;">
+							@Model.BadgeText
+						</span>
+					}
 
-<div class="d-flex align-items-center flex-wrap">
-    @if (Model.DiscountedPrice != null && Model.DiscountedPrice < Model.Price)
-    {
-        <span class="mtext-106" style="color:#e74c3c; font-weight:700;">$ @Model.DiscountedPrice.Value.ToString("N2")</span>
-        <span class="mtext-106 ml-3" style="text-decoration: line-through; color:#999; font-size: 0.75em;">
-            $ @Model.Price
-        </span>
-    }
-    else
-    {
-        <span class="mtext-106 cl2">$ @Model.Price</span>
-    }
-</div>
+					<div class="d-flex align-items-center flex-wrap">
+						@if (Model.DiscountedPrice != null && Model.DiscountedPrice < Model.Price)
+						{
+							<span class="mtext-106" style="color:#e74c3c; font-weight:700;">$ @Model.DiscountedPrice.Value.ToString("N2")</span>
+							<span class="mtext-106 ml-3" style="text-decoration: line-through; color:#999; font-size: 0.75em;">
+								$ @Model.Price
+							</span>
+						}
+						else
+						{
+							<span class="mtext-106 cl2">$ @Model.Price</span>
+						}
+					</div>
+					@if (@Model.TotalReviews > 0)
+					{
+						<div class="d-flex align-items-center mb-1 mt-3" style="font-size: 13px;">
+							<span class="cl11" style="letter-spacing: 1px;">
+								@{
+									int fullStars = (int)Math.Round(@Model.AvgRating);
+									int emptyStars = 5 - fullStars;
+								}
+								@for (int i = 0; i < fullStars; i++)
+								{
+									<i class="zmdi zmdi-star"></i>
+								}
+								@for (int i = 0; i < emptyStars; i++)
+								{
+									<i class="zmdi zmdi-star-outline"></i>
+								}
+							</span>
+							<span class="ml-1" style="color:#999; font-size: 12px;">(@Model.TotalReviews)</span>
+						</div>
+					}
 
 					
 
@@ -172,6 +192,7 @@
 					<div class="p-t-33">
 						<div class="flex-w flex-l-m p-b-10">
 							<div class="size-204 flex-w flex-m respon6-next">
+								
 								<div class="wrap-num-product flex-w m-r-20 m-tb-10 my-3">
 
 									<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m @(Model.StockQuantity <= 0 ? "disabled-btn" : "")">
@@ -192,23 +213,24 @@
 
 								</div>
 
-									@if (Model.StockQuantity > 0)
-									{
-										<button type="button"
-												class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail my-4"
-												data-product-id="@Model.Id">
-											Add to cart
-										</button>
-									}
-									else
-									{
-										<button type="button"
-												disabled
-												class="flex-c-m stext-101 cl0 size-101 bg-danger bor1 p-lr-15 trans-04 my-4"
-												style="cursor:not-allowed; opacity:.7;">
-											Out Of Stock
-										</button>
-									}
+
+								@if (Model.StockQuantity > 0)
+								{
+									<button type="button"
+											class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail my-4"
+											data-product-id="@Model.Id">
+										Add to cart
+									</button>
+								}
+								else
+								{
+									<button type="button"
+											disabled
+											class="flex-c-m stext-101 cl0 size-101 bg-danger bor1 p-lr-15 trans-04 my-4"
+											style="cursor:not-allowed; opacity:.7;">
+										Out Of Stock
+									</button>
+								}
 									
 								
 								

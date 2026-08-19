@@ -11,10 +11,6 @@ namespace Nadixa.Core.Entities
         Expired
     }
 
-    /// <summary>
-    /// رصيد نقاط الولاء لكل يوزر. بيتحدث تلقائيًا بعد كل عملية شراء
-    /// وممكن يستخدمها العميل كخصم في الأوردر الجاي.
-    /// </summary>
     public class LoyaltyAccount : BaseEntity
     {
         public string UserId { get; set; } = string.Empty;

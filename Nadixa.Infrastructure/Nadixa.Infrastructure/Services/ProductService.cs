@@ -56,44 +56,11 @@ namespace Nadixa.Infrastructure.Services
                 .Take(pageSize)
                 .ToList();
 
-            // 2. بيانات الكارت والـ Notify الخاصة باليوزر (لو مسجل دخول)
-            var cartItems = new Dictionary<int, int>();
-            var notifyRequestedIds = new HashSet<int>();
+            // 2. الـ Mapping بالكامل (Cart, Notify, Promotions, Rating) بيتم عن طريق نفس الميثود
+            // المستخدمة في الـ Home، عشان نتجنب تكرار نفس المنطق في أكتر من مكان
+            var productDtos = await MapToDtosAsync(pagedProducts, userId);
 
-            if (!string.IsNullOrEmpty(userId))
-            {
-                var carts = await _unitOfWork.Repository<Cart>().FindAsync(c => c.UserId == userId, c => c.Items);
-                cartItems = carts.SelectMany(c => c.Items).ToDictionary(i => i.ProductId, i => i.Quantity);
-
-                var notifications = await _unitOfWork.Repository<StockNotificationRequest>()
-                    .FindAsync(r => r.UserId == userId && !r.IsNotified);
-                notifyRequestedIds = notifications.Select(r => r.ProductId).ToHashSet();
-            }
-
-            // 3. حساب الـ Promotions لنفس المنتجات دي بس
-            var activePromotions = await _promotionService.GetActivePromotionsAsync();
-            var productPromotions = BuildPromotionsMap(pagedProducts, activePromotions);
-
-            // 4. تجميع النتيجة النهائية (الـ Mapping بيتم يدوي هنا، مش عن طريق AutoMapper، لأن فيه بيانات مركّبة من مصادر متعددة)
-            var productDtos = pagedProducts.Select(p => new ProductListItemDto
-            {
-                Id = p.Id,
-                ProductCategoryId = p.ProductCategoryId,   // 👈 جديد
-                Name = p.Name,
-                Description = p.Description,
-                Price = p.Price,
-                OldPrice = p.OldPrice,
-                StockQuantity = p.StockQuantity,
-                PictureUrl = GetMainImage(p),
-                Category = p.ProductCategory?.Name ?? string.Empty,
-                CartQuantity = cartItems.ContainsKey(p.Id) ? cartItems[p.Id] : 0,
-                NotifyRequested = notifyRequestedIds.Contains(p.Id),
-                BadgeText = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].BadgeText : null,
-                BadgeColorHex = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].BadgeColorHex : null,
-                DiscountedPrice = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].DiscountedPrice : null
-            }).ToList();
-
-            // 5. الكاتيجوريز والـ SubCategories
+            // 3. الكاتيجوريز والـ SubCategories
             var categories = await _unitOfWork.Repository<ProductCategory>().GetAllAsync();
             var subCategories = categoryId.HasValue
                 ? await _unitOfWork.Repository<ProductSubCategory>().FindAsync(s => s.ProductCategoryId == categoryId.Value)
@@ -109,7 +76,6 @@ namespace Nadixa.Infrastructure.Services
                 SubCategories = subCategories.Select(s => new CategoryToReturnDto { Id = s.Id, Name = s.Name }).ToList()
             };
         }
-
 
         public async Task<ProductDetailDto?> GetProductDetailAsync(int id, string? userId)
         {
@@ -184,18 +150,29 @@ namespace Nadixa.Infrastructure.Services
         {
             var cartItems = new Dictionary<int, int>();
             var notifyRequestedIds = new HashSet<int>();
-
             if (!string.IsNullOrEmpty(userId))
             {
                 var carts = await _unitOfWork.Repository<Cart>().FindAsync(c => c.UserId == userId, c => c.Items);
                 cartItems = carts.SelectMany(c => c.Items).ToDictionary(i => i.ProductId, i => i.Quantity);
-
                 var notifications = await _unitOfWork.Repository<StockNotificationRequest>()
                     .FindAsync(r => r.UserId == userId && !r.IsNotified);
                 notifyRequestedIds = notifications.Select(r => r.ProductId).ToHashSet();
             }
+
             var activePromotions = await _promotionService.GetActivePromotionsAsync();
             var productPromotions = BuildPromotionsMap(products, activePromotions);
+
+            // جديد: نجيب كل الـ Reviews الخاصة بالمنتجات دي في كويري واحدة، ونحسب المتوسط والعدد لكل منتج
+            var productIds = products.Select(p => p.Id).ToList();
+            var allReviews = await _unitOfWork.Repository<Review>()
+                .FindAsync(r => productIds.Contains(r.ProductId));
+
+            var reviewStats = allReviews
+                .GroupBy(r => r.ProductId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => (AvgRating: g.Average(r => r.Rating), Count: g.Count())
+                );
 
             return products.Select(p => new ProductListItemDto
             {
@@ -212,7 +189,9 @@ namespace Nadixa.Infrastructure.Services
                 NotifyRequested = notifyRequestedIds.Contains(p.Id),
                 BadgeText = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].BadgeText : null,
                 BadgeColorHex = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].BadgeColorHex : null,
-                DiscountedPrice = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].DiscountedPrice : null
+                DiscountedPrice = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].DiscountedPrice : null,
+                AvgRating = reviewStats.ContainsKey(p.Id) ? reviewStats[p.Id].AvgRating : 0,
+                ReviewsCount = reviewStats.ContainsKey(p.Id) ? reviewStats[p.Id].Count : 0
             }).ToList();
         }
 
@@ -588,12 +567,10 @@ namespace Nadixa.Infrastructure.Services
 
             var cartItems = new Dictionary<int, int>();
             var notifyRequestedIds = new HashSet<int>();
-
             if (!string.IsNullOrEmpty(userId))
             {
                 var carts = await _unitOfWork.Repository<Cart>().FindAsync(c => c.UserId == userId, c => c.Items);
                 cartItems = carts.SelectMany(c => c.Items).ToDictionary(i => i.ProductId, i => i.Quantity);
-
                 var notifications = await _unitOfWork.Repository<StockNotificationRequest>()
                     .FindAsync(r => r.UserId == userId && !r.IsNotified);
                 notifyRequestedIds = notifications.Select(r => r.ProductId).ToHashSet();
@@ -601,6 +578,18 @@ namespace Nadixa.Infrastructure.Services
 
             var activePromotions = await _promotionService.GetActivePromotionsAsync();
             var productPromotions = BuildPromotionsMap(productsList, activePromotions);
+
+            // جديد: نفس منطق حساب الـ Rating المستخدم في MapToDtosAsync
+            var productIds = productsList.Select(p => p.Id).ToList();
+            var allReviews = await _unitOfWork.Repository<Review>()
+                .FindAsync(r => productIds.Contains(r.ProductId));
+
+            var reviewStats = allReviews
+                .GroupBy(r => r.ProductId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => (AvgRating: g.Average(r => r.Rating), Count: g.Count())
+                );
 
             return productsList.Select(p => new ProductSearchResultItem
             {
@@ -617,8 +606,52 @@ namespace Nadixa.Infrastructure.Services
                 NotifyRequested = notifyRequestedIds.Contains(p.Id),
                 BadgeText = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].BadgeText : null,
                 BadgeColorHex = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].BadgeColorHex : null,
-                DiscountedPrice = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].DiscountedPrice : null
+                DiscountedPrice = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].DiscountedPrice : null,
+                AvgRating = reviewStats.ContainsKey(p.Id) ? reviewStats[p.Id].AvgRating : 0,
+                ReviewsCount = reviewStats.ContainsKey(p.Id) ? reviewStats[p.Id].Count : 0
             }).ToList();
         }
+        //public async Task<List<ProductSearchResultItem>> SearchProductsAsync(string? term, string? userId)
+        //{
+        //    var products = string.IsNullOrEmpty(term)
+        //        ? await _unitOfWork.Repository<Product>().GetAllAsync(p => p.ProductCategory)
+        //        : await _unitOfWork.Repository<Product>().FindAsync(p => p.Name.Contains(term), p => p.ProductCategory);
+
+        //    var productsList = products.ToList();
+
+        //    var cartItems = new Dictionary<int, int>();
+        //    var notifyRequestedIds = new HashSet<int>();
+
+        //    if (!string.IsNullOrEmpty(userId))
+        //    {
+        //        var carts = await _unitOfWork.Repository<Cart>().FindAsync(c => c.UserId == userId, c => c.Items);
+        //        cartItems = carts.SelectMany(c => c.Items).ToDictionary(i => i.ProductId, i => i.Quantity);
+
+        //        var notifications = await _unitOfWork.Repository<StockNotificationRequest>()
+        //            .FindAsync(r => r.UserId == userId && !r.IsNotified);
+        //        notifyRequestedIds = notifications.Select(r => r.ProductId).ToHashSet();
+        //    }
+
+        //    var activePromotions = await _promotionService.GetActivePromotionsAsync();
+        //    var productPromotions = BuildPromotionsMap(productsList, activePromotions);
+
+        //    return productsList.Select(p => new ProductSearchResultItem
+        //    {
+        //        Id = p.Id,
+        //        Name = p.Name,
+        //        Price = p.Price,
+        //        OldPrice = p.OldPrice,
+        //        StockQuantity = p.StockQuantity,
+        //        Description = string.IsNullOrEmpty(p.Description) ? ""
+        //            : (p.Description.Length > 50 ? p.Description.Substring(0, 50) + "..." : p.Description),
+        //        MainImageUrlPath = GetMainImage(p),
+        //        CategoryName = p.ProductCategory?.Name ?? string.Empty,
+        //        CartQuantity = cartItems.ContainsKey(p.Id) ? cartItems[p.Id] : 0,
+        //        NotifyRequested = notifyRequestedIds.Contains(p.Id),
+        //        BadgeText = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].BadgeText : null,
+        //        BadgeColorHex = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].BadgeColorHex : null,
+        //        DiscountedPrice = productPromotions.ContainsKey(p.Id) ? productPromotions[p.Id].DiscountedPrice : null
+        //    }).ToList();
+        //}
     }
 }

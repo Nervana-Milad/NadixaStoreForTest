@@ -10,8 +10,8 @@ namespace Nadixa.Core.Entities
     public class Permission : BaseEntity
     {
         public int Id { get; set; }
-        public string Code { get; set; } = string.Empty;   // زي "EditProductStatus"
-        public string Name { get; set; } = string.Empty;   // زي "Edit Product Status"
+        public string Code { get; set; } = string.Empty;   
+        public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 

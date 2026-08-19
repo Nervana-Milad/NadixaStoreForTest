@@ -271,7 +271,7 @@ namespace Nadixa.Infrastructure.Migrations
                     b.HasIndex("UserId", "PermissionId")
                         .IsUnique();
 
-                    b.ToTable("AppUserPermissions");
+                    b.ToTable("AppUserPermissions", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Blog", b =>
@@ -318,7 +318,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("BlogCategoryId");
 
-                    b.ToTable("Blogs");
+                    b.ToTable("Blogs", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.BlogCategory", b =>
@@ -344,7 +344,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BlogCategories");
+                    b.ToTable("BlogCategories", (string)null);
 
                     b.HasData(
                         new
@@ -404,7 +404,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("BlogId");
 
-                    b.ToTable("BlogComments");
+                    b.ToTable("BlogComments", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.BundleDeal", b =>
@@ -442,7 +442,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BundleDeals");
+                    b.ToTable("BundleDeals", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.BundleDealProduct", b =>
@@ -465,7 +465,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("BundleDealProducts");
+                    b.ToTable("BundleDealProducts", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Cart", b =>
@@ -491,7 +491,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Carts");
+                    b.ToTable("Carts", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.CartItem", b =>
@@ -517,7 +517,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("CartItems");
+                    b.ToTable("CartItems", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Color", b =>
@@ -547,7 +547,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Colors");
+                    b.ToTable("Colors", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Coupon", b =>
@@ -603,7 +603,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Coupons");
+                    b.ToTable("Coupons", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.CouponUsage", b =>
@@ -643,7 +643,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("CouponId");
 
-                    b.ToTable("CouponUsages");
+                    b.ToTable("CouponUsages", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.LoyaltyAccount", b =>
@@ -672,7 +672,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LoyaltyAccounts");
+                    b.ToTable("LoyaltyAccounts", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.LoyaltyTransaction", b =>
@@ -711,7 +711,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("LoyaltyAccountId");
 
-                    b.ToTable("LoyaltyTransactions");
+                    b.ToTable("LoyaltyTransactions", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Order", b =>
@@ -774,7 +774,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.OrderItem", b =>
@@ -812,7 +812,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.OrderStatusHistory", b =>
@@ -850,7 +850,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderStatusHistories");
+                    b.ToTable("OrderStatusHistories", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Permission", b =>
@@ -883,7 +883,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Permissions");
+                    b.ToTable("Permissions", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Product", b =>
@@ -938,7 +938,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("ProductSubCategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.ProductCategory", b =>
@@ -1002,7 +1002,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductColors");
+                    b.ToTable("ProductColors", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.ProductImage", b =>
@@ -1036,7 +1036,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImages");
+                    b.ToTable("ProductImages", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.ProductSubCategory", b =>
@@ -1073,7 +1073,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("ProductCategoryId");
 
-                    b.ToTable("ProductSubCategories");
+                    b.ToTable("ProductSubCategories", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Promotion", b =>
@@ -1153,7 +1153,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("ProductSubCategoryId");
 
-                    b.ToTable("Promotions");
+                    b.ToTable("Promotions", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Review", b =>
@@ -1199,7 +1199,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.ShippingRule", b =>
@@ -1240,7 +1240,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ShippingRules");
+                    b.ToTable("ShippingRules", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.StockNotificationRequest", b =>
@@ -1276,7 +1276,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("StockNotificationRequests");
+                    b.ToTable("StockNotificationRequests", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.Wishlist", b =>
@@ -1295,7 +1295,7 @@ namespace Nadixa.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Wishlists");
+                    b.ToTable("Wishlists", (string)null);
                 });
 
             modelBuilder.Entity("Nadixa.Core.Entities.WishlistItem", b =>
@@ -1319,7 +1319,7 @@ namespace Nadixa.Infrastructure.Migrations
                     b.HasIndex("WishlistId", "ProductId")
                         .IsUnique();
 
-                    b.ToTable("WishlistItems");
+                    b.ToTable("WishlistItems", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
