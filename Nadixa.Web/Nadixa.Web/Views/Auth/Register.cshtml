@@ -37,13 +37,27 @@
 
                             <div class="mb-4">
                                 <label asp-for="Password" class="form-label required"></label>
-                                <input class="form-control" asp-for="Password" />
+                                <div style="position:relative;">
+                                    <input class="form-control" asp-for="Password" id="passwordInput" style="padding-right: 45px;" />
+                                    <button type="button"
+                                            id="togglePassword"
+                                            style="position:absolute; top:50%; right:12px; transform:translateY(-50%); background:none; border:none; padding:0; color:#888; cursor:pointer; display:none;">
+                                        <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                                    </button>
+                                </div>
                                 <span asp-validation-for="Password" class="text-danger"></span>
                             </div>
 
                             <div class="mb-4">
                                 <label asp-for="ConfirmPassword" class="form-label required">Confirm Password</label>
-                                <input class="form-control" asp-for="ConfirmPassword" />
+                                <div style="position:relative;">
+                                    <input class="form-control" asp-for="ConfirmPassword" id="confirmPasswordInput" style="padding-right: 45px;" />
+                                    <button type="button"
+                                            id="toggleConfirmPassword"
+                                            style="position:absolute; top:50%; right:12px; transform:translateY(-50%); background:none; border:none; padding:0; color:#888; cursor:pointer; display:none;">
+                                        <i class="bi bi-eye" id="toggleConfirmPasswordIcon"></i>
+                                    </button>
+                                </div>
                                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                             </div>
 
@@ -53,7 +67,7 @@
                                     style="background: linear-gradient(135deg, #6c7ae0, #a78bfa); border:none; border-radius:8px;">
                                 Register
                             </button>
-                                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                            <div asp-validation-summary="All" class="text-danger mb-3"></div>
 
 
                             <!-- Divider -->
@@ -81,4 +95,8 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        setupPasswordToggle('passwordInput', 'togglePassword', 'togglePasswordIcon');
+        setupPasswordToggle('confirmPasswordInput', 'toggleConfirmPassword', 'toggleConfirmPasswordIcon');
+    </script>
 }

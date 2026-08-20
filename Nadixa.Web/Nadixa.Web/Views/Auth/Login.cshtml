@@ -23,17 +23,22 @@
                             </div>
                             <div class="mb-4">
                                 <label asp-for="Password" class="form-label required"></label>
-                                <input class="form-control" asp-for="Password" />
+                                <div style="position:relative;">
+                                    <input class="form-control" asp-for="Password" id="passwordInput" style="padding-right: 45px;" />
+                                    <button type="button"
+                                            id="togglePassword"
+                                            style="position:absolute; top:50%; right:12px; transform:translateY(-50%); background:none; border:none; padding:0; color:#888; cursor:pointer; display:none;">
+                                        <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                                    </button>
+                                </div>
                                 <span asp-validation-for="Password" class="text-danger"></span>
                             </div>
-
                             <!-- Login Button -->
                             <button type="submit"
                                     class="btn text-white w-100 py-2 fw-semibold mb-3"
                                     style="background: linear-gradient(135deg, #6c7ae0, #a78bfa); border:none; border-radius:8px;">
                                 Login
                             </button>
-
                             <!-- Forgot Password -->
                             <div class="text-end mb-3">
                                 <a asp-controller="Auth" asp-action="ForgotPassword"
@@ -41,14 +46,12 @@
                                     Forgot Password?
                                 </a>
                             </div>
-
                             <!-- Divider -->
                             <div class="d-flex align-items-center my-3">
                                 <hr class="flex-grow-1">
                                 <span class="mx-2 text-muted" style="font-size:13px">or</span>
                                 <hr class="flex-grow-1">
                             </div>
-
                             <!-- Google Login -->
                             <a asp-controller="Auth" asp-action="GoogleLogin"
                                class="btn btn-outline-secondary w-100 py-2 d-flex align-items-center justify-content-center gap-2"
@@ -56,7 +59,6 @@
                                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="18" alt="Google">
                                 Continue with Google
                             </a>
-
                         </form>
                     </div>
                 </div>
@@ -64,7 +66,9 @@
         </div>
     </div>
 </section>
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        setupPasswordToggle('passwordInput', 'togglePassword', 'togglePasswordIcon');
+    </script>
 }
