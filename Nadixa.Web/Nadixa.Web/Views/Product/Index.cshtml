@@ -1,4 +1,5 @@
 ﻿
+
 @using Nadixa.Application.DTOS.Product
 @using Nadixa.Web.Models.ViewModels
 @model IEnumerable<ProductListItemDto>
@@ -8,24 +9,10 @@
 
 <!-- Product -->
 
-	<section class="bg0" style="margin-top:90px; padding-bottom: 140px;">
+<section class="bg0" style="margin-top:90px; padding-bottom: 140px;">
 	<div class="container">
 
-		<div class="flex-w flex-sb-m p-b-52">
-
-			<div class="flex-w flex-l-m filter-tope-group m-tb-10">
-				<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1" data-filter="*">
-					All Products
-				</button>
-				@foreach (var cat in ViewBag.Categories)
-				{
-					<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5"
-							data-filter=".cat-@cat.Id">
-						@cat.Name
-					</button>
-				}
-
-			</div>
+		<div class="flex-w flex-sb-m p-b-20 justify-content-end">
 
 			<div class="flex-w flex-c-m m-tb-10">
 				<div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter">
@@ -136,46 +123,9 @@
 			</div>
 		</div>
 
-		@if (ViewBag.CategoryName != null)
-		{
-			<h2 class="mb-4">@ViewBag.CategoryName</h2>
-		}
-		else
-		{
-			<h2 class="mb-4">All Products</h2>
-		}
-
-		<div id="productsContainer" class="row isotope-grid g-3 py-5">
-			
-			
-				@foreach (var product in Model)
-				{
-					<div class="col-sm-6 col-md-4 col-lg-3 isotope-item bag cat-@product.ProductCategoryId pb-3">
-						@{
-							var cardVm = new Nadixa.Web.Models.ViewModels.ProductCardViewModel
-							{
-								Product = product,
-								CartQuantity = product.CartQuantity,
-								NotifyRequested = product.NotifyRequested
-							};
-						}
-						@await Html.PartialAsync("_ProductCard", cardVm)
-					</div>
-				}
-			
+		<div id="productsWrapper">
+			@await Html.PartialAsync("_ProductsFilterAndList", Model)
 		</div>
-		@await Html.PartialAsync("_Pagination", new PaginationViewModel
-		{
-			CurrentPage = ViewBag.CurrentPage,
-				TotalPages = ViewBag.TotalPages,
-				Action = "Index",
-				Controller = "Product",
-				RouteValues = new Dictionary<string, string?>
-				{
-				{ "categoryId", ViewBag.CurrentCategoryId?.ToString() },
-				{ "subCategoryId", ViewBag.CurrentSubCategoryId?.ToString() },
-				{ "search", ViewBag.Search }
-				}
-				})
+
 	</div>
 </section>

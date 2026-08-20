@@ -45,7 +45,6 @@ namespace Nadixa.Web.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             int pageSize = 10;
-
             var result = await _productService.GetProductsAsync(
                 categoryId, subCategoryId, search, page, pageSize, user?.Id);
 
@@ -57,12 +56,18 @@ namespace Nadixa.Web.Controllers
             ViewBag.Categories = result.Categories;
             ViewBag.CurrentSubCategoryId = subCategoryId;
             ViewBag.Search = search;
-
             ViewBag.CurrentPage = result.Page;
             ViewBag.TotalPages = result.TotalPages;
 
+            // لو الطلب جاي بـ AJAX، نرجّع بس الجزء اللي اتغيّر (بدون الصفحة كاملة)
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_ProductsFilterAndList", result.Products);
+            }
+
             return View(result.Products);
         }
+        
 
         [HttpGet]
         public async Task<JsonResult> GetSubCategories(int categoryId)

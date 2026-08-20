@@ -1,0 +1,94 @@
+﻿@using Nadixa.Application.DTOS.Product
+@using Nadixa.Web.Models.ViewModels
+@model IEnumerable<ProductListItemDto>
+
+<div class="flex-w flex-l-m filter-tope-group m-tb-10">
+    <a asp-action="Index" asp-controller="Product"
+       class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 filter-link @(ViewBag.CurrentCategoryId == null ? "how-active1" : "")">
+        All Products
+    </a>
+    @foreach (var cat in ViewBag.Categories)
+    {
+        <a asp-action="Index" asp-controller="Product"
+           asp-route-categoryId="@cat.Id"
+           class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 filter-link @(ViewBag.CurrentCategoryId == cat.Id ? "how-active1" : "")">
+            @cat.Name
+        </a>
+    }
+</div>
+
+@if (ViewBag.CategoryName != null)
+{
+    <h2 class="mb-4">@ViewBag.CategoryName</h2>
+}
+else
+{
+    <h2 class="mb-4 mt-4">All Products</h2>
+}
+
+<div id="productsContainer" class="row isotope-grid g-3 py-5">
+    @if (Model == null || !Model.Any())
+    {
+        <div class="col-12 d-flex align-items-center justify-content-center" style="min-height: 55vh;">
+            <div class="empty-state" style="width: 100%; max-width: 600px;">
+                <div class="empty-icon">
+                    <i class="bi bi-bag"></i>
+                </div>
+                <h4>No Products Yet</h4>
+                <p>
+                    @if (ViewBag.Search != null)
+                    {
+                        <text>No products match your search. Try a different keyword.</text>
+                    }
+                    else if (ViewBag.CategoryName != null)
+                    {
+                        <text>There are no products in this category yet.</text>
+                    }
+                    else
+                    {
+                        <text>Start building your store by adding your first product.</text>
+                    }
+                </p>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Product" asp-action="Create"
+                       class="add-category-btn mt-3">
+                        <i class="bi bi-plus-lg"></i>
+                        Add Product
+                    </a>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        @foreach (var product in Model)
+        {
+            <div class="col-sm-6 col-md-4 col-lg-3 isotope-item bag cat-@product.ProductCategoryId pb-3">
+                @{
+                    var cardVm = new ProductCardViewModel
+                    {
+                        Product = product,
+                        CartQuantity = product.CartQuantity,
+                        NotifyRequested = product.NotifyRequested
+                    };
+                }
+                @await Html.PartialAsync("_ProductCard", cardVm)
+            </div>
+        }
+    }
+</div>
+
+@await Html.PartialAsync("_Pagination", new PaginationViewModel
+{
+    CurrentPage = ViewBag.CurrentPage,
+    TotalPages = ViewBag.TotalPages,
+    Action = "Index",
+    Controller = "Product",
+    RouteValues = new Dictionary<string, string?>
+    {
+        { "categoryId", ViewBag.CurrentCategoryId?.ToString() },
+        { "subCategoryId", ViewBag.CurrentSubCategoryId?.ToString() },
+        { "search", ViewBag.Search }
+    }
+})
