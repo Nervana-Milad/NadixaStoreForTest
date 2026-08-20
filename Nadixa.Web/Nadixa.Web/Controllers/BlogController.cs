@@ -22,13 +22,6 @@ namespace Nadixa.Web.Controllers
             _blogService = blogService;
         }
 
-        //public async Task<IActionResult> Index(int? categoryId)
-        //{
-        //    var blogs = await _blogService.GetAllAsync(categoryId);
-        //    ViewBag.Categories = await _blogService.GetBlogCategoriesAsync();
-        //    return View(blogs);
-        //}
-
         public async Task<IActionResult> Index(int? categoryId, int page = 1)
         {
             const int pageSize = 3;

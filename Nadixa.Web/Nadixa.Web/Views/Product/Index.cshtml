@@ -177,54 +177,5 @@
 				{ "search", ViewBag.Search }
 				}
 				})
-		@* <div class="flex-c-m flex-w w-full p-t-45">
-			@if (ViewBag.TotalPages > 1)
-			{
-				<div class="flex-c-m flex-w w-full">
-					@if (ViewBag.CurrentPage > 1)
-					{
-						<a asp-action="Index"
-						   asp-route-page="@(ViewBag.CurrentPage - 1)"
-						   asp-route-categoryId="@ViewBag.CurrentCategoryId"
-						   asp-route-subCategoryId="@ViewBag.CurrentSubCategoryId"
-						   asp-route-search="@ViewBag.Search"
-						   class="flex-c-m how-pagination1 trans-04 m-all-7">
-							<i class="zmdi zmdi-chevron-left"></i>
-						</a>
-					}
-
-					@for (int i = 1; i <= ViewBag.TotalPages; i++)
-					{
-						if (i == ViewBag.CurrentPage)
-						{
-							<span class="flex-c-m how-pagination1 trans-04 m-all-7 active-pagination1">@i</span>
-						}
-						else
-						{
-							<a asp-action="Index"
-							   asp-route-page="@i"
-							   asp-route-categoryId="@ViewBag.CurrentCategoryId"
-							   asp-route-subCategoryId="@ViewBag.CurrentSubCategoryId"
-							   asp-route-search="@ViewBag.Search"
-							   class="flex-c-m how-pagination1 trans-04 m-all-7">
-								@i
-							</a>
-						}
-					}
-
-					@if (ViewBag.CurrentPage < ViewBag.TotalPages)
-					{
-						<a asp-action="Index"
-						   asp-route-page="@(ViewBag.CurrentPage + 1)"
-						   asp-route-categoryId="@ViewBag.CurrentCategoryId"
-						   asp-route-subCategoryId="@ViewBag.CurrentSubCategoryId"
-						   asp-route-search="@ViewBag.Search"
-						   class="flex-c-m how-pagination1 trans-04 m-all-7">
-							<i class="zmdi zmdi-chevron-right"></i>
-						</a>
-					}
-				</div>
-			}
-		</div> *@
 	</div>
 </section>
