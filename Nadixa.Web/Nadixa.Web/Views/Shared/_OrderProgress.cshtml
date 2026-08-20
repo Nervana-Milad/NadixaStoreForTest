@@ -129,7 +129,6 @@
             var completed = i < currentIndex;
             var active = i == currentIndex;
             
-            <!-- 1. الدائرة والكلمة الخاصة بالخطوة -->
             <div class="tracker-node @(completed ? "completed" : active ? "active" : "")">
                 <div class="tracker-circle">
                     @if (completed)
@@ -146,10 +145,8 @@
                 </div>
             </div>
             
-            <!-- 2. قطعة الخط الفاصلة بين هذه الدائرة والدائرة التالية (لا تظهر بعد الخطوة الأخيرة) -->
             @if (i < steps.Length - 1)
             {
-                // الخط يكون أزرق نشط فقط إذا كانت الخطوة التالية مكتملة أو نشطة حالياً
                 var lineActive = i < currentIndex;
                 <div class="tracker-segment @(lineActive ? "active" : "")"></div>
             }

@@ -1,5 +1,6 @@
 ﻿
 @using Nadixa.Application.DTOS.Product
+@using Nadixa.Web.Models.ViewModels
 @model IEnumerable<ProductListItemDto>
 @{
 	ViewData["Title"] = "Products";
@@ -163,7 +164,20 @@
 				}
 			
 		</div>
-		<div class="flex-c-m flex-w w-full p-t-45">
+		@await Html.PartialAsync("_Pagination", new PaginationViewModel
+		{
+			CurrentPage = ViewBag.CurrentPage,
+				TotalPages = ViewBag.TotalPages,
+				Action = "Index",
+				Controller = "Product",
+				RouteValues = new Dictionary<string, string?>
+				{
+				{ "categoryId", ViewBag.CurrentCategoryId?.ToString() },
+				{ "subCategoryId", ViewBag.CurrentSubCategoryId?.ToString() },
+				{ "search", ViewBag.Search }
+				}
+				})
+		@* <div class="flex-c-m flex-w w-full p-t-45">
 			@if (ViewBag.TotalPages > 1)
 			{
 				<div class="flex-c-m flex-w w-full">
@@ -211,6 +225,6 @@
 					}
 				</div>
 			}
-		</div>
+		</div> *@
 	</div>
 </section>

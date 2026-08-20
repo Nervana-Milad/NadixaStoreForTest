@@ -24,7 +24,7 @@ namespace Nadixa.Infrastructure.Services
             _mapper = mapper;
         }
 
-        public async Task<List<BlogListItemDto>> GetAllAsync(int? categoryId)
+        public async Task<BlogListResult> GetAllAsync(int? categoryId, int page, int pageSize)
         {
             var blogs = categoryId.HasValue
                 ? await _unitOfWork.Repository<Blog>()
@@ -35,7 +35,14 @@ namespace Nadixa.Infrastructure.Services
 
             var ordered = blogs.OrderByDescending(b => b.CreateAt).ToList();
 
-            return ordered.Select(b => new BlogListItemDto
+            int totalCount = ordered.Count;
+
+            var pagedBlogs = ordered
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var blogDtos = pagedBlogs.Select(b => new BlogListItemDto
             {
                 Id = b.Id,
                 Title = b.Title,
@@ -46,7 +53,38 @@ namespace Nadixa.Infrastructure.Services
                 Date = b.CreateAt,
                 CommentsCount = b.BlogComments.Count
             }).ToList();
+
+            return new BlogListResult
+            {
+                Blogs = blogDtos,
+                TotalCount = totalCount,
+                Page = page,
+                TotalPages = (int)Math.Ceiling((double)totalCount / pageSize)
+            };
         }
+        //public async Task<List<BlogListItemDto>> GetAllAsync(int? categoryId)
+        //{
+        //    var blogs = categoryId.HasValue
+        //        ? await _unitOfWork.Repository<Blog>()
+        //            .FindAsync(b => b.BlogCategoryId == categoryId.Value,
+        //                b => b.BlogCategory, b => b.BlogComments, b => b.AppUser)
+        //        : await _unitOfWork.Repository<Blog>()
+        //            .GetAllAsync(b => b.BlogCategory, b => b.BlogComments, b => b.AppUser);
+
+        //    var ordered = blogs.OrderByDescending(b => b.CreateAt).ToList();
+
+        //    return ordered.Select(b => new BlogListItemDto
+        //    {
+        //        Id = b.Id,
+        //        Title = b.Title,
+        //        ImageUrl = b.ImageUrl,
+        //        Author = $"{b.AppUser.FirstName} {b.AppUser.LastName}",
+        //        Category = b.BlogCategory.Name,
+        //        ShortDescription = b.Content.Length > 100 ? b.Content.Substring(0, 100) : b.Content,
+        //        Date = b.CreateAt,
+        //        CommentsCount = b.BlogComments.Count
+        //    }).ToList();
+        //}
 
         public async Task<BlogDetailDto> GetDetailAsync(int id)
         {

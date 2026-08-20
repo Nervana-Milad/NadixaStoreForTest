@@ -10,7 +10,8 @@ namespace Nadixa.Application.Interfaces
 {
     public interface IBlogService
     {
-        Task<List<BlogListItemDto>> GetAllAsync(int? categoryId);
+        Task<BlogListResult> GetAllAsync(int? categoryId, int page, int pageSize);
+
         Task<BlogDetailDto?> GetDetailAsync(int id);
         Task<int> CreateAsync(BlogCreateDto dto);
         Task<bool> UpdateAsync(BlogEditDto dto);
